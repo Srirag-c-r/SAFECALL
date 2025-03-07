@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<!-- Custom styles specific to the register page -->
+<style>
+    .register-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 40px;
+        gap: 30px; /* Add space between the forms */
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    .register-section {
+        flex: 1;
+        min-width: 300px; /* Minimum width before wrapping */
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .register-section h2 {
+        color: #FF5722;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+    .register-form {
+        display: flex;
+        flex-direction: column;
+    }
+    .register-form label {
+        font-size: 16px;
+        color: #FFFFFF;
+        margin-bottom: 5px;
+    }
+    .register-form input {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #FF5722;
+        border-radius: 5px;
+        background-color: #333;
+        color: #FFFFFF;
+    }
+    .register-form button {
+        padding: 12px;
+        background-color: #FF5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .register-form button:hover {
+        background-color: #E64A19;
+    }
+    .otp-verification {
+        color: #FFFFFF;
+        margin-top: 10px;
+    }
+    .otp-verification a {
+        color: #FF5722;
+        text-decoration: none;
+    }
+    
+    /* Divider styles */
+    .divider {
+        display: none; /* Hidden by default */
+    }
+    
+    /* Messages styling */
+    .messages {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+    .messages li {
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+    .messages .error {
+        background-color: rgba(255, 87, 34, 0.3);
+        border: 1px solid #FF5722;
+        color: white;
+    }
+    .messages .success {
+        background-color: rgba(76, 175, 80, 0.3);
+        border: 1px solid #4CAF50;
+        color: white;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .register-container {
+            flex-direction: column;
+            padding: 20px;
+        }
+        .register-section {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .divider {
+            display: block;
+            border-top: 2px solid #FF5722;
+            margin: 30px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Display Django messages -->
+{% if messages %}
+<div class="messages-container" style="padding: 0 40px; margin-top: 20px;">
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="register-container">
+    <!-- Public User Registration -->
+    <div class="register-section">
+        <h2>Public User Registration</h2>
+        <form class="register-form" method="POST" action="{% url 'public_user_registration' %}">
+            {% csrf_token %}
+            <label for="first_name">First Name</label>
+            <input type="text" name="first_name" id="first_name" required>
+            <label for="last_name">Last Name</label>
+            <input type="text" name="last_name" id="last_name" required>
+            <label for="phone">Phone Number</label>
+            <input type="text" name="phone" id="phone" required>
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+            <label for="adhaar">Aadhaar Card Number</label>
+            <input type="text" name="adhaar" id="adhaar" required>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+            <button type="submit">Register</button>
+        </form>
+        <div class="otp-verification">
+            <p>We will send an OTP to your email for verification.</p>
+        </div>
+    </div>
+    
+    <!-- Divider for mobile view -->
+    <div class="divider"></div>
+
+    <!-- Police Station Registration -->
+    <div class="register-section">
+        <h2>Police Station Registration</h2>
+        <form class="register-form" method="POST" action="{% url 'police_station_registration' %}">
+            {% csrf_token %}
+            <label for="district">District</label>
+            <input type="text" name="district" id="district" required>
+            <label for="location">Location</label>
+            <input type="text" name="location" id="location" required>
+            <label for="pincode">Pincode</label>
+            <input type="text" name="pincode" id="pincode" required>
+            <label for="contact">Contact Number</label>
+            <input type="text" name="contact" id="contact" required>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

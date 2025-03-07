@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}SafeCall{% endblock %}
+
+{% block styles %}
+<style>
+
+    .container{
+        display: flex;
+        flex-direction: column;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #FFFFFF;
+        margin: 0;
+        padding: 0;
+    }
+    /* Navbar Styles */
+    .navbar {
+        background-color: #333;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+    }
+    .navbar ul {
+        list-style: none;
+        display: flex;
+        margin: 0;
+        padding: 0;
+    }
+    .navbar ul li {
+        margin: 0 15px;
+    }
+    .navbar ul li a {
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+    }
+    .navbar ul li a:hover {
+        text-decoration: underline;
+    }
+    /* Page Content */
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+        text-align: center;
+    }
+    /* Button Styles */
+    .button {
+        display: inline-block;
+        padding: 15px 30px;
+        font-size: 18px;
+        color: #FFFFFF;
+        background-color: #FF5722;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .button:hover {
+        background-color: #E64A19;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <h1>SafeCall</h1> <br>
+    <p>Welcome to SafeCall, your trusted platform for reporting crimes confidentially and securely. Together, we can make our community safer.</p> <br>
+    <a href="{% url 'login' %}" class="button">Register Complaint</a><br>
+</div>
+{% endblock %}

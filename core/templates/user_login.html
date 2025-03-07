@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}User Login - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        height: 100vh;
+    }
+    .login-section {
+        width: 100%;
+        max-width: 400px;
+        background-color: #2a2a2a;
+        padding: 30px;
+        border-radius: 8px;
+        color: white;
+    }
+    .login-section h2 {
+        text-align: center;
+        color: #FF5722;
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+    .login-form {
+        display: flex;
+        flex-direction: column;
+    }
+    .login-form label {
+        font-size: 16px;
+        color: #FFFFFF;
+        margin-bottom: 5px;
+    }
+    .login-form input {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #FF5722;
+        border-radius: 5px;
+        background-color: #333;
+        color: #FFFFFF;
+    }
+    .login-form button {
+        padding: 12px;
+        background-color: #FF5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .login-form button:hover {
+        background-color: #E64A19;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-section">
+        <h2>User Login</h2>
+        
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="messages-container" style="padding: 0 40px; margin-top: 20px;">
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- User Login Form -->
+        <form class="login-form" method="POST">
+            {% csrf_token %}
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

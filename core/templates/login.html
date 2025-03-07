@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<!-- Custom styles specific to the login page -->
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        height: 100vh;
+    }
+    .login-section {
+        width: 100%;
+        max-width: 400px;
+        background-color: #2a2a2a;
+        padding: 30px;
+        border-radius: 8px;
+        color: white;
+    }
+    .login-section h2 {
+        text-align: center;
+        color: #FF5722;
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+    .login-options {
+        margin-top: 30px;
+        text-align: center;
+    }
+    .login-options button {
+        padding: 12px;
+        background-color: #FF5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .login-options button:hover {
+        background-color: #E64A19;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-section">
+        <h2>Login to Safe Call</h2>
+        
+        <!-- Prompt for login option (User or Police Station) -->
+        <div class="login-options">
+            <p>Choose your login type:</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="login_as" value="user">Login as User</button>
+                <button type="submit" name="login_as" value="police_station">Login as Police Station</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
