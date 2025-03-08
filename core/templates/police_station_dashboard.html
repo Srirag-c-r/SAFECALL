@@ -1,11 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>police_station_dashboard.html</title>
-</head>
-<body>
-    police dash
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Police Station Dashboard - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .navbar {
+        background-color: #333;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .navbar ul {
+        list-style: none;
+        display: flex;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar ul li {
+        margin: 0 15px;
+    }
+
+    .navbar ul li a {
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+    }
+
+    .navbar ul li a:hover {
+        text-decoration: underline;
+    }
+
+    .instructions-section {
+        background-color: #2a2a2a;
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .instructions-section h3 {
+        color: #FF5722;
+        font-size: 28px;
+    }
+
+    .quote-section {
+        background-color: #333;
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="instructions-section">
+        <h3>Police Station Instructions</h3>
+        <p>Welcome to the Police Station Dashboard. Please review the complaints, register FIRs, and ensure timely responses to help the public efficiently. Follow the instructions below:</p>
+        <ul>
+            <li>Verify complaints as soon as possible.</li>
+            <li>Register FIRs for valid cases after verification.</li>
+            <li>Ensure confidentiality and privacy while handling complaints.</li>
+            <li>Update the status of complaints regularly.</li>
+        </ul>
+    </div>
+
+    <div class="quote-section">
+        <p>"The law is not a business, but the means to ensure justice, peace, and order."</p>
+    </div>
+</div>
+
+{% endblock %}

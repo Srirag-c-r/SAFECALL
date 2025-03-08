@@ -63,17 +63,6 @@
     <div class="login-section">
         <h2>User Login</h2>
         
-        <!-- Display messages -->
-        {% if messages %}
-        <div class="messages-container" style="padding: 0 40px; margin-top: 20px;">
-            <ul class="messages">
-                {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
         <!-- User Login Form -->
         <form class="login-form" method="POST">
             {% csrf_token %}

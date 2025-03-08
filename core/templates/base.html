@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Safe Call{% endblock %}</title>
 
-    <!-- Block to add custom styles -->
     {% block styles %}
-    <!-- Default styles or any styles you want globally applied -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -49,22 +47,53 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 90vh;
-            text-align: center;
+            flex-direction: column;
+            padding: 20px;
+            min-height: 80vh;
         }
-        .button {
-            display: inline-block;
-            padding: 15px 30px;
-            font-size: 18px;
-            color: #FFFFFF;
-            background-color: #FF5722;
-            border: none;
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 250px;
+            max-width: 350px;
+            padding: 15px 20px;
             border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slide-in 0.3s ease-out, fade-out 0.5s ease-out 5s forwards;
+            opacity: 0.95;
         }
-        .button:hover {
-            background-color: #E64A19;
+        .toast-error { background-color: #FF5722; }
+        .toast-success { background-color: #4CAF50; }
+        .toast-info { background-color: #2196F3; }
+        .toast-warning { background-color: #FF9800; }
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 0 0 15px;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 0.95; }
+        }
+        @keyframes fade-out {
+            from { opacity: 0.95; }
+            to { opacity: 0; transform: translateX(100%); }
         }
     </style>
     {% endblock %}    
@@ -74,17 +103,79 @@
     <nav class="navbar">
         <div class="logo">Safe Call</div>
         <ul>
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'about' %}">About</a></li>
-            <li><a href="{% url 'login' %}">Login</a></li>
-            <li><a href="{% url 'register' %}">Register</a></li>
+            {% if request.session.user_id %}
+                <!-- Navbar for Public User -->
+                <li><a href="{% url 'user_dashboard' %}">Home</a></li>
+                <li><a href="">Add Complaints</a></li>
+                <li><a href="">View Complaints</a></li>
+                <li><a href="">Contact</a></li>
+                <li><a href="{% url 'user_logout' %}">Logout</a></li>
+            {% elif request.session.police_station_id %}
+                <!-- Navbar for Police Station -->
+                <li><a href="{% url 'police_station_dashboard' %}">Home</a></li>
+                <li><a href="">View Complaints</a></li>
+                <li><a href="">Manage FIRs</a></li>
+                <li><a href="{% url 'police_logout' %}">Logout</a></li>
+            {% else %}
+                <!-- Navbar for Guests -->
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+            {% endif %}
         </ul>
-    </nav>
+    </nav>    
 
     <div class="container">
         {% block content %}
         {% endblock %}
     </div>
 
+    <!-- Toast notifications container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- JavaScript for toast notifications -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Process Django messages and convert them to toasts
+            {% if messages %}
+                {% for message in messages %}
+                    createToast("{{ message }}", "{{ message.tags }}");
+                {% endfor %}
+            {% endif %}
+        });
+
+        function createToast(message, type) {
+            const toastContainer = document.getElementById('toast-container');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + (type || 'info');
+            
+            // Add message text
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            toast.appendChild(messageSpan);
+            
+            // Add close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'toast-close';
+            closeButton.textContent = '✕';
+            closeButton.onclick = function() {
+                toast.remove();
+            };
+            toast.appendChild(closeButton);
+            
+            // Add toast to container
+            toastContainer.appendChild(toast);
+            
+            // Remove toast after 5 seconds
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5500);
+        }
+    </script>
 </body>
 </html>

@@ -1,11 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>user_dashboard.html</title>
-</head>
-<body>
-    user dash
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}User Dashboard - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .dashboard-container {
+        text-align: center;
+        padding: 40px;
+    }
+    .dashboard-container h2 {
+        font-size: 36px;
+        color: #FF5722;
+        margin-bottom: 20px;
+    }
+    .dashboard-container p {
+        font-size: 18px;
+        color: #FFFFFF;
+        margin-bottom: 30px;
+    }
+
+    /* Button style for Register a New Complaint */
+    .register-complaint-button {
+        padding: 12px;
+        background-color: #FF5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 15px;
+        text-align: center;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .register-complaint-button:hover {
+        background-color: #E64A19;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="dashboard-container">
+        <h2>Welcome to USER Dashboard</h2>
+        <p>Manage your complaints and profile settings here.</p>
+
+        <!-- Updated button with the new style -->
+        <a href="" class="button register-complaint-button">Register a New Complaint</a>
+    </div>
+{% endblock %}

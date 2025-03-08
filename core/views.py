@@ -2,27 +2,43 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from .models import PublicUser, PoliceStation
 import random
 import string
-from django.contrib.auth.hashers import check_password
 
 
 # Generate a random OTP
 def generate_otp():
     return ''.join(random.choices(string.digits, k=6))
 
+from django.shortcuts import render, redirect
+# other imports
+
+# Register Page View
+def register(request):
+    return render(request, 'register.html')
+
+
+# Home Page View
+def home(request):
+    return render(request, 'home.html')
+
+
+# About Page View
+def about(request):
+    return render(request, 'about.html')
+
+
 # Public User Registration View
 def public_user_registration(request):
     if request.method == 'POST':
-        # Manually extracting form data from POST
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         phone = request.POST.get('phone')
         email = request.POST.get('email')
         adhaar = request.POST.get('adhaar')
-        password = request.POST.get('password')  # Get password from form
+        password = request.POST.get('password')
 
         # Hash the password before saving
         hashed_password = make_password(password)
@@ -47,8 +63,9 @@ def public_user_registration(request):
         request.session['public_user_id'] = user.id
 
         messages.success(request, 'You have successfully registered. Please check your email for the OTP verification.')
-        return redirect('verify_otp')  # Redirect to OTP verification page
+        return redirect('verify_otp')
     return render(request, 'register.html', {'is_public_user': True})
+
 
 # OTP Verification for Public User
 def verify_otp(request):
@@ -61,11 +78,12 @@ def verify_otp(request):
             user.save()
 
             messages.success(request, 'Your OTP has been verified successfully. You can now login.')
-            return redirect('login')  # Redirect to login page
+            return redirect('login')
         else:
             messages.error(request, 'Invalid OTP. Please try again.')
 
     return render(request, 'verify_otp.html')
+
 
 # Police Station Registration View
 def police_station_registration(request):
@@ -96,29 +114,6 @@ def police_station_registration(request):
 
     return render(request, 'register.html', {'is_police_station': True})
 
-# Home Page View
-def home(request):
-    return render(request, 'home.html')
-
-# About Page View
-def about(request):
-    return render(request, 'about.html')
-
-# Login Page View
-def login_view(request):
-    return render(request, 'login.html')
-
-# Signup Page View
-def signup_view(request):
-    return render(request, 'signup.html')
-
-# Register Page View
-def register(request):
-    return render(request, 'register.html')
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
 
 # Login View (General login page)
 def login_view(request):
@@ -127,11 +122,12 @@ def login_view(request):
         
         # Redirect to respective login page
         if login_type == 'user':
-            return redirect('user_login')  # Redirect to user login page
+            return redirect('user_login')
         elif login_type == 'police_station':
-            return redirect('police_station_login')  # Redirect to police station login page
+            return redirect('police_station_login')
         
     return render(request, 'login.html')
+
 
 # User Login
 def user_login(request):
@@ -152,6 +148,7 @@ def user_login(request):
 
     return render(request, 'user_login.html')
 
+
 # Police Station Login
 def police_station_login(request):
     if request.method == 'POST':
@@ -161,7 +158,7 @@ def police_station_login(request):
         try:
             police_station = PoliceStation.objects.get(email=email)  # Lookup using email
             if check_password(password, police_station.password):
-                request.session['police_station_id'] = police_station.id
+                request.session['police_station_id'] = police_station.id  # Store police station ID in session
                 messages.success(request, 'Login successful as Police Station.')
                 return redirect('police_station_dashboard')
             else:
@@ -171,10 +168,24 @@ def police_station_login(request):
 
     return render(request, 'police_station_login.html')
 
+
 # User Dashboard View
 def user_dashboard(request):
     return render(request, 'user_dashboard.html')
 
+
 # Police Station Dashboard View
 def police_station_dashboard(request):
     return render(request, 'police_station_dashboard.html')
+
+
+# User Logout
+def user_logout(request):
+    request.session.flush()  # Clears session
+    messages.success(request, "You have successfully logged out.")
+    return redirect('login')
+
+def police_station_logout(request):
+    request.session.flush()  # Clears session
+    messages.success(request, "You have successfully logged out as Police Station.")
+    return redirect('login')  # Redirect to login page or a suitable page

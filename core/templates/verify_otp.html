@@ -1,15 +1,77 @@
 {% extends 'base.html' %}
 
-{% block title %}Verify OTP{% endblock %}
+{% block title %}Verify OTP - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .otp-container {
+        width: 100%;
+        max-width: 400px;
+        background-color: #2a2a2a;
+        padding: 30px;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+    }
+    .otp-container h2 {
+        color: #FF5722;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+    .otp-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .otp-form label {
+        font-size: 16px;
+        color: #FFFFFF;
+        margin-bottom: 5px;
+    }
+    .otp-form input {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #FF5722;
+        border-radius: 5px;
+        background-color: #333;
+        color: #FFFFFF;
+        max-width: 200px;
+        text-align: center;
+        letter-spacing: 5px;
+        font-size: 18px;
+    }
+    .otp-form button {
+        padding: 12px 30px;
+        background-color: #FF5722;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .otp-form button:hover {
+        background-color: #E64A19;
+    }
+    .otp-info {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #ccc;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="otp-container">
     <h2>Verify OTP</h2>
-    <form method="POST" action="{% url 'verify_otp' %}">
+    <form class="otp-form" method="POST" action="{% url 'verify_otp' %}">
         {% csrf_token %}
-        <label for="otp">Enter OTP</label>
-        <input type="text" name="otp" id="otp" required>
+        <label for="otp">Enter the 6-digit code sent to your email</label>
+        <input type="text" name="otp" id="otp" maxlength="6" pattern="[0-9]{6}" required>
         <button type="submit">Verify OTP</button>
     </form>
+    <div class="otp-info">
+        <p>Didn't receive the code? Please check your spam folder.</p>
+    </div>
 </div>
 {% endblock %}
