@@ -213,6 +213,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 if not DEBUG:
     # Enhanced compression and caching for production
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Enable ManifestStaticFilesStorage with some exceptions to prevent hashing of filenames
+    WHITENOISE_MIMETYPES = {
+        'image/png': 'image/png',  # Don't compress PNG files
+        'image/jpeg': 'image/jpeg',  # Don't compress JPEG files
+        'image/gif': 'image/gif',  # Don't compress GIF files
+        'video/mp4': 'video/mp4',  # Don't compress MP4 files
+    }
 else:
     # Simple storage for development
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
@@ -223,6 +230,7 @@ os.makedirs(os.path.join(BASE_DIR, "static"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "css"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "js"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "images"), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "static", "LOGOS"), exist_ok=True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

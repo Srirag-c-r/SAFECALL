@@ -2,7 +2,7 @@ services:
   - type: web
     name: safecall
     env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python setup_database.py"
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input --clear && python setup_database.py"
     startCommand: "gunicorn safecall.wsgi:application"
     # You need to manually create a PostgreSQL database in the Render dashboard
     # and set the DATABASE_URL environment variable in your service

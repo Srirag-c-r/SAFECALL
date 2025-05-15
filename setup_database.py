@@ -8,14 +8,48 @@ import sys
 import time
 import subprocess
 import django
+import shutil
 from django.db import connections
 from django.db.utils import OperationalError
 
 MAX_RETRIES = 5
 RETRY_INTERVAL = 5  # seconds
 
+def ensure_static_files():
+    """Ensure static files are correctly set up."""
+    project_path = os.path.dirname(os.path.abspath(__file__))
+    
+    # Create static directories if they don't exist
+    static_dir = os.path.join(project_path, "static")
+    staticfiles_dir = os.path.join(project_path, "staticfiles")
+    
+    os.makedirs(static_dir, exist_ok=True)
+    os.makedirs(staticfiles_dir, exist_ok=True)
+    
+    # Create subdirectories 
+    for subdir in ['css', 'js', 'images', 'LOGOS']:
+        os.makedirs(os.path.join(static_dir, subdir), exist_ok=True)
+    
+    # Ensure LOGOS directory exists in staticfiles
+    logos_dir = os.path.join(staticfiles_dir, "LOGOS")
+    if not os.path.exists(logos_dir):
+        os.makedirs(logos_dir, exist_ok=True)
+    
+    # Copy logo files to make sure they're in the staticfiles directory
+    source_logos_dir = os.path.join(static_dir, "LOGOS")
+    if os.path.exists(source_logos_dir):
+        for file in os.listdir(source_logos_dir):
+            source_path = os.path.join(source_logos_dir, file)
+            target_path = os.path.join(logos_dir, file)
+            if os.path.isfile(source_path):
+                shutil.copy2(source_path, target_path)
+                print(f"Copied logo file: {file} to staticfiles/LOGOS")
+
 def main():
     """Run Django migrations after ensuring database is connected."""
+    # First ensure static files are set up
+    ensure_static_files()
+    
     print("Checking database connection...")
     
     # Wait for database to be ready
