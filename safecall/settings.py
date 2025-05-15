@@ -164,6 +164,13 @@ STATICFILES_DIRS = [
 
 # For production, set STATIC_ROOT and collect static files
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# Configure WhiteNoise for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Make sure the static directory exists
+os.makedirs(os.path.join(BASE_DIR, "staticfiles"), exist_ok=True)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
