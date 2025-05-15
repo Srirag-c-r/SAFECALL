@@ -70,4 +70,7 @@ urlpatterns = [
     path('custom-admin/donation-details/<int:donation_id>/', views.donation_details, name='donation_details'),
 
     path('get-complete-report/<int:complaint_id>/', views.get_complete_report, name='get_complete_report'),
+    
+    # Debug URL - only available with special key in production
+    path('debug-info/', views.debug_info, name='debug_info'),
 ]

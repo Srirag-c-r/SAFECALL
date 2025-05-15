@@ -25,6 +25,8 @@ from datetime import datetime, date, timedelta
 from django.contrib.auth.decorators import user_passes_test
 from django.core.serializers import serialize
 from django.contrib.auth.hashers import make_password, check_password
+import sys
+import platform
 
 # Initialize Razorpay client
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -1797,3 +1799,36 @@ def get_complete_report(request, complaint_id):
         return JsonResponse({'error': 'Complaint not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def debug_info(request):
+    """
+    View for debugging deployment issues.
+    Returns system information, request data, and environment.
+    """
+    # Only allow in DEBUG mode or with specific parameter for security
+    if not settings.DEBUG and request.GET.get('debug_key') != 'SafeCallDebug123':
+        return JsonResponse({"error": "Debug view not available in production"}, status=403)
+
+    # Collect debug information
+    debug_data = {
+        "system_info": {
+            "python_version": sys.version,
+            "platform": platform.platform(),
+        },
+        "request_data": {
+            "path": request.path,
+            "method": request.method,
+            "content_type": request.content_type,
+            "META": {k: str(v) for k, v in request.META.items() if k.startswith('HTTP_')},
+        },
+        "settings": {
+            "debug": settings.DEBUG,
+            "allowed_hosts": settings.ALLOWED_HOSTS,
+            "database_engine": settings.DATABASES['default']['ENGINE'],
+            "static_root": settings.STATIC_ROOT,
+            "static_url": settings.STATIC_URL,
+        }
+    }
+    
+    return JsonResponse(debug_data)
