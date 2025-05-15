@@ -105,18 +105,39 @@ DATABASES = {
     }
 }
 
+# Debug information for deployment troubleshooting
+print("===== Database Configuration Debug Information =====")
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"dj_database_url imported: {DATABASE_URL_AVAILABLE}")
+
 # Try to use DATABASE_URL if available
 if DATABASE_URL_AVAILABLE:
     try:
         database_url = os.environ.get('DATABASE_URL', '')
-        if database_url and len(database_url.strip()) > 10:  # Ensure it's not empty or too short
-            print(f"Using database URL: {database_url[:10]}...")
-            DATABASES['default'] = dj_database_url.parse(database_url)
+        # Print full database URL for debugging (mask credentials)
+        if database_url:
+            # Only show first few characters to protect sensitive information
+            masked_url = database_url[:10] + '...' if len(database_url) > 10 else database_url
+            print(f"Raw DATABASE_URL value received: {masked_url}")
+            
+            # Check for common database URL formats
+            valid_prefixes = ('postgres://', 'postgresql://', 'mysql://', 'sqlite://', 'oracle://')
+            if any(database_url.startswith(prefix) for prefix in valid_prefixes):
+                print(f"Using database URL: {database_url[:10]}...")
+                DATABASES['default'] = dj_database_url.parse(database_url)
+                print(f"Database engine set to: {DATABASES['default'].get('ENGINE', 'unknown')}")
+            else:
+                print(f"DATABASE_URL format invalid. Expected formats like: postgresql://user:pass@host:port/dbname")
+                print("Using SQLite database instead.")
         else:
-            print("DATABASE_URL not set or invalid. Using SQLite database.")
+            print("DATABASE_URL not set. Using SQLite database.")
     except Exception as e:
         print(f"Error setting up database: {e}")
         print("Falling back to SQLite database.")
+else:
+    print("dj_database_url package not available. Using SQLite database.")
+
+print("===============================================")
 
 
 # Password validation
