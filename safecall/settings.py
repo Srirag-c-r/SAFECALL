@@ -12,11 +12,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Import dependencies conditionally
+try:
+    import dj_database_url
+    DATABASE_URL_AVAILABLE = True
+except ImportError:
+    DATABASE_URL_AVAILABLE = False
+
+try:
+    from dotenv import load_dotenv
+    # Load environment variables from .env file
+    load_dotenv()
+except ImportError:
+    # If dotenv is not available, continue without it
+    pass
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,7 +106,7 @@ DATABASES = {
 
 # Use DATABASE_URL environment variable if available (Render, Heroku, etc.)
 DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
+if DATABASE_URL and DATABASE_URL_AVAILABLE:
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
 
