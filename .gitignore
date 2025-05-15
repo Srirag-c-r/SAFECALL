@@ -1,5 +1,7 @@
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Database
 *.sqlite3
@@ -15,6 +17,21 @@ dist/
 build/
 *.egg-info/
 
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+
 # Virtual environments
 venv/
 env/
@@ -26,24 +43,18 @@ ENV/
 *.swp
 *.swo
 
-# Local development settings
-local_settings.py
+# Ignore static files directory in production
+/staticfiles/
 
-# Media files
-media/
+# DO NOT ignore the static directory itself or its contents
+# This ensures static files are included in the git repository
+!static/
+!static/**/*
 
-# Static files collected
-staticfiles/
+# Ignore media files (user uploads)
+/media/
 
-# Logs
-*.log
-
-# Backup files
-*.bak
-
-# macOS
+# OS specific files
 .DS_Store
-
-# Windows
 Thumbs.db
 desktop.ini 

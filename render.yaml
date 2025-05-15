@@ -20,6 +20,8 @@ services:
         fromDatabase:
           name: safecall_db
           property: connectionString
+      - key: STATIC_ROOT
+        value: /opt/render/project/src/staticfiles
       - key: EMAIL_HOST
         sync: false  
       - key: EMAIL_PORT

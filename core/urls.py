@@ -73,4 +73,7 @@ urlpatterns = [
     
     # Debug URL - only available with special key in production
     path('debug-info/', views.debug_info, name='debug_info'),
+
+    # Add this new URL for debugging
+    path('debug-static/', views.debug_static_files, name='debug_static_files'),
 ]

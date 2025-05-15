@@ -39,7 +39,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ['true', '1', 't', 'yes']
 
 # Updated ALLOWED_HOSTS to include all Render domains
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -201,6 +201,10 @@ from pathlib import Path
 
 STATIC_URL = '/static/'
 
+# Ensure MEDIA_URL and MEDIA_ROOT are defined
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # This ensures Django looks for static files in the 'static' directory inside the project
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -211,15 +215,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configure WhiteNoise for serving static files
 if not DEBUG:
-    # Enhanced compression and caching for production
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # Enable ManifestStaticFilesStorage with some exceptions to prevent hashing of filenames
-    WHITENOISE_MIMETYPES = {
-        'image/png': 'image/png',  # Don't compress PNG files
-        'image/jpeg': 'image/jpeg',  # Don't compress JPEG files
-        'image/gif': 'image/gif',  # Don't compress GIF files
-        'video/mp4': 'video/mp4',  # Don't compress MP4 files
-    }
+    # Use a simpler storage backend that doesn't hash file names
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
     # Simple storage for development
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
@@ -231,6 +228,15 @@ os.makedirs(os.path.join(BASE_DIR, "static", "css"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "js"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "images"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "LOGOS"), exist_ok=True)
+
+# Static file debug information
+print("===== Static Files Configuration =====")
+print(f"DEBUG mode: {DEBUG}")
+print(f"STATIC_URL: {STATIC_URL}")
+print(f"STATIC_ROOT: {STATIC_ROOT}")
+print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
+print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE}")
+print("=====================================")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

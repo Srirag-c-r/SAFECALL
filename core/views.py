@@ -1832,3 +1832,34 @@ def debug_info(request):
     }
     
     return JsonResponse(debug_data)
+
+@csrf_exempt
+def debug_static_files(request):
+    """Debug view to check static files configuration"""
+    debug_info = {
+        'DEBUG': settings.DEBUG,
+        'STATIC_URL': settings.STATIC_URL,
+        'STATIC_ROOT': str(settings.STATIC_ROOT),
+        'STATICFILES_DIRS': [str(dir_path) for dir_path in settings.STATICFILES_DIRS],
+        'STATICFILES_STORAGE': settings.STATICFILES_STORAGE,
+        'STATIC_FILES_EXIST': []
+    }
+    
+    # Check if specific files exist
+    static_test_files = [
+        'LOGOS/CREATOR.jpeg',
+        'LOGOS/wp3007918-crime-wallpaper-in-hd.jpg',
+        'css/style.css',
+    ]
+    
+    for file_path in static_test_files:
+        for static_dir in settings.STATICFILES_DIRS:
+            full_path = os.path.join(static_dir, file_path)
+            exists = os.path.exists(full_path)
+            debug_info['STATIC_FILES_EXIST'].append({
+                'path': file_path,
+                'full_path': full_path,
+                'exists': exists
+            })
+    
+    return JsonResponse(debug_info)
