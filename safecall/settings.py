@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -55,7 +56,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.NoCacheMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'safecall.urls'
@@ -85,12 +85,18 @@ WSGI_APPLICATION = 'safecall.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Database configuration with dj-database-url
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Use DATABASE_URL environment variable if available (Render, Heroku, etc.)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
 
 # Password validation
@@ -129,8 +135,6 @@ USE_TZ = True
 import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 STATIC_URL = '/static/'
 
 # This ensures Django looks for static files in the 'static' directory inside the project
@@ -163,3 +167,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Razorpay Settings
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
+
+# NewsAPI Settings
+NEWSAPI_KEY = os.environ.get('NEWSAPI_KEY', '')

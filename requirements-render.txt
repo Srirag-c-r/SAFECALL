@@ -1,0 +1,9 @@
+Django>=5.1.7
+python-dotenv>=1.0.0
+razorpay>=1.4.2
+Pillow>=10.0.0
+newsapi-python>=0.2.7
+gunicorn>=20.0.4
+dj-database-url>=2.0.0
+# Add any other dependencies needed for production
+# But exclude Windows-specific packages like pywin32 

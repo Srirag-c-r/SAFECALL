@@ -128,7 +128,7 @@ def home(request):
 
     # Get news from NewsAPI
     try:
-        newsapi = NewsApiClient(api_key='2e83f4692f2741b8b97e69ef5c7e9d34')  # Your API key
+        newsapi = NewsApiClient(api_key=settings.NEWSAPI_KEY)
         
         # Get news from the last 7 days
         from_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
