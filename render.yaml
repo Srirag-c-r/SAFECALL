@@ -14,7 +14,7 @@ services:
       - key: DEBUG
         value: false
       - key: ALLOWED_HOSTS
-        value: ".onrender.com"
+        value: ".onrender.com,safecall.onrender.com"
       - key: DATABASE_URL
         # This will be automatically set when the database is created
         fromDatabase:
@@ -26,6 +26,8 @@ services:
         value: /static/
       - key: WHITENOISE_ALLOW_ALL_ORIGINS
         value: "true"
+      - key: DISABLE_COLLECTSTATIC
+        value: "0"
       - key: EMAIL_HOST
         sync: false  
       - key: EMAIL_PORT

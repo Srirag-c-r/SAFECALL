@@ -199,42 +199,44 @@ USE_TZ = True
 import os
 from pathlib import Path
 
+# Ensure STATIC_URL has a trailing slash
 STATIC_URL = '/static/'
 
 # Ensure MEDIA_URL and MEDIA_ROOT are defined
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# This ensures Django looks for static files in the 'static' directory inside the project
+# Use a single directory for all static files (simplify configuration)
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-# For production, set STATIC_ROOT and collect static files
+# For production, set STATIC_ROOT where files will be collected
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configure WhiteNoise for serving static files
-if not DEBUG:
-    # Use a simpler storage backend that doesn't hash file names
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    
-    # Configure WhiteNoise to serve specific file types without compression
-    # This is important for video files which should not be compressed
-    WHITENOISE_MIMETYPES = {
-        'image/png': 'image/png',
-        'image/jpeg': 'image/jpeg',
-        'image/gif': 'image/gif',
-        'video/mp4': 'video/mp4',
-        'video/webm': 'video/webm',
-        'video/ogg': 'video/ogg',
-        'application/font-woff': 'application/font-woff',
-        'application/font-woff2': 'application/font-woff2',
-        'application/vnd.ms-fontobject': 'application/vnd.ms-fontobject',
-        'application/x-font-ttf': 'application/x-font-ttf',
-    }
-else:
-    # Simple storage for development
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Disable compression for all media files to fix serving issues
+WHITENOISE_MIMETYPES = {
+    'application/font-woff': 'application/font-woff',
+    'application/font-woff2': 'application/font-woff2',
+    'application/vnd.ms-fontobject': 'application/vnd.ms-fontobject',
+    'application/x-font-ttf': 'application/x-font-ttf',
+    'image/png': 'image/png',
+    'image/jpeg': 'image/jpeg',
+    'image/gif': 'image/gif',
+    'image/svg+xml': 'image/svg+xml',
+    'video/mp4': 'video/mp4',
+    'video/webm': 'video/webm',
+    'video/ogg': 'video/ogg',
+    'audio/mpeg': 'audio/mpeg',
+    'audio/ogg': 'audio/ogg',
+    'application/octet-stream': 'application/octet-stream',
+}
+
+# Allow all origins to fetch static files
+WHITENOISE_ALLOW_ALL_ORIGINS = True
 
 # Make sure the static directories exist
 os.makedirs(os.path.join(BASE_DIR, "staticfiles"), exist_ok=True)
@@ -251,6 +253,9 @@ print(f"STATIC_URL: {STATIC_URL}")
 print(f"STATIC_ROOT: {STATIC_ROOT}")
 print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
 print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE}")
+print(f"WhiteNoise enabled: {'whitenoise.middleware.WhiteNoiseMiddleware' in MIDDLEWARE}")
+print(f"WhiteNoise mimetypes configured: {len(WHITENOISE_MIMETYPES)} types")
+print(f"WHITENOISE_ALLOW_ALL_ORIGINS: {WHITENOISE_ALLOW_ALL_ORIGINS}")
 print("=====================================")
 
 # Default primary key field type

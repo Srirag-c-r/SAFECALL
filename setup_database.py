@@ -47,77 +47,102 @@ def setup_static_files():
         os.makedirs(directory, exist_ok=True)
         print(f"Created directory: {directory}")
     
-    # Run collectstatic again to be sure
+    # Run collectstatic to gather all static files
     try:
+        print("Running collectstatic...")
         subprocess.run([sys.executable, "manage.py", "collectstatic", "--no-input"], check=True)
         print("Collectstatic completed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error running collectstatic: {e}")
+        print("Trying to copy files manually as a fallback...")
     
-    # Debug information
+    # Source and destination directories
     static_root = os.path.join(BASE_DIR, "staticfiles")
-    print(f"STATIC_ROOT directory: {static_root}")
-    if os.path.exists(static_root):
-        files = os.listdir(static_root)
-        print(f"Files in STATIC_ROOT: {files[:10]}")
-        print(f"Total files in STATIC_ROOT: {len(files)}")
+    static_source = os.path.join(BASE_DIR, "static")
+    
+    # Always verify important directories exist in staticfiles
+    important_dirs = ["LOGOS", "css", "js", "images"]
+    for dir_name in important_dirs:
+        os.makedirs(os.path.join(static_root, dir_name), exist_ok=True)
+    
+    # List of critical files that must be copied correctly
+    critical_files = [
+        {"src": os.path.join(static_source, "LOGOS", "papereffect.mp4"), 
+         "dst": os.path.join(static_root, "LOGOS", "papereffect.mp4")},
+        {"src": os.path.join(static_source, "LOGOS", "gpttlogo.png"), 
+         "dst": os.path.join(static_root, "LOGOS", "gpttlogo.png")},
+        {"src": os.path.join(static_source, "LOGOS", "CREATOR.jpeg"), 
+         "dst": os.path.join(static_root, "LOGOS", "CREATOR.jpeg")},
+    ]
+    
+    # Force-copy all critical files
+    for file_info in critical_files:
+        src_path = file_info["src"]
+        dst_path = file_info["dst"]
         
-        # Check for specific important files
-        logo_path = os.path.join(static_root, "LOGOS")
-        if os.path.exists(logo_path):
-            logo_files = os.listdir(logo_path)
-            print(f"Files in LOGOS directory: {logo_files}")
-            
-            # Check specifically for video files
-            video_files = [f for f in logo_files if f.endswith(('.mp4', '.webm', '.ogg'))]
-            if video_files:
-                print(f"Video files found: {video_files}")
-            else:
-                print("No video files found in LOGOS directory! Checking source directory...")
+        if os.path.exists(src_path):
+            try:
+                print(f"Copying critical file: {os.path.basename(src_path)}")
+                # Use binary mode for all files to ensure integrity
+                with open(src_path, 'rb') as src, open(dst_path, 'wb') as dst:
+                    dst.write(src.read())
                 
-                # Check if video files exist in source
-                source_logos = os.path.join(BASE_DIR, "static", "LOGOS")
-                source_video_files = [f for f in os.listdir(source_logos) if f.endswith(('.mp4', '.webm', '.ogg'))]
-                if source_video_files:
-                    print(f"Video files found in source: {source_video_files}")
-                    # Copy video files specifically with binary mode
-                    for video_file in source_video_files:
-                        src_file = os.path.join(source_logos, video_file)
-                        dst_file = os.path.join(logo_path, video_file)
-                        try:
-                            with open(src_file, 'rb') as src, open(dst_file, 'wb') as dst:
-                                dst.write(src.read())
-                            print(f"Copied video file {video_file} to {logo_path}")
-                            # Verify file size after copy
-                            src_size = os.path.getsize(src_file)
-                            dst_size = os.path.getsize(dst_file)
-                            print(f"Source size: {src_size}, Destination size: {dst_size}")
-                            if src_size != dst_size:
-                                print(f"WARNING: File sizes don't match for {video_file}!")
-                        except Exception as e:
-                            print(f"Error copying video file {video_file}: {e}")
+                # Verify file size
+                src_size = os.path.getsize(src_path)
+                dst_size = os.path.getsize(dst_path)
+                if src_size != dst_size:
+                    print(f"WARNING: File size mismatch for {os.path.basename(src_path)}: {src_size} vs {dst_size}")
                 else:
-                    print("No video files found in source directory!")
+                    print(f"Successfully copied and verified: {os.path.basename(src_path)} ({src_size} bytes)")
+            except Exception as e:
+                print(f"ERROR copying {os.path.basename(src_path)}: {e}")
         else:
-            print("LOGOS directory not found in staticfiles!")
-            
-            # Create it and copy files from static
-            os.makedirs(logo_path, exist_ok=True)
-            source_logos = os.path.join(BASE_DIR, "static", "LOGOS")
-            if os.path.exists(source_logos):
-                for file in os.listdir(source_logos):
-                    src_file = os.path.join(source_logos, file)
-                    dst_file = os.path.join(logo_path, file)
+            print(f"WARNING: Critical file not found: {src_path}")
+    
+    # Copy all files from LOGOS directory
+    logos_src = os.path.join(static_source, "LOGOS")
+    logos_dst = os.path.join(static_root, "LOGOS")
+    
+    if os.path.exists(logos_src):
+        print(f"Copying all logo files from {logos_src} to {logos_dst}...")
+        try:
+            for filename in os.listdir(logos_src):
+                src_file = os.path.join(logos_src, filename)
+                dst_file = os.path.join(logos_dst, filename)
+                
+                # Skip directories
+                if os.path.isdir(src_file):
+                    continue
                     
-                    # Use binary mode for copying to ensure file integrity
-                    try:
-                        with open(src_file, 'rb') as src, open(dst_file, 'wb') as dst:
-                            dst.write(src.read())
-                        print(f"Copied {file} to {logo_path}")
-                    except Exception as e:
-                        print(f"Error copying file {file}: {e}")
+                # Copy with binary mode
+                try:
+                    with open(src_file, 'rb') as src, open(dst_file, 'wb') as dst:
+                        dst.write(src.read())
+                    print(f"Copied: {filename}")
+                except Exception as e:
+                    print(f"Error copying {filename}: {e}")
+        except Exception as e:
+            print(f"Error accessing logos directory: {e}")
+    
+    # Print summary of staticfiles directory
+    print("\nStatic files setup summary:")
+    if os.path.exists(static_root):
+        count = sum(1 for _ in os.walk(static_root))
+        print(f"Total directories in staticfiles: {count}")
+        
+        file_count = sum(len(files) for _, _, files in os.walk(static_root))
+        print(f"Total files in staticfiles: {file_count}")
+        
+        # Check if critical directories have files
+        for dir_name in important_dirs:
+            dir_path = os.path.join(static_root, dir_name)
+            if os.path.exists(dir_path):
+                files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+                print(f"Files in {dir_name}: {len(files)}")
+                if dir_name == "LOGOS":
+                    print(f"LOGOS files: {files}")
     else:
-        print("STATIC_ROOT directory does not exist!")
+        print("WARNING: staticfiles directory doesn't exist!")
 
 def wait_for_database():
     """Wait for database to be available"""
