@@ -1,0 +1,761 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Case File Report - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    @media print {
+        body {
+            background: white;
+            color: black;
+        }
+        
+        .no-print {
+            display: none;
+        }
+        
+        .case-file {
+            box-shadow: none;
+            border: none;
+            margin: 0;
+            padding: 20px;
+        }
+    }
+
+    .case-file {
+        background: white;
+        padding: 40px;
+        margin: 20px auto;
+        max-width: 800px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        position: relative;
+        color: black;
+    }
+
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 120px;
+        color: rgba(0,0,0,0.03);
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+        border-bottom: 2px solid #1a237e;
+        padding-bottom: 20px;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .logo-left {
+        width: 100px;
+        height: auto;
+    }
+
+    .header-text {
+        flex-grow: 1;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .logo-right {
+        width: 100px;
+        height: auto;
+        visibility: hidden;
+    }
+
+    .header h1 {
+        font-size: 28px;
+        margin: 10px 0;
+        color: #1a237e;
+        font-weight: bold;
+    }
+
+    .header h2 {
+        font-size: 22px;
+        color: #303f9f;
+        margin: 5px 0;
+    }
+
+    .header h3 {
+        font-size: 18px;
+        color: #303f9f;
+        margin: 5px 0;
+    }
+
+    .section {
+        margin-bottom: 30px;
+        page-break-inside: avoid;
+    }
+
+    .section-title {
+        font-size: 18px;
+        color: #1a237e;
+        border-bottom: 2px solid #1a237e;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .label {
+        font-weight: bold;
+        color: #303f9f;
+    }
+
+    .value {
+        color: #000;
+    }
+
+    .evidence-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .witness-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .investigation-note {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+        border-left: 5px solid #303f9f;
+    }
+
+    .footer {
+        margin-top: 50px;
+        page-break-inside: avoid;
+    }
+
+    .signature-section {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 100px;
+    }
+
+    .signature-box {
+        text-align: center;
+        width: 200px;
+    }
+
+    .signature-line {
+        border-top: 1px solid #000;
+        margin-bottom: 5px;
+    }
+
+    .official-seal {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .seal-placeholder {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed #ccc;
+        border-radius: 50%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: italic;
+        color: #666;
+    }
+
+    .print-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #1a237e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .print-button:hover {
+        background: #303f9f;
+    }
+
+    .case-number {
+        text-align: right;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #1a237e;
+    }
+
+    .confidential-stamp {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        transform: rotate(45deg);
+        color: rgba(255, 0, 0, 0.5);
+        border: 2px solid rgba(255, 0, 0, 0.5);
+        padding: 5px 10px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .timeline-container {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 30px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+    }
+
+    .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background-color: #303f9f;
+    }
+
+    .timeline-item:after {
+        content: '';
+        position: absolute;
+        left: -36px;
+        top: 0;
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        background-color: #303f9f;
+    }
+
+    .timeline-date {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #303f9f;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .status-pending {
+        background-color: #FF9800;
+        color: black;
+    }
+
+    .status-investigation {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .status-resolved {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .status-rejected {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .map-container {
+        height: 250px;
+        width: 100%;
+        margin-bottom: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+
+    .text-bold {
+        font-weight: bold;
+    }
+
+    .evidence-image {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    .ipc-section {
+        padding: 10px;
+        background: #f0f4ff;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        border-left: 3px solid #1a237e;
+    }
+
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #dee2e6;
+    }
+
+    .info-box {
+        background: #f0f4ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #dee2e6;
+    }
+
+    .priority-high {
+        color: #f44336;
+        font-weight: bold;
+    }
+
+    .priority-medium {
+        color: #FF9800;
+        font-weight: bold;
+    }
+
+    .priority-low {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="case-file">
+    <div class="watermark">
+        {{ complaint.police_station.district }} POLICE
+    </div>
+
+    <div class="confidential-stamp">CONFIDENTIAL</div>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="{% static 'LOGOS/kerala-police-logo.png' %}" alt="Kerala Police Logo" class="logo-left">
+            <div class="header-text">
+                <h1>KERALA POLICE</h1>
+                <h2>{{ complaint.police_station.district }} DISTRICT</h2>
+                <h3>{{ complaint.police_station.location }} POLICE STATION</h3>
+            </div>
+            <img src="{% static 'LOGOS/kerala-police-logo.png' %}" alt="" class="logo-right">
+        </div>
+        <div class="case-number">
+            FIR No: {{ complaint.id }}/{% now "Y" %}
+        </div>
+    </div>
+
+    <!-- Case Summary -->
+    <div class="section">
+        <h3 class="section-title">CASE SUMMARY</h3>
+        <div class="info-box">
+            <div class="grid">
+                <div class="label">Type of Crime</div>
+                <div class="value">{{ complaint.get_complaint_type_display }}</div>
+                
+                <div class="label">Status</div>
+                <div class="value">
+                    {{ complaint.get_status_display }}
+                    {% if complaint.status == 'Pending' %}
+                        <span class="status-badge status-pending">Pending</span>
+                    {% elif complaint.status == 'Under Investigation' %}
+                        <span class="status-badge status-investigation">Under Investigation</span>
+                    {% elif complaint.status == 'Resolved' %}
+                        <span class="status-badge status-resolved">Resolved</span>
+                    {% elif complaint.status == 'Rejected' %}
+                        <span class="status-badge status-rejected">Rejected</span>
+                    {% endif %}
+                </div>
+                
+                <div class="label">Date Reported</div>
+                <div class="value">{{ complaint.registered_at|date:"d M Y, h:i A" }}</div>
+                
+                {% if complaint.resolution_date %}
+                <div class="label">Date Resolved</div>
+                <div class="value">{{ complaint.resolution_date|date:"d M Y, h:i A" }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Complainant Details -->
+    <div class="section">
+        <h3 class="section-title">1. COMPLAINANT DETAILS</h3>
+        <div class="grid">
+            {% if complaint.user.profile_picture %}
+                <div class="label">Photo</div>
+                <div class="value">
+                    <img src="{{ complaint.user.profile_picture.url }}" alt="Complainant Photo" class="profile-photo">
+                </div>
+            {% endif %}
+            
+            <div class="label">Full Name</div>
+            <div class="value">{{ complaint.user.first_name }} {{ complaint.user.last_name }}</div>
+            
+            <div class="label">Contact Number</div>
+            <div class="value">{{ complaint.user.phone }}</div>
+            
+            <div class="label">Email</div>
+            <div class="value">{{ complaint.user.email }}</div>
+            
+            <div class="label">Aadhaar Number</div>
+            <div class="value">{{ complaint.user.adhaar }}</div>
+            
+            <div class="label">Date of Birth</div>
+            <div class="value">{{ complaint.user.date_of_birth|date:"d M Y" }}</div>
+            
+            <div class="label">Age</div>
+            <div class="value">
+                {% if complaint.user.date_of_birth %}
+                    {% now "Y" as current_year %}
+                    {{ current_year|add:"-"}}{{ complaint.user.date_of_birth|date:"Y" }} years
+                {% else %}
+                    Not provided
+                {% endif %}
+            </div>
+            
+            <div class="label">Gender</div>
+            <div class="value">{{ complaint.user.get_gender_display }}</div>
+            
+            <div class="label">Address</div>
+            <div class="value">{{ complaint.user.address|default:"Not provided" }}</div>
+            
+            <div class="label">District</div>
+            <div class="value">{{ complaint.user.district|default:"Not provided" }}</div>
+            
+            <div class="label">Pincode</div>
+            <div class="value">{{ complaint.user.pincode|default:"Not provided" }}</div>
+        </div>
+    </div>
+
+    <!-- Incident Details -->
+    <div class="section">
+        <h3 class="section-title">2. INCIDENT DETAILS</h3>
+        <div class="grid">
+            <div class="label">Type of Complaint</div>
+            <div class="value">{{ complaint.get_complaint_type_display }}</div>
+            
+            <div class="label">Date of Incident</div>
+            <div class="value">{{ complaint.incident_date|date:"d M Y" }}</div>
+            
+            <div class="label">Time of Incident</div>
+            <div class="value">{{ complaint.get_incident_time_display }}</div>
+            
+            <div class="label">Location</div>
+            <div class="value">{{ complaint.incident_location }}</div>
+            
+            <div class="label">Date Reported</div>
+            <div class="value">{{ complaint.registered_at|date:"d M Y, h:i A" }}</div>
+            
+            <div class="label">Current Status</div>
+            <div class="value">
+                {{ complaint.get_status_display }}
+                {% if complaint.status == 'Pending' %}
+                    <span class="status-badge status-pending">Pending</span>
+                {% elif complaint.status == 'Under Investigation' %}
+                    <span class="status-badge status-investigation">Under Investigation</span>
+                {% elif complaint.status == 'Resolved' %}
+                    <span class="status-badge status-resolved">Resolved</span>
+                {% elif complaint.status == 'Rejected' %}
+                    <span class="status-badge status-rejected">Rejected</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="grid" style="margin-top: 20px;">
+            <div class="label">Description</div>
+            <div class="value">{{ complaint.description }}</div>
+        </div>
+    </div>
+
+    <!-- Original Evidence Section -->
+    {% if complaint.evidence %}
+    <div class="section">
+        <h3 class="section-title">3. COMPLAINANT EVIDENCE</h3>
+        <div class="evidence-item">
+            <div class="grid">
+                <div class="label">Evidence File</div>
+                <div class="value">
+                    <a href="{{ complaint.evidence.url }}" target="_blank">View Original Evidence File</a>
+                    {% if complaint.evidence.url|slice:"-3:" == "jpg" or complaint.evidence.url|slice:"-3:" == "png" or complaint.evidence.url|slice:"-4:" == "jpeg" %}
+                        <br>
+                        <img src="{{ complaint.evidence.url }}" alt="Evidence Image" class="evidence-image">
+                    {% endif %}
+                </div>
+                
+                <div class="label">Uploaded On</div>
+                <div class="value">{{ complaint.registered_at|date:"d M Y, h:i A" }}</div>
+                
+                <div class="label">File Name</div>
+                <div class="value">{{ complaint.filename|default:"No filename available" }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- FIR Details Section -->
+    {% if complaint.fir %}
+    <div class="section">
+        <h3 class="section-title">4. FIR DETAILS</h3>
+        <div class="grid">
+            <div class="label">FIR Created Date</div>
+            <div class="value">{{ complaint.fir.created_at|date:"d M Y, h:i A" }}</div>
+            
+            <div class="label">Last Updated</div>
+            <div class="value">{{ complaint.fir.updated_at|date:"d M Y, h:i A" }}</div>
+            
+            <div class="label">Spot Location</div>
+            <div class="value">{{ complaint.fir.spot_location|default:"Not specified" }}</div>
+        </div>
+        
+        <div class="grid" style="margin-top: 20px;">
+            <div class="label">Police Description</div>
+            <div class="value">{{ complaint.fir.police_description }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Investigation Updates Section -->
+    {% if complaint.fir.additional_descriptions.all %}
+    <div class="section">
+        <h3 class="section-title">5. INVESTIGATION UPDATES</h3>
+        {% for desc in complaint.fir.additional_descriptions.all %}
+        <div class="investigation-note">
+            <div class="grid">
+                <div class="label">Date & Time</div>
+                <div class="value">{{ desc.created_at|date:"F j, Y, g:i a" }}</div>
+            </div>
+            <div class="grid">
+                <div class="label">Description</div>
+                <div class="value">{{ desc.description }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="section">
+        <h3 class="section-title">5. INVESTIGATION UPDATES</h3>
+        <p class="no-data">No additional investigation updates have been recorded yet.</p>
+    </div>
+    {% endif %}
+
+    <!-- Additional Evidence Section -->
+    {% if complaint.fir.additional_evidence.all %}
+    <div class="section">
+        <h3 class="section-title">6. ADDITIONAL EVIDENCE</h3>
+        {% for evidence in complaint.fir.additional_evidence.all %}
+        <div class="evidence-item">
+            <div class="grid">
+                <div class="label">Date Added</div>
+                <div class="value">{{ evidence.uploaded_at|date:"F j, Y, g:i a" }}</div>
+                
+                <div class="label">File Type</div>
+                <div class="value">
+                    {% with file_ext=evidence.file.url|slice:"-3:" %}
+                        {% if file_ext == "jpg" or file_ext == "png" or evidence.file.url|slice:"-4:" == "jpeg" %}
+                            Image File ({{ file_ext }})
+                        {% elif file_ext == "pdf" %}
+                            PDF Document
+                        {% elif file_ext == "mp4" or file_ext == "mov" %}
+                            Video File ({{ file_ext }})
+                        {% else %}
+                            {{ file_ext|upper }} File
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Witnesses Section -->
+    {% if complaint.fir.witnesses.all %}
+    <div class="section">
+        <h3 class="section-title">7. WITNESSES</h3>
+        {% for witness in complaint.fir.witnesses.all %}
+        <div class="witness-item">
+            <div class="grid">
+                <div class="label">Witness #{{ forloop.counter }}</div>
+                <div class="value">{{ witness.first_name }} {{ witness.last_name }}</div>
+                
+                <div class="label">Contact Number</div>
+                <div class="value">{{ witness.phone_number }}</div>
+                
+                <div class="label">Date Added</div>
+                <div class="value">{{ witness.created_at|date:"d M Y, h:i A" }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Case Timeline Section -->
+    <div class="section">
+        <h3 class="section-title">8. CASE TIMELINE</h3>
+        <div class="timeline-container">
+            <!-- Registration -->
+            <div class="timeline-item">
+                <div class="timeline-date">{{ complaint.registered_at|date:"d M Y, h:i A" }}</div>
+                <div class="timeline-content">
+                    <div class="text-bold">Complaint Registered</div>
+                    <p>Complaint was filed by {{ complaint.user.first_name }} {{ complaint.user.last_name }} at the {{ complaint.police_station.location }} Police Station.</p>
+                </div>
+            </div>
+            
+            <!-- FIR Creation if available -->
+            {% if complaint.fir %}
+            <div class="timeline-item">
+                <div class="timeline-date">{{ complaint.fir.created_at|date:"d M Y, h:i A" }}</div>
+                <div class="timeline-content">
+                    <div class="text-bold">FIR Created</div>
+                    <p>First Information Report was created by the investigating officer and investigation commenced.</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Evidence Additions if available -->
+            {% if complaint.fir.additional_evidence.all %}
+                {% for evidence in complaint.fir.additional_evidence.all %}
+                <div class="timeline-item">
+                    <div class="timeline-date">{{ evidence.uploaded_at|date:"d M Y, h:i A" }}</div>
+                    <div class="timeline-content">
+                        <div class="text-bold">Evidence Added</div>
+                        <p>Additional evidence was added to the case file.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Witness Additions if available -->
+            {% if complaint.fir.witnesses.all %}
+                {% for witness in complaint.fir.witnesses.all %}
+                <div class="timeline-item">
+                    <div class="timeline-date">{{ witness.created_at|date:"d M Y, h:i A" }}</div>
+                    <div class="timeline-content">
+                        <div class="text-bold">Witness Added</div>
+                        <p>Witness {{ witness.first_name }} {{ witness.last_name }} was added to the case.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Resolution if resolved -->
+            {% if complaint.status == 'Resolved' and complaint.resolution_date %}
+            <div class="timeline-item">
+                <div class="timeline-date">{{ complaint.resolution_date|date:"d M Y, h:i A" }}</div>
+                <div class="timeline-content">
+                    <div class="text-bold">Case Resolved</div>
+                    <p>The investigation was completed and the case was marked as resolved.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Legal Information Section -->
+    <div class="section">
+        <h3 class="section-title">9. APPLICABLE LEGAL SECTIONS</h3>
+        
+        {% if legal_sections %}
+            {% for section in legal_sections %}
+            <div class="ipc-section">
+                <div class="section-number">Section {{ section.section }} {% if section.section == 'DV Act' or section.section == 'NDPS Act' or section.section == 'BNSS 162' or section.section == 'Various' %}{% else %}BNS{% endif %}</div>
+                <div class="section-description">
+                    {{ section.description }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="ipc-section">
+            <div class="section-number">Applicable sections</div>
+            <div class="section-description">
+                The applicable sections of the Bharatiya Nyaya Sanhita (BNS) will be determined based on the specific details of the case and the findings of the investigation.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Police Station Information -->
+    <div class="section">
+        <h3 class="section-title">9. INVESTIGATING AUTHORITY</h3>
+        <div class="grid">
+            <div class="label">Police Station</div>
+            <div class="value">{{ complaint.police_station.location }}</div>
+            
+            <div class="label">District</div>
+            <div class="value">{{ complaint.police_station.district }}</div>
+            
+            <div class="label">Contact</div>
+            <div class="value">{{ complaint.police_station.contact }}</div>
+            
+            <div class="label">Email</div>
+            <div class="value">{{ complaint.police_station.email }}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Investigating Officer</div>
+                <div>{{ complaint.police_station.location }} Police Station</div>
+            </div>
+            
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Station House Officer</div>
+                <div>{{ complaint.police_station.location }} Police Station</div>
+            </div>
+        </div>
+
+        <div class="official-seal">
+            <div class="seal-placeholder">
+                Official Seal
+            </div>
+        </div>
+    </div>
+</div>
+
+<button onclick="window.print()" class="print-button no-print">Print Case File</button>
+{% endblock %}

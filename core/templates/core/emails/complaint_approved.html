@@ -1,0 +1,52 @@
+{% extends "core/emails/base_email.html" %}
+
+{% block content %}
+<div class="content">
+    <h2>Complaint Approved</h2>
+    <div class="info-box">
+        <p>Dear {{ user_name }},</p>
+        <p>We are writing to inform you that your complaint has been approved and is now under investigation by our team.</p>
+        
+        <h3>Complaint Details:</h3>
+        <table>
+            <tr>
+                <td><strong>Complaint ID:</strong></td>
+                <td>{{ complaint_id }}</td>
+            </tr>
+            <tr>
+                <td><strong>Type:</strong></td>
+                <td>{{ complaint_type }}</td>
+            </tr>
+            <tr>
+                <td><strong>Date of Incident:</strong></td>
+                <td>{{ incident_date }}</td>
+            </tr>
+            <tr>
+                <td><strong>Time of Incident:</strong></td>
+                <td>{{ incident_time }}</td>
+            </tr>
+            <tr>
+                <td><strong>Registration Date:</strong></td>
+                <td>{{ registered_at }}</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td><span class="status-success">Under Investigation</span></td>
+            </tr>
+        </table>
+
+        <div class="info-box" style="margin-top: 20px;">
+            <h4 style="margin-top: 0;">Investigating Police Station:</h4>
+            <p><strong>{{ police_station }}</strong><br>
+            {{ district }} District<br>
+            Contact: {{ police_contact }}</p>
+        </div>
+    </div>
+
+    <p>Our officers will be looking into the matter with utmost priority. You may be contacted for further information if required.</p>
+    
+    <a href="{{ login_url }}" class="button">Track Your Complaint</a>
+    
+    <p>Thank you for bringing this matter to our attention. We are committed to ensuring your safety and security.</p>
+</div>
+{% endblock %}

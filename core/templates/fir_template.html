@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block title %}FIR - {{ complaint.id }} - Safe Call{% endblock %}
+
+{% block content %}
+<style>
+    .fir-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 2px solid #000;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        font-family: 'Times New Roman', serif;
+        color: #000;
+        position: relative;
+    }
+    .header-section {
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 3px double #000;
+        padding-bottom: 15px;
+    }
+    .emblem {
+        width: 80px;
+        height: 100px;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        border: 1px solid #000;
+    }
+    .logo-section h1 {
+        margin-top: 10px;
+        font-size: 22px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .title-section h2 {
+        font-size: 18px;
+        text-transform: uppercase;
+        border: 1px solid #000;
+        padding: 5px;
+        width: 80%;
+        margin: 10px auto;
+        background-color: #f0f0f0;
+    }
+    h3 {
+        font-size: 16px;
+        border-bottom: 1px solid #000;
+        padding-bottom: 5px;
+        text-transform: uppercase;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    .police-station-header {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    .police-station-header p {
+        margin: 5px 0;
+    }
+    .complainant-section, .complaint-section, .police-station-section, 
+    .status-section, .signature-section {
+        margin-bottom: 20px;
+        padding: 0 10px 10px;
+        border-bottom: 1px solid #000;
+    }
+    .complainant-section p, .complaint-section p, .police-station-section p, 
+    .status-section p {
+        margin: 8px 0;
+        line-height: 1.5;
+    }
+    .description-box {
+        padding: 10px;
+        border: 1px solid #000;
+        margin: 10px 0;
+        background-color: #fff;
+        min-height: 100px;
+    }
+    .signature-boxes {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+    .signature-box {
+        width: 45%;
+    }
+    .signature-placeholder {
+        height: 60px;
+        border-bottom: 1px solid #000;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+    .stamp-section {
+        margin-top: 40px;
+        text-align: center;
+    }
+    .stamp-placeholder {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed #000;
+        margin: 10px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-10deg);
+        font-style: italic;
+        color: #444;
+    }
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 5em;
+        color: rgba(200, 200, 200, 0.2);
+        pointer-events: none;
+        z-index: 0;
+        white-space: nowrap;
+    }
+    .confidential-strip {
+        background-color: #000;
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        margin-bottom: 15px;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+    .print-section {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .print-section button {
+        background-color: #325D88;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+    .print-section a {
+        display: inline-block;
+        background-color: #58595b;
+        color: white;
+        text-decoration: none; 
+        padding: 10px 20px;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+    .print-section button:hover, .print-section a:hover {
+        opacity: 0.9;
+    }
+    .field-label {
+        font-weight: bold;
+        display: inline-block;
+        width: 180px;
+    }
+    .footer {
+        text-align: center;
+        font-size: 12px;
+        margin-top: 20px;
+        padding-top: 10px;
+        border-top: 1px solid #000;
+    }
+    .fir-number {
+        font-weight: bold;
+        padding: 2px 5px;
+        border: 1px solid #000;
+        display: inline-block;
+    }
+    @media print {
+        .print-section {
+            display: none;
+        }
+    }
+</style>
+
+<div class="fir-container">
+    <div class="watermark">GOVERNMENT OF INDIA</div>
+    
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="emblem">[ASHOKA EMBLEM]</div>
+        <div class="logo-section">
+            <h1>GOVERNMENT OF INDIA</h1>
+            <h1>POLICE DEPARTMENT</h1>
+        </div>
+        <div class="confidential-strip">OFFICIAL DOCUMENT</div>
+        <div class="title-section">
+            <h2>FIRST INFORMATION REPORT (FIR)</h2>
+        </div>
+        <div class="police-station-header">
+            <p><span class="field-label">Police Station:</span> {{ complaint.police_station.location }}, {{ complaint.police_station.district }}</p>
+            <p><span class="field-label">Contact:</span> {{ complaint.police_station.contact }}</p>
+            <p><span class="field-label">Email:</span> {{ complaint.police_station.email }}</p>
+            <p><span class="field-label">FIR Number:</span> <span class="fir-number">{{ complaint.id }}</span></p>
+            <p><span class="field-label">Date:</span> {{ complaint.registered_at|date:"F d, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Complainant Details -->
+    <div class="complainant-section">
+        <h3>COMPLAINANT DETAILSss</h3>
+        <p><span class="field-label">Full Name:</span> {{ complaint.user.first_name }} {{ complaint.user.last_name }}</p>
+        <p><span class="field-label">Phone Number:</span> {{ complaint.user.phone }}</p>
+        <p><span class="field-label">Email Address:</span> {{ complaint.user.email }}</p>
+        <p><span class="field-label">Aadhaar Number:</span> {{ complaint.user.adhaar }}</p>
+    </div>
+
+    <!-- FIR/Complaint Details -->
+    <div class="complaint-section">
+        <h3>COMPLAINT DETAILS</h3>
+        <p><span class="field-label">FIR Number:</span> {{ complaint.id }}</p>
+        <p><span class="field-label">Complaint Type:</span> {{ complaint.complaint_type }}</p>
+        <p><span class="field-label">Description of Incident:</span></p>
+        <div class="description-box">
+            {{ complaint.description }}
+        </div>
+        <p><span class="field-label">Incident Date:</span> {{ complaint.incident_date|date:"F d, Y" }}</p>
+        <p><span class="field-label">Incident Time:</span> {{ complaint.get_incident_time_display }}</p>
+        <p><span class="field-label">Incident Location:</span> {{ complaint.incident_location }}</p>
+        
+        <p><span class="field-label">Evidence:</span> 
+            {% if complaint.evidence %}
+                {{ complaint.filename }}
+            {% else %}
+                None
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Police Station Details -->
+    <div class="police-station-section">
+        <h3>POLICE STATION DETAILS</h3>
+        <p><span class="field-label">District:</span> {{ complaint.police_station.district }}</p>
+        <p><span class="field-label">Location:</span> {{ complaint.police_station.location }}</p>
+        <p><span class="field-label">Contact:</span> {{ complaint.police_station.contact }}</p>
+        <p><span class="field-label">Email:</span> {{ complaint.police_station.email }}</p>
+    </div>
+
+    <!-- Status & Updates -->
+    <div class="status-section">
+        <h3>STATUS & UPDATES</h3>
+        <p><span class="field-label">Current Status:</span> {{ complaint.status }}</p>
+        <p><span class="field-label">Last Updated:</span> {{ complaint.registered_at|date:"F d, Y" }}</p>
+        <p><span class="field-label">Remarks:</span></p>
+        <div class="description-box" style="min-height: 60px;"></div>
+    </div>
+
+    <!-- Signatures & Authorization -->
+    <div class="signature-section">
+        <h3>SIGNATURES & AUTHORIZATION</h3>
+        <div class="signature-boxes">
+            <div class="signature-box">
+                <p>Complainant's Signature</p>
+                <div class="signature-placeholder">
+                    _______________________
+                </div>
+                <p>{{ complaint.user.first_name }} {{ complaint.user.last_name }}</p>
+            </div>
+            
+            <div class="signature-box">
+                <p>Officer's Signature</p>
+                <div class="signature-placeholder">
+                    _______________________
+                </div>
+                <p>Officer in Charge</p>
+            </div>
+        </div>
+        
+        <div class="stamp-section">
+            <p>Official Police Stamp</p>
+            <div class="stamp-placeholder">
+                [OFFICIAL SEAL]
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        This is an official document issued by the Government of India. Tampering with this document is a punishable offense.
+    </div>
+    
+    <!-- Print Button -->
+    <div class="print-section">
+        <button onclick="window.print()">Print FIR</button>
+        <a href="{% url 'view_complaints' %}">Back to Complaints</a>
+    </div>
+</div>
+{% endblock %}

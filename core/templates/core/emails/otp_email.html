@@ -1,0 +1,15 @@
+{% extends "core/emails/base_email.html" %}
+
+{% block content %}
+<div class="content">
+    <h2>Verification Code</h2>
+    <div class="info-box">
+        <p>Dear User,</p>
+        <p>Your verification code for Safe Call is:</p>
+        <h1 style="text-align: center; font-size: 36px; letter-spacing: 5px; color: #FF9800; margin: 20px 0; font-family: 'Crimson Text', serif;">{{ otp }}</h1>
+        <p>This code will expire in 10 minutes.</p>
+    </div>
+    <p>If you didn't request this code, please ignore this email.</p>
+    <p>For your security, please do not share this code with anyone.</p>
+</div>
+{% endblock %}

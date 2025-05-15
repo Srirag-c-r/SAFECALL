@@ -1,0 +1,125 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Complaints - Safe Call Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Complaints</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="Pending" {% if current_filters.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Under Investigation" {% if current_filters.status == 'Under Investigation' %}selected{% endif %}>Under Investigation</option>
+                        <option value="Resolved" {% if current_filters.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="Rejected" {% if current_filters.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Complaint Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All</option>
+                        {% for type in complaint_types %}
+                        <option value="{{ type }}" {% if current_filters.type == type %}selected{% endif %}>{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">District</label>
+                    <select name="district" class="form-select">
+                        <option value="">All</option>
+                        {% for district in districts %}
+                        <option value="{{ district }}" {% if current_filters.district == district %}selected{% endif %}>{{ district }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="start_date" value="{{ current_filters.start_date|default:'' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="end_date" value="{{ current_filters.end_date|default:'' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort" class="form-select">
+                        <option value="-registered_at" {% if current_filters.sort == '-registered_at' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if current_filters.sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="priority" {% if current_filters.sort == 'priority' %}selected{% endif %}>Priority</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="{% url 'custom_admin:complaints' %}" class="btn btn-outline-secondary">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Complaints Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Police Station</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in complaints %}
+                        <tr>
+                            <td>#{{ complaint.id }}</td>
+                            <td>{{ complaint.user.first_name }} {{ complaint.user.last_name }}</td>
+                            <td>{{ complaint.complaint_type }}</td>
+                            <td>{{ complaint.registered_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if complaint.status == 'Pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif complaint.status == 'Under Investigation' %}
+                                    <span class="badge bg-info">Under Investigation</span>
+                                {% elif complaint.status == 'Resolved' %}
+                                    <span class="badge bg-success">Resolved</span>
+                                {% elif complaint.status == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if complaint.police_station %}
+                                    {{ complaint.police_station.location }}
+                                {% else %}
+                                    <span class="text-muted">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'custom_admin:complaint_detail' complaint.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No complaints found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

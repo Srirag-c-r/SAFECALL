@@ -1,0 +1,165 @@
+/* Custom Admin Styles */
+
+/* Donation History Page */
+.stats-card {
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Timeline Styles */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    height: calc(100% + 15px);
+    width: 2px;
+    background-color: #e3e6f0;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-content {
+    padding-bottom: 10px;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.timeline-date {
+    color: #858796;
+    font-size: 0.875rem;
+    margin-bottom: 5px;
+}
+
+/* Table Styles */
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fc;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+/* Filter Section */
+.filter-section {
+    background-color: #f8f9fc;
+    border-radius: 0.35rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-section .form-label {
+    font-weight: 600;
+    color: #4e73df;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: #4e73df;
+    color: white;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+/* Export Button */
+.export-btn {
+    transition: all 0.2s;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50rem;
+    font-weight: 600;
+}
+
+.status-badge.successful {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.status-badge.failed {
+    background-color: #e74a3b;
+    color: white;
+}
+
+.status-badge.pending {
+    background-color: #f6c23e;
+    color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+
+    .filter-section .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .timeline-item {
+        padding-left: 30px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar,
+    .navbar,
+    .filter-section,
+    .export-btn {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+} 

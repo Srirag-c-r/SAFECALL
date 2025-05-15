@@ -1,86 +1,751 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Police Station Dashboard - Safe Call{% endblock %}
 
 {% block styles %}
 {{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@700&display=swap" rel="stylesheet">
 <style>
-    .navbar {
-        background-color: #333;
-        padding: 15px 20px;
+    :root {
+        --primary-color: #b2222e;
+        --secondary-color: #728b94;
+        --dark-bg: #121212;
+        --card-bg: #1E1E1E;
+        --text-primary: #ffffff;
+        --text-secondary: #B0B0B0;
+        --accent-blue: #1a3a8f;
+        --accent-dark-blue: #0c1f4b;
+        --accent-orange: #FF5722;
+    }
+    
+    body {
+        background-color: var(--dark-bg);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .dashboard-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header Section */
+    .welcome-header {
+        background: linear-gradient(135deg, var(--accent-dark-blue), var(--primary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+    
+    .welcome-header:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .welcome-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/police-badge.png" %}') no-repeat right bottom;
+        background-size: 150px;
+        opacity: 0.1;
+        z-index: 0;
+    }
+
+    .welcome-header h2 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+        font-family: 'Crimson Text', serif;
+        position: relative;
+        z-index: 1;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .station-details {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 1.2rem 2rem;
+        border-radius: 12px;
+        margin-top: 1rem;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .station-details p {
+        font-size: 1.2rem;
+        margin: 0.5rem 0;
         display: flex;
-        justify-content: space-between;
         align-items: center;
     }
 
-    .navbar .logo {
-        font-size: 24px;
+    .station-details i {
+        margin-right: 10px;
+        color: var(--accent-orange);
+    }
+
+    .station-details span {
         font-weight: bold;
-        color: white;
+        color: #FF9800;
+    }
+    
+    /* Stats Section */
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease-out forwards;
+        animation-delay: 0.2s;
+        opacity: 0;
+    }
+    
+    .stat-card {
+        background: linear-gradient(145deg, #242424, #1a1a1a);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: translateX(-100%);
+        transition: 0.5s;
+        top: 0;
+        left: 0;
+    }
+    
+    .stat-card:hover::before {
+        transform: translateX(100%);
+    }
+    
+    .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+        text-shadow: 0 0 10px rgba(178, 34, 46, 0.5);
+    }
+    
+    .stat-count {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+        color: var(--text-primary);
+        font-family: 'Crimson Text', serif;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
     }
 
-    .navbar ul {
-        list-style: none;
-        display: flex;
-        margin: 0;
-        padding: 0;
+    /* Quick Actions */
+    .quick-actions {
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease-out forwards;
+        animation-delay: 0.4s;
+        opacity: 0;
     }
-
-    .navbar ul li {
-        margin: 0 15px;
-    }
-
-    .navbar ul li a {
-        text-decoration: none;
-        color: white;
-        font-size: 18px;
-    }
-
-    .navbar ul li a:hover {
-        text-decoration: underline;
-    }
-
-    .instructions-section {
-        background-color: #2a2a2a;
-        color: white;
-        padding: 30px;
-        border-radius: 8px;
+    
+    .quick-actions h3 {
+        font-size: 1.8rem;
         margin-bottom: 20px;
+        color: var(--text-primary);
+        font-family: 'Crimson Text', serif;
+        position: relative;
+        padding-left: 15px;
+    }
+    
+    .quick-actions h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 25px;
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+    
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .action-button {
+        background: linear-gradient(145deg, #242424, #1a1a1a);
+        border: none;
+        color: var(--text-primary);
+        padding: 15px 20px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .action-button i {
+        margin-right: 15px;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        transition: transform 0.3s ease;
+    }
+    
+    .action-button:hover {
+        background: linear-gradient(145deg, #2a2a2a, #242424);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    .action-button:hover i {
+        transform: scale(1.2);
+    }
+
+    /* Instructions Section */
+    .instructions-section {
+        background: linear-gradient(145deg, #242424, #1a1a1a);
+        color: var(--text-primary);
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out forwards;
+        animation-delay: 0.6s;
+        opacity: 0;
+    }
+    
+    .instructions-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: url('{% static "images/police-shield.png" %}') no-repeat center center;
+        background-size: contain;
+        opacity: 0.05;
     }
 
     .instructions-section h3 {
-        color: #FF5722;
-        font-size: 28px;
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        font-family: 'Crimson Text', serif;
+        margin-bottom: 20px;
+        position: relative;
+        padding-left: 15px;
+    }
+    
+    .instructions-section h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 25px;
+        background: var(--primary-color);
+        border-radius: 3px;
     }
 
-    .quote-section {
-        background-color: #333;
-        color: white;
+    .instructions-section ul {
+        padding-left: 10px;
+    }
+
+    .instructions-section ul li {
+        margin-bottom: 15px;
+        position: relative;
+        padding-left: 30px;
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .instructions-section ul li:before {
+        content: "\f30b";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        color: var(--accent-orange);
+    }
+    
+    .instructions-section ul li:hover {
+        transform: translateX(5px);
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+        background: linear-gradient(145deg, #242424, #1a1a1a);
+        border-radius: 15px;
         padding: 30px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        animation: fadeInUp 0.8s ease-out forwards;
+        animation-delay: 0.8s;
+        opacity: 0;
+    }
+    
+    .activity-feed h3 {
+        color: var(--text-primary);
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-family: 'Crimson Text', serif;
+        position: relative;
+        padding-left: 15px;
+    }
+    
+    .activity-feed h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 25px;
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: var(--secondary-color);
+    }
+    
+    .timeline-item {
+        margin-bottom: 25px;
+        position: relative;
+    }
+    
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -36px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        border: 2px solid var(--dark-bg);
+    }
+    
+    .timeline-date {
+        font-size: 0.9rem;
+        color: var(--accent-orange);
+        margin-bottom: 5px;
+    }
+    
+    .timeline-content {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
         border-radius: 8px;
+        font-size: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .timeline-content:hover {
+        transform: translateX(5px);
+    }
+    
+    .timeline-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    /* Quote Section */
+    .quote-section {
+        background: linear-gradient(145deg, #242424, #1a1a1a);
+        color: var(--text-primary);
+        padding: 40px;
+        border-radius: 15px;
         font-style: italic;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease-out forwards;
+        animation-delay: 1s;
+        opacity: 0;
+    }
+    
+    .quote-section::before,
+    .quote-section::after {
+        content: '"';
+        font-size: 6rem;
+        font-family: Georgia, serif;
+        position: absolute;
+        color: rgba(255, 255, 255, 0.05);
+        line-height: 1;
+    }
+    
+    .quote-section::before {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .quote-section::after {
+        bottom: -20px;
+        right: 10px;
+        transform: rotate(180deg);
+    }
+
+    .quote-section p {
+        font-size: 1.3rem;
+        line-height: 1.6;
+        font-weight: 300;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .quote-author {
+        font-size: 1rem;
+        margin-top: 15px;
+        color: var(--accent-orange);
+        font-weight: bold;
+        font-style: normal;
+    }
+    
+    /* Animations */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Notification Badge */
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .stats-section {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .welcome-header h2 {
+            font-size: 2rem;
+        }
+        
+        .station-details {
+            padding: 0.8rem 1.5rem;
+        }
+        
+        .station-details p {
+            font-size: 1rem;
+        }
+        
+        .instructions-section h3, .activity-feed h3, .quick-actions h3 {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 15px;
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+        }
+        
+        .stat-count {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stats-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+        
+        .welcome-header {
+            padding: 1.5rem;
+        }
+        
+        .welcome-header h2 {
+            font-size: 1.8rem;
+        }
+        
+        .station-details p {
+            font-size: 0.9rem;
+        }
+        
+        .instructions-section, .activity-feed, .quote-section {
+            padding: 20px;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .stat-count {
+            font-size: 1.8rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="dashboard-container">
+    <div class="welcome-header">
+        <h2>Welcome to Police Station Dashboard</h2>
+        <div class="station-details">
+            <p><i class="fas fa-map-marker-alt"></i> District: <span>{{ police_station.district }}</span></p>
+            <p><i class="fas fa-building"></i> Location: <span>{{ police_station.location }}</span></p>
+            <p><i class="fas fa-phone-alt"></i> Contact: <span>{{ police_station.contact }}</span></p>
+            <p><i class="fas fa-envelope"></i> Email: <span>{{ police_station.email }}</span></p>
+        </div>
+    </div>
 
+    <div class="stats-section">
+        <div class="stat-card">
+            <i class="fas fa-file-alt stat-icon"></i>
+            <div class="stat-count">{{ total_complaints }}</div>
+            <div class="stat-label">Total Complaints</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-clock stat-icon"></i>
+            <div class="stat-count">{{ pending_complaints }}</div>
+            <div class="stat-label">Pending Verification</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-spinner stat-icon"></i>
+            <div class="stat-count">{{ under_investigation }}</div>
+            <div class="stat-label">Under Investigation</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle stat-icon"></i>
+            <div class="stat-count">{{ resolved_complaints }}</div>
+            <div class="stat-label">Resolved Cases</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-file-signature stat-icon"></i>
+            <div class="stat-count">{{ firs_filed }}</div>
+            <div class="stat-label">FIRs Filed</div>
+        </div>
+    </div>
 
-<div class="container">
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-buttons">
+            <a href="{% url 'police_view_complaints' %}" class="action-button">
+                <i class="fas fa-clipboard-list"></i>
+                <span>View Complaints</span>
+                <div class="notification-badge">3</div>
+            </a>
+            <a href="{% url 'manage_fir' %}" class="action-button">
+                <i class="fas fa-file-signature"></i>
+                <span>Manage FIRs</span>
+            </a>
+            <!-- <a href="{% url 'police_station_analytics' %}" class="action-button">
+                <i class="fas fa-chart-line"></i>
+                <span>View Analytics</span>
+            </a> -->
+            <a href="{% url 'police_logout' %}" class="action-button">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
     <div class="instructions-section">
-        <h3>Police Station Instructions</h3>
-        <p>Welcome to the Police Station Dashboard. Please review the complaints, register FIRs, and ensure timely responses to help the public efficiently. Follow the instructions below:</p>
+        <h3>Station Guidelines</h3>
+        <p>Welcome to the Police Station Dashboard. Please review the guidelines below to ensure efficient handling of complaints and cases:</p>
         <ul>
-            <li>Verify complaints as soon as possible.</li>
-            <li>Register FIRs for valid cases after verification.</li>
-            <li>Ensure confidentiality and privacy while handling complaints.</li>
-            <li>Update the status of complaints regularly.</li>
+            <li>Verify and respond to new complaints within 24 hours.</li>
+            <li>Register FIRs for valid cases after thorough verification.</li>
+            <li>Document all evidence properly and maintain case files.</li>
+            <li>Ensure confidentiality and privacy while handling sensitive information.</li>
+            <li>Update the status of complaints regularly to keep citizens informed.</li>
+            <li>Prioritize emergency cases and violent crimes for immediate action.</li>
         </ul>
+    </div>
+    
+    <div class="activity-feed">
+        <h3>Recent Activity</h3>
+        <div class="timeline">
+            {% if recent_logs %}
+                {% for log in recent_logs %}
+                <div class="timeline-item">
+                    <div class="timeline-date">
+                        <i class="far fa-clock"></i> {{ log.created_at|date:"M d, Y" }} at {{ log.created_at|time:"h:i A" }}
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">{{ log.action }}</div>
+                        <p>
+                            Complaint #{{ log.complaint.id }} 
+                            {% if log.action == 'Registered' %}
+                                has been registered and requires verification.
+                            {% elif log.action == 'Approved' %}
+                                has been approved for further investigation.
+                            {% elif log.action == 'Rejected' %}
+                                has been rejected. Reason: {{ log.details }}
+                            {% elif log.action == 'FIR Filed' or log.action == 'FIR Created' %}
+                                has had an FIR filed.
+                            {% elif log.action == 'Evidence Added' %}
+                                has had new evidence added to the investigation.
+                            {% elif log.action == 'Witness Added' %}
+                                has had a new witness statement added.
+                            {% elif log.action == 'Resolved' %}
+                                regarding {{ log.complaint.complaint_type }} has been resolved successfully.
+                            {% else %}
+                                status updated to: {{ log.details }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-title">No Recent Activity</div>
+                        <p>There are no recent activities to display. When you start processing complaints, your actions will appear here.</p>
+                        <p>Try actions like:</p>
+                        <ul>
+                            <li>Approving or rejecting complaints</li>
+                            <li>Filing an FIR</li>
+                            <li>Adding evidence</li>
+                            <li>Resolving cases</li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
     <div class="quote-section">
-        <p>"The law is not a business, but the means to ensure justice, peace, and order."</p>
+        <p>"The police are the public and the public are the police; the police being only members of the public who are paid to give full-time attention to duties which are incumbent on every citizen in the interests of community welfare and existence."</p>
+        <div class="quote-author">- Sir Robert Peel</div>
     </div>
 </div>
 
+<!-- Add some JavaScript for interactivity -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effect to timeline items
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        timelineItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.querySelector('.timeline-content').style.background = 'rgba(255, 255, 255, 0.08)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.querySelector('.timeline-content').style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+        });
+        
+        // Add pulse animation to notification badges
+        const badges = document.querySelectorAll('.notification-badge');
+        badges.forEach(badge => {
+            badge.style.animation = 'pulse 2s infinite';
+        });
+        
+        // Add click event for stat cards to show more details
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Here you could implement a modal or dropdown with more details
+                console.log('Stat card clicked:', this.querySelector('.stat-label').textContent);
+                this.style.animation = 'pulse 0.5s';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 500);
+            });
+        });
+    });
+</script>
 {% endblock %}

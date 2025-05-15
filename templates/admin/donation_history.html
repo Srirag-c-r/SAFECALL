@@ -1,0 +1,336 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Donation History - Safe Call Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Donation History</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="exportToCSV()">
+            <i class="fas fa-download fa-sm text-white-50"></i> Export Report
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <!-- Total Donations Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Donations</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ total_amount|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Successful Donations Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Successful Donations</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ successful_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failed Donations Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Failed Donations</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ failed_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Donation Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Average Donation</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ average_amount|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Date Range</label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" name="start_date" value="{{ request.GET.start_date }}">
+                        <span class="input-group-text">to</span>
+                        <input type="date" class="form-control" name="end_date" value="{{ request.GET.end_date }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="">All</option>
+                        <option value="successful" {% if request.GET.status == 'successful' %}selected{% endif %}>Successful</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Amount Range</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="min_amount" placeholder="Min" value="{{ request.GET.min_amount }}">
+                        <input type="number" class="form-control" name="max_amount" placeholder="Max" value="{{ request.GET.max_amount }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" name="search" placeholder="Name, Email, or Payment ID" value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Donations Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Donation Records</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="donationsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Payment ID</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donation in donations %}
+                        <tr>
+                            <td>{{ donation.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ donation.donor_name|default:"Anonymous" }}</td>
+                            <td>{{ donation.donor_email|default:"N/A" }}</td>
+                            <td>₹{{ donation.amount }}</td>
+                            <td>{{ donation.payment_response.payment_method|default:"N/A" }}</td>
+                            <td>
+                                <span class="badge {% if donation.payment_status == 'successful' %}bg-success{% elif donation.payment_status == 'failed' %}bg-danger{% else %}bg-warning{% endif %}">
+                                    {{ donation.payment_status }}
+                                </span>
+                            </td>
+                            <td>{{ donation.payment_id|default:"N/A" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewDetails('{{ donation.id }}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No donations found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if donations.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if donations.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ donations.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in donations.paginator.page_range %}
+                    <li class="page-item {% if donations.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if donations.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ donations.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Donation Details Modal -->
+<div class="modal fade" id="donationDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Donation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="donationDetails"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    // Initialize DataTables
+    $(document).ready(function() {
+        $('#donationsTable').DataTable({
+            order: [[0, 'desc']],
+            pageLength: 25,
+            dom: 'Bfrtip',
+            buttons: ['csv', 'excel', 'pdf']
+        });
+    });
+
+    // View Donation Details
+    function viewDetails(donationId) {
+        fetch(`/custom-admin/donation-details/${donationId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data); // Add logging
+                const details = `
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th>Transaction Date:</th>
+                                <td>${data.created_at}</td>
+                            </tr>
+                            <tr>
+                                <th>Donor Name:</th>
+                                <td>${data.name}</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>${data.email}</td>
+                            </tr>
+                            <tr>
+                                <th>Amount:</th>
+                                <td>₹${data.amount}</td>
+                            </tr>
+                            <tr>
+                                <th>Payment Method:</th>
+                                <td>${data.payment_method}</td>
+                            </tr>
+                            <tr>
+                                <th>Payment ID:</th>
+                                <td>${data.payment_id}</td>
+                            </tr>
+                            <tr>
+                                <th>Order ID:</th>
+                                <td>${data.order_id}</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>${data.status}</td>
+                            </tr>
+                            <tr>
+                                <th>Payment Response:</th>
+                                <td><pre>${JSON.stringify(data.payment_response, null, 2)}</pre></td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
+                document.getElementById('donationDetails').innerHTML = details;
+                
+                // Get the modal element and show it
+                const modalElement = document.getElementById('donationDetailsModal');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error fetching donation details: ' + error.message);
+            });
+    }
+
+    // Export to CSV
+    function exportToCSV() {
+        const table = document.getElementById('donationsTable');
+        const rows = Array.from(table.querySelectorAll('tr'));
+        
+        let csv = [];
+        for (let row of rows) {
+            const cols = Array.from(row.querySelectorAll('td,th'));
+            const rowData = cols.map(col => `"${col.innerText}"`).join(',');
+            csv.push(rowData);
+        }
+        
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `donations_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
+{% endblock %} 

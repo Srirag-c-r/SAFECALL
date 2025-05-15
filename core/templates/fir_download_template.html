@@ -1,0 +1,363 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Information Report (FIR) - {{ complaint.id }}</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+            background-color: #f9f9f9;
+        }
+        .fir-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #000;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px double #000;
+            padding-bottom: 15px;
+        }
+        .emblem {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 10px;
+            display: block;
+        }
+        .emblem img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        h1 {
+            margin-top: 10px;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        h2 {
+            font-size: 18px;
+            text-transform: uppercase;
+            border: 1px solid #000;
+            padding: 5px;
+            width: 80%;
+            margin: 10px auto;
+            background-color: #f0f0f0;
+        }
+        h3 {
+            font-size: 16px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .police-station-header {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .police-station-header p {
+            margin: 5px 0;
+        }
+        .section-title {
+            background-color: #f0f0f0;
+            padding: 5px;
+            font-weight: bold;
+            border-left: 5px solid #000;
+        }
+        .complainant-section, .complaint-section, .police-station-section, 
+        .status-section, .signature-section {
+            margin-bottom: 20px;
+            padding: 0 10px 10px;
+            border-bottom: 1px solid #000;
+        }
+        .field-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 180px;
+        }
+        .field-value {
+            display: inline-block;
+        }
+        .description-box {
+            padding: 10px;
+            border: 1px solid #000;
+            margin: 10px 0;
+            background-color: #fff;
+            min-height: 100px;
+        }
+        .signature-boxes {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .signature-box {
+            width: 45%;
+        }
+        .signature-placeholder {
+            height: 60px;
+            border-bottom: 1px solid #000;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .stamp-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .stamp-placeholder {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #000;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-10deg);
+            font-style: italic;
+            color: #444;
+        }
+        .fir-number {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 5px;
+            border: 1px solid #000;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8em;
+            color: rgba(200, 200, 200, 0.2);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #000;
+        }
+        .confidential-strip {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        @media print {
+            .print-section {
+                display: none;
+            }
+            body {
+                background-color: #fff;
+            }
+            .fir-container {
+                box-shadow: none;
+            }
+            .emblem img {
+                display: block !important;
+                max-width: 100px;
+                margin: 0 auto;
+            }
+            img {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .confidential-strip {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background-color: #000 !important;
+                color: #fff !important;
+            }
+            .watermark {
+                opacity: 0.2;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fir-container">
+        <div class="watermark">GOVERNMENT OF INDIA</div>
+        
+        <!-- Header Section -->
+        <div class="header-section">
+            <div class="emblem">
+                <img src="{% static 'LOGOS/kerala-police-logo.png' %}" alt="Kerala Police Logo">
+            </div>
+            <h1>GOVERNMENT OF INDIA</h1>
+            <h1>POLICE DEPARTMENT</h1>
+            <div class="confidential-strip">OFFICIAL DOCUMENT</div>
+            <h2>FIRST INFORMATION REPORT (FIR)</h2>
+            <div class="police-station-header">
+                <p><span class="field-label">Police Station:</span> {{ complaint.police_station.location }}, {{ complaint.police_station.district }}</p>
+                <p><span class="field-label">FIR Number:</span> <span class="fir-number">{{ complaint.id }}</span></p>
+                <p><span class="field-label">Date & Time of Registration:</span> {{ complaint.registered_at|date:"F d, Y" }} at {{ complaint.registered_at|time:"h:i A" }}</p>
+            </div>
+        </div>
+
+        <!-- Complainant Details -->
+        <div class="complainant-section">
+            <h3>COMPLAINANT DETAILS</h3>
+            <div class="row">
+                <span class="field-label">Full Name:</span>
+                <span class="field-value">{{ complaint.user.first_name }} {{ complaint.user.last_name }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Phone Number:</span>
+                <span class="field-value">{{ complaint.user.phone }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Email Address:</span>
+                <span class="field-value">{{ complaint.user.email }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Aadhaar Number:</span>
+                <span class="field-value">{{ complaint.user.adhaar }}</span>
+            </div>
+        </div>
+
+        <!-- FIR/Complaint Details -->
+        <div class="complaint-section">
+            <h3>COMPLAINT DETAILS</h3>
+            <div class="row">
+                <span class="field-label">FIR Number:</span>
+                <span class="field-value">{{ complaint.id }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Complaint Type:</span>
+                <span class="field-value">{{ complaint.complaint_type }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Incident Date:</span>
+                <span class="field-value">{{ complaint.incident_date|date:"F d, Y" }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Incident Time:</span>
+                <span class="field-value">{{ complaint.get_incident_time_display }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Incident Location:</span>
+                <span class="field-value">{{ complaint.incident_location }}</span>
+            </div>
+            
+            <div class="section-title">Description of Incident:</div>
+            <div class="description-box">
+                {{ complaint.description }}
+            </div>
+            
+            <div class="row">
+                <span class="field-label">Evidence:</span>
+                <span class="field-value">
+                    {% if complaint.evidence %}
+                        {{ complaint.filename }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Police Station Details -->
+        <div class="police-station-section">
+            <h3>POLICE STATION DETAILS</h3>
+            <div class="row">
+                <span class="field-label">District:</span>
+                <span class="field-value">{{ complaint.police_station.district }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Location:</span>
+                <span class="field-value">{{ complaint.police_station.location }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Contact:</span>
+                <span class="field-value">{{ complaint.police_station.contact }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Email:</span>
+                <span class="field-value">{{ complaint.police_station.email }}</span>
+            </div>
+        </div>
+
+        <!-- Status & Updates -->
+        <div class="status-section">
+            <h3>STATUS & UPDATES</h3>
+            <div class="row">
+                <span class="field-label">Current Status:</span>
+                <span class="field-value">{{ complaint.status }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Last Updated:</span>
+                <span class="field-value">{{ complaint.registered_at|date:"F d, Y" }}</span>
+            </div>
+            <div class="row">
+                <span class="field-label">Remarks:</span>
+            </div>
+            <div class="description-box" style="min-height: 60px;"></div>
+        </div>
+
+        <!-- Signatures & Authorization -->
+        <div class="signature-section">
+            <h3>SIGNATURES & AUTHORIZATION</h3>
+            <div class="signature-boxes">
+                <div class="signature-box">
+                    <p>Complainant's Signature</p>
+                    <div class="signature-placeholder">
+                        _______________________
+                    </div>
+                    <p>{{ complaint.user.first_name }} {{ complaint.user.last_name }}</p>
+                </div>
+                
+                <div class="signature-box">
+                    <p>Officer's Signature</p>
+                    <div class="signature-placeholder">
+                        _______________________
+                    </div>
+                    <p>Officer in Charge</p>
+                </div>
+            </div>
+            
+            <div class="stamp-section">
+                <p>Official Police Stamp</p>
+                <div class="stamp-placeholder">
+                    [OFFICIAL SEAL]
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            This is an official document issued by the Government of India. Tampering with this document is a punishable offense.
+        </div>
+    </div>
+    
+    <script>
+        // Auto-print the document when loaded
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

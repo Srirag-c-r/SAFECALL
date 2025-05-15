@@ -1,0 +1,49 @@
+# Environment variables
+.env
+
+# Database
+*.sqlite3
+*.db
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local development settings
+local_settings.py
+
+# Media files
+media/
+
+# Static files collected
+staticfiles/
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini 

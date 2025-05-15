@@ -1,140 +1,828 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Register - Safe Call{% endblock %}
 
 {% block styles %}
 {{ block.super }}
-<!-- Custom styles specific to the register page -->
+<!-- Custom styles for the enhanced registration page -->
 <style>
+    body {
+        color: #ffffff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        background-color: #121212;
+    }
+    
+    .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .video-background video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(100%);
+        opacity: 0.3;
+    }
+    
+    .animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, #1a237e 0%, transparent 70%);
+        opacity: 0.5;
+        animation: pulse 4s ease-in-out infinite;
+        z-index: -1;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.2); opacity: 0.3; }
+        100% { transform: scale(1); opacity: 0.5; }
+    }
+    
     .register-container {
+        position: relative;
+        max-width: 600px;
+        margin: 40px auto;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+        min-height: 550px;
+        border: 1px solid rgba(255, 0, 0, 0.1);
+        clip-path: polygon(0 0, 100% 0, 98% 100%, 2% 100%);
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .toggle-container {
         display: flex;
-        justify-content: space-between;
-        padding: 40px;
-        gap: 30px; /* Add space between the forms */
-        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        justify-content: center;
+        padding: 20px 0;
+        background-color: transparent;
     }
+    
+    .toggle-button {
+        position: relative;
+        padding: 12px 20px;
+        background: linear-gradient(45deg, #8b0000, #ff0000);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        font-family: 'Crimson Text', serif;
+        letter-spacing: 1px;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+    
+    .toggle-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .toggle-button:hover {
+        background-color: #728b94;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+    }
+    
+    .toggle-button:hover::before {
+        left: 100%;
+    }
+    
+    .toggle-button .icon {
+        margin-right: 8px;
+    }
+    
+    .register-panels {
+        position: relative;
+        display: flex;
+        width: 200%;
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    
     .register-section {
-        flex: 1;
-        min-width: 300px; /* Minimum width before wrapping */
-        background-color: #2a2a2a;
-        padding: 20px;
-        border-radius: 8px;
+        width: 50%;
+        padding: 30px;
     }
+    
+    .police-panel {
+        background-color: transparent;
+    }
+    
     .register-section h2 {
-        color: #FF5722;
+        color: #b2222e;
         font-size: 28px;
         margin-bottom: 20px;
+        text-align: center;
+        font-family: 'Crimson Text', serif;
+        background: linear-gradient(to bottom, #ff0000, #8b0000);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
+    
+    .register-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(to right, #8b0000, #ff0000, #8b0000);
+    }
+    
     .register-form {
         display: flex;
         flex-direction: column;
     }
+    
     .register-form label {
         font-size: 16px;
-        color: #FFFFFF;
+        color: #a8a8a8;
         margin-bottom: 5px;
     }
+    
     .register-form input {
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #FF5722;
-        border-radius: 5px;
-        background-color: #333;
-        color: #FFFFFF;
-    }
-    .register-form button {
         padding: 12px;
-        background-color: #FF5722;
+        margin-bottom: 15px;
+        border: 1px solid #b2222e;
+        border-radius: 5px;
+        background-color: rgba(30, 30, 30, 0.7);
+        color: #ffffff;
+        transition: all 0.3s ease;
+    }
+    
+    .register-form input:focus {
+        outline: none;
+        border-color: #728b94;
+        box-shadow: 0 0 0 2px rgba(178, 34, 46, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .register-form button {
+        padding: 15px;
+        background: linear-gradient(45deg, #8b0000, #ff0000);
         color: white;
         border: none;
-        border-radius: 5px;
-        font-size: 16px;
+        font-family: 'Crimson Text', serif;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
         cursor: pointer;
+        transition: all 0.3s ease;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
     }
+    
+    .register-form button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
     .register-form button:hover {
-        background-color: #E64A19;
+        background-color: #728b94;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
     }
+    
+    .register-form button:hover::before {
+        left: 100%;
+    }
+    
     .otp-verification {
-        color: #FFFFFF;
-        margin-top: 10px;
+        color: #93a0a0;
+        margin-top: 15px;
+        text-align: center;
     }
+    
     .otp-verification a {
-        color: #FF5722;
+        color: #b2222e;
         text-decoration: none;
     }
     
-    /* Divider styles */
-    .divider {
-        display: none; /* Hidden by default */
+    /* Police tape effect elements */
+    .police-tape-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(25, 18, 19, 0.8);
+        display: none;
+        overflow: hidden;
+        z-index: 10;
     }
     
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .register-container {
-            flex-direction: column;
-            padding: 20px;
+    .police-tape {
+        position: absolute;
+        width: 150%;
+        height: 80px;
+        background: repeating-linear-gradient(
+            45deg,
+            #728b94,
+            #728b94 10%,
+            #191213 10%,
+            #191213 20%
+        );
+        color: #a8a8a8;
+        font-weight: bold;
+        font-size: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: rotate(-10deg);
+        box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+        opacity: 0;
+        animation: slideInTape 1.5s ease-out forwards;
+    }
+    
+    .police-tape:nth-child(1) {
+        top: 30%;
+        text-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+    }
+    
+    .police-tape:nth-child(2) {
+        top: 55%;
+        background: repeating-linear-gradient(
+            45deg,
+            #728b94,
+            #728b94 10%,
+            #191213 10%,
+            #191213 20%
+        );
+        transform: rotate(10deg);
+        animation-delay: 0.2s;
+    }
+    
+    @keyframes slideInTape {
+        0% {
+            transform: translateX(-100%) rotate(-10deg);
+            opacity: 0;
         }
-        .register-section {
-            width: 100%;
-            margin-bottom: 30px;
+        60% {
+            transform: translateX(0) rotate(-10deg);
+            opacity: 1;
         }
-        .divider {
-            display: block;
-            border-top: 2px solid #FF5722;
-            margin: 30px 0;
+        70% {
+            transform: translateX(10px) rotate(-10deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateX(0) rotate(-10deg);
+            opacity: 1;
         }
     }
+    
+    /* Second tape with opposite rotation */
+    .police-tape:nth-child(2) {
+        @keyframes slideInTape2 {
+            0% {
+                transform: translateX(100%) rotate(10deg);
+                opacity: 0;
+            }
+            60% {
+                transform: translateX(0) rotate(10deg);
+                opacity: 1;
+            }
+            70% {
+                transform: translateX(-10px) rotate(10deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(0) rotate(10deg);
+                opacity: 1;
+            }
+        }
+        animation-name: slideInTape2;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .register-container {
+            margin: 20px;
+            width: auto;
+        }
+        
+        .register-section {
+            padding: 20px;
+        }
+        
+        .police-tape {
+            height: 60px;
+            font-size: 18px;
+        }
+    }
+    
+    /* Validation Styles */
+    .form-control.error {
+        border-color: #ff4444;
+        background-color: rgba(255, 68, 68, 0.1);
+    }
+    
+    .form-control.error:focus {
+        box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.3);
+    }
+    
+    .error-message {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .form-control:focus + .error-message {
+        display: block;
+    }
+    
+    .form-control.error + .error-message {
+        display: block;
+    }
+    
+    .password-strength {
+        height: 4px;
+        margin-top: 5px;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .password-strength.weak {
+        width: 30%;
+        background-color: #ff4444;
+    }
+    
+    .password-strength.medium {
+        width: 60%;
+        background-color: #ffbb33;
+    }
+    
+    .password-strength.strong {
+        width: 100%;
+        background-color: #00C851;
+    }
+    
+    .required {
+        color: #ff4444;
+        margin-left: 4px;
+    }
+    
+    /* Error Message Styles */
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        text-align: center;
+    }
+    
+    .alert-error {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    
+    /* Back to login link */
+    .back-to-login {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .back-to-login a {
+        color: #ff0000;
+        text-decoration: none;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .back-to-login a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(to right, #ff0000, transparent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+    
+    .back-to-login a:hover {
+        color: #ff3333;
+    }
+    
+    .back-to-login a:hover::after {
+        transform: scaleX(1);
+    }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@700&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
+<!-- Video Background -->
+<div class="video-background">
+    <video autoplay muted loop playsinline>
+        <source src="{% static 'LOGOS/papereffect.mp4' %}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+
+<div class="animated-bg"></div>
+
 <div class="register-container">
-    <!-- Public User Registration -->
-    <div class="register-section">
-        <h2>Public User Registration</h2>
-        <form class="register-form" method="POST" action="{% url 'public_user_registration' %}">
-            {% csrf_token %}
-            <label for="first_name">First Name</label>
-            <input type="text" name="first_name" id="first_name" required>
-            <label for="last_name">Last Name</label>
-            <input type="text" name="last_name" id="last_name" required>
-            <label for="phone">Phone Number</label>
-            <input type="text" name="phone" id="phone" required>
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
-            <label for="adhaar">Aadhaar Card Number</label>
-            <input type="text" name="adhaar" id="adhaar" required>
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" required>
-            <button type="submit">Register</button>
-        </form>
-        <div class="otp-verification">
-            <p>We will send an OTP to your email for verification.</p>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="toggle-container">
+        <button id="toggleRegistration" class="toggle-button">
+            <span class="icon"><i class="fas fa-user-shield"></i></span><span class="button-text">Switch to Police Registration</span>
+        </button>
+    </div>
+    
+    <div class="register-panels" id="registerPanels">
+        <!-- Public User Registration -->
+        <div class="register-section public-panel">
+            <div class="text-center mb-4">
+                <img src="{% static 'LOGOS/gpttlogo.png' %}" alt="Safe Call Logo" style="height: 80px; margin-bottom: 15px;">
+                <h2>Public User Registration</h2>
+            </div>
+            <form method="POST" action="{% url 'public_user_registration' %}" class="register-form" id="publicUserForm" onsubmit="return validatePublicUserForm(event)">
+                {% csrf_token %}
+                <label for="first_name">First Name<span class="required">*</span></label>
+                <input type="text" name="first_name" id="first_name" class="form-control" required minlength="2" maxlength="50" value="{{ form_data.first_name|default:'' }}">
+                <div class="error-message">First name must be between 2 and 50 characters</div>
+                
+                <label for="last_name">Last Name<span class="required">*</span></label>
+                <input type="text" name="last_name" id="last_name" class="form-control" required minlength="2" maxlength="50" value="{{ form_data.last_name|default:'' }}">
+                <div class="error-message">Last name must be between 2 and 50 characters</div>
+                
+                <label for="phone">Phone Number<span class="required">*</span></label>
+                <input type="tel" name="phone" id="phone" class="form-control" required pattern="[0-9]{10}" value="{{ form_data.phone|default:'' }}">
+                <div class="error-message">Please enter a valid 10-digit phone number</div>
+                
+                <label for="email">Email<span class="required">*</span></label>
+                <input type="email" name="email" id="email" class="form-control" required value="{{ form_data.email|default:'' }}">
+                <div class="error-message">Please enter a valid email address</div>
+                
+                <label for="adhaar">Aadhaar Card Number<span class="required">*</span></label>
+                <input type="text" name="adhaar" id="adhaar" class="form-control" required pattern="[0-9]{12}" value="{{ form_data.adhaar|default:'' }}">
+                <div class="error-message">Please enter a valid 12-digit Aadhaar number</div>
+                
+                <label for="password">Password<span class="required">*</span></label>
+                <input type="password" name="password" id="password" class="form-control" required minlength="8">
+                <div class="password-strength"></div>
+                <div class="error-message">Password must be at least 8 characters long</div>
+                
+                <label for="confirm_password">Confirm Password<span class="required">*</span></label>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                <div class="error-message">Passwords do not match</div>
+                
+                <button type="submit"><i class="fas fa-user-plus me-2"></i>Register</button>
+            </form>
+            <div class="otp-verification">
+                <p>We will send an OTP to your email for verification.</p>
+            </div>
+        </div>
+        
+        <!-- Police Station Registration -->
+        <div class="register-section police-panel">
+            <div class="text-center mb-4">
+                <img src="{% static 'LOGOS/gpttlogo.png' %}" alt="Safe Call Logo" style="height: 80px; margin-bottom: 15px;">
+                <h2>Police Station Registration</h2>
+            </div>
+            <form method="POST" action="{% url 'police_station_registration' %}" class="register-form" id="policeStationForm" onsubmit="return validatePoliceStationForm(event)">
+                {% csrf_token %}
+                <label for="district">District<span class="required">*</span></label>
+                <input type="text" name="district" id="district" class="form-control" required minlength="2" maxlength="100" value="{{ form_data.district|default:'' }}">
+                <div class="error-message">District name must be between 2 and 100 characters</div>
+                
+                <label for="location">Location<span class="required">*</span></label>
+                <input type="text" name="location" id="location" class="form-control" required minlength="2" maxlength="100" value="{{ form_data.location|default:'' }}">
+                <div class="error-message">Location must be between 2 and 100 characters</div>
+                
+                <label for="pincode">Pincode<span class="required">*</span></label>
+                <input type="text" name="pincode" id="pincode" class="form-control" required pattern="[0-9]{6}" value="{{ form_data.pincode|default:'' }}">
+                <div class="error-message">Please enter a valid 6-digit pincode</div>
+                
+                <label for="contact">Contact Number<span class="required">*</span></label>
+                <input type="tel" name="contact" id="contact" class="form-control" required pattern="[0-9]{10}" value="{{ form_data.contact|default:'' }}">
+                <div class="error-message">Please enter a valid 10-digit phone number</div>
+                
+                <label for="email_police">Email<span class="required">*</span></label>
+                <input type="email" name="email" id="email_police" class="form-control" required value="{{ form_data.email|default:'' }}">
+                <div class="error-message">Please enter a valid email address</div>
+                
+                <label for="password_police">Password<span class="required">*</span></label>
+                <input type="password" name="password" id="password_police" class="form-control" required minlength="8">
+                <div class="password-strength"></div>
+                <div class="error-message">Password must be at least 8 characters long</div>
+                
+                <label for="confirm_password_police">Confirm Password<span class="required">*</span></label>
+                <input type="password" name="confirm_password" id="confirm_password_police" class="form-control" required>
+                <div class="error-message">Passwords do not match</div>
+                
+                <button type="submit"><i class="fas fa-building me-2"></i>Register Police Station</button>
+            </form>
         </div>
     </div>
     
-    <!-- Divider for mobile view -->
-    <div class="divider"></div>
-
-    <!-- Police Station Registration -->
-    <div class="register-section">
-        <h2>Police Station Registration</h2>
-        <form class="register-form" method="POST" action="{% url 'police_station_registration' %}">
-            {% csrf_token %}
-            <label for="district">District</label>
-            <input type="text" name="district" id="district" required>
-            <label for="location">Location</label>
-            <input type="text" name="location" id="location" required>
-            <label for="pincode">Pincode</label>
-            <input type="text" name="pincode" id="pincode" required>
-            <label for="contact">Contact Number</label>
-            <input type="text" name="contact" id="contact" required>
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" required>
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
-            <button type="submit">Register</button>
-        </form>
+    <!-- Police tape effect overlay -->
+    <div class="police-tape-overlay" id="policeTapeOverlay">
+        <div class="police-tape">POLICE LINE DO NOT CROSS</div>
+        <div class="police-tape">CRIME SCENE DO NOT CROSS</div>
+    </div>
+    
+    <div class="back-to-login">
+        <p>Already have an account? <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt me-1"></i>Login Here</a></p>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('toggleRegistration');
+        const registerPanels = document.getElementById('registerPanels');
+        const policeTapeOverlay = document.getElementById('policeTapeOverlay');
+        const buttonText = toggleButton.querySelector('.button-text');
+        const buttonIcon = toggleButton.querySelector('.icon');
+        let isPoliceView = false;
+        
+        toggleButton.addEventListener('click', function() {
+            // Show police tape effect
+            policeTapeOverlay.style.display = 'block';
+            
+            setTimeout(function() {
+                // Toggle the view after a slight delay
+                isPoliceView = !isPoliceView;
+                
+                if (isPoliceView) {
+                    registerPanels.style.transform = 'translateX(-50%)';
+                    buttonText.textContent = 'Switch to Public Registration';
+                    buttonIcon.textContent = '👤';
+                } else {
+                    registerPanels.style.transform = 'translateX(0)';
+                    buttonText.textContent = 'Switch to Police Registration';
+                    buttonIcon.textContent = '👮';
+                }
+                
+                // Hide police tape effect after transition
+                setTimeout(function() {
+                    policeTapeOverlay.style.display = 'none';
+                    
+                    // Reset the animation so it can play again next time
+                    const tapes = policeTapeOverlay.querySelectorAll('.police-tape');
+                    tapes.forEach(tape => {
+                        tape.style.animation = 'none';
+                        setTimeout(() => {
+                            tape.style.animation = '';
+                        }, 10);
+                    });
+                    
+                }, 1500);
+            }, 1200); // Show police tape for 1.2 seconds before starting form transition
+        });
+        
+        // Auto-switch to the correct form if there's an error
+        {% if form_data %}
+            const registerPanels = document.getElementById('registerPanels');
+            const buttonText = document.querySelector('.button-text');
+            const buttonIcon = document.querySelector('.icon');
+            
+            {% if is_police_station %}
+                registerPanels.style.transform = 'translateX(-50%)';
+                buttonText.textContent = 'Switch to Public Registration';
+                buttonIcon.textContent = '👤';
+            {% else %}
+                registerPanels.style.transform = 'translateX(0)';
+                buttonText.textContent = 'Switch to Police Registration';
+                buttonIcon.textContent = '👮';
+            {% endif %}
+        {% endif %}
+    });
+    
+    // Password strength indicator
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+        if (password.match(/\d/)) strength++;
+        if (password.match(/[^a-zA-Z\d]/)) strength++;
+        
+        return strength;
+    }
+    
+    function updatePasswordStrength(input) {
+        const strength = checkPasswordStrength(input.value);
+        const strengthBar = input.nextElementSibling;
+        
+        strengthBar.className = 'password-strength';
+        if (strength >= 3) {
+            strengthBar.classList.add('strong');
+        } else if (strength >= 2) {
+            strengthBar.classList.add('medium');
+        } else if (strength >= 1) {
+            strengthBar.classList.add('weak');
+        }
+    }
+    
+    // Add password strength listeners
+    document.querySelectorAll('input[type="password"]').forEach(input => {
+        input.addEventListener('input', function() {
+            updatePasswordStrength(this);
+        });
+    });
+    
+    // Form validation functions
+    function validatePublicUserForm(event) {
+        event.preventDefault();
+        const form = event.target;
+        let isValid = true;
+        
+        // Reset error states
+        form.querySelectorAll('.form-control').forEach(input => {
+            input.classList.remove('error');
+        });
+        
+        // Validate first name
+        const firstName = form.querySelector('#first_name');
+        if (firstName.value.length < 2 || firstName.value.length > 50) {
+            firstName.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate last name
+        const lastName = form.querySelector('#last_name');
+        if (lastName.value.length < 2 || lastName.value.length > 50) {
+            lastName.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate phone number
+        const phone = form.querySelector('#phone');
+        if (!/^[0-9]{10}$/.test(phone.value)) {
+            phone.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate email
+        const email = form.querySelector('#email');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            email.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate Aadhaar
+        const aadhaar = form.querySelector('#adhaar');
+        if (!/^[0-9]{12}$/.test(aadhaar.value)) {
+            aadhaar.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate password
+        const password = form.querySelector('#password');
+        if (password.value.length < 8) {
+            password.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate confirm password
+        const confirmPassword = form.querySelector('#confirm_password');
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.classList.add('error');
+            isValid = false;
+        }
+        
+        if (isValid) {
+            form.submit();
+        }
+        
+        return false;
+    }
+    
+    function validatePoliceStationForm(event) {
+        event.preventDefault();
+        const form = event.target;
+        let isValid = true;
+        
+        // Reset error states
+        form.querySelectorAll('.form-control').forEach(input => {
+            input.classList.remove('error');
+        });
+        
+        // Validate district
+        const district = form.querySelector('#district');
+        if (district.value.length < 2 || district.value.length > 100) {
+            district.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate location
+        const location = form.querySelector('#location');
+        if (location.value.length < 2 || location.value.length > 100) {
+            location.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate pincode
+        const pincode = form.querySelector('#pincode');
+        if (!/^[0-9]{6}$/.test(pincode.value)) {
+            pincode.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate contact number
+        const contact = form.querySelector('#contact');
+        if (!/^[0-9]{10}$/.test(contact.value)) {
+            contact.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate email
+        const email = form.querySelector('#email_police');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            email.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate password
+        const password = form.querySelector('#password_police');
+        if (password.value.length < 8) {
+            password.classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate confirm password
+        const confirmPassword = form.querySelector('#confirm_password_police');
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.classList.add('error');
+            isValid = false;
+        }
+        
+        if (isValid) {
+            form.submit();
+        }
+        
+        return false;
+    }
+    
+    // Real-time validation
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('error');
+        });
+    });
+</script>
 {% endblock %}

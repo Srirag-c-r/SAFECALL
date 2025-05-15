@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+{% block title %}View Complaints - Police Station{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .complaints-container {
+        width: 95%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .complaint-card {
+        background-color: #333;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .complaint-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #555;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .complaint-title {
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .complaint-id {
+        background-color: #555;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+    }
+    .complaint-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    .detail-group {
+        margin-bottom: 10px;
+    }
+    .detail-label {
+        font-size: 14px;
+        color: #aaa;
+        margin-bottom: 5px;
+    }
+    .detail-value {
+        font-size: 16px;
+    }
+    .complaint-description {
+        background-color: #444;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        white-space: pre-line;
+    }
+    .complaint-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    .btn-approve {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .btn-reject {
+        background-color: #f44336;
+        color: white;
+    }
+    .badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .badge-pending {
+        background-color: #FF9800;
+        color: black;
+    }
+    .badge-investigation {
+        background-color: #2196F3;
+        color: white;
+    }
+    .badge-resolved {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .badge-rejected {
+        background-color: #f44336;
+        color: white;
+    }
+    .evidence-file {
+        display: inline-block;
+        background-color: #555;
+        padding: 8px 12px;
+        border-radius: 5px;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+    .evidence-file i {
+        margin-right: 5px;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 50px 0;
+        color: #aaa;
+    }
+    .empty-state h3 {
+        margin-bottom: 10px;
+    }
+     
+    /* SafeCall Theme Toggle Button Styles */
+    .toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 25px;
+        border: none;
+        color: white;
+        font-family: 'Crimson Text', serif;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+    
+    .toggle-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .toggle-btn:hover::before {
+        left: 100%;
+    }
+    
+    .toggle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+        color: white;
+    }
+    
+    .toggle-btn i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+    
+    .toggle-btn-orange {
+        background: linear-gradient(45deg, #8b0000, #ff0000);
+        box-shadow: 
+            0 0 10px rgba(255, 0, 0, 0.3),
+            0 0 20px rgba(139, 0, 0, 0.3);
+    }
+    
+    .toggle-btn-orange:hover {
+        box-shadow: 
+            0 0 20px rgba(255, 0, 0, 0.5),
+            0 0 40px rgba(139, 0, 0, 0.5);
+    }
+    
+    .toggle-btn-dark {
+        background: linear-gradient(45deg, #1a1a1a, #8b0000);
+        box-shadow: 0 0 10px rgba(139, 0, 0, 0.3);
+    }
+    
+    .toggle-btn-dark:hover {
+        background: linear-gradient(45deg, #8b0000, #ff0000);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+    }
+    
+    .toggle-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        background: linear-gradient(45deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.95));
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        border-radius: 0;
+        clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .toggle-badge i {
+        margin-right: 10px;
+        color: #ff0000;
+        filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+    }
+    
+    .toggle-badge-dark {
+        color: #ffffff;
+        border-bottom: 2px solid #8b0000;
+    }
+    
+    .toggle-badge-orange {
+        color: #ffffff;
+        border-bottom: 2px solid #ff0000;
+    }
+    
+    /* Animation for button click effect */
+    .toggle-btn:active {
+        transform: translateY(2px) scale(0.98);
+        box-shadow: 
+            0 0 5px rgba(255, 0, 0, 0.3),
+            0 0 10px rgba(139, 0, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="complaints-container">
+    <h1>Complaints - {{ police_station.location }} Police Station</h1>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            {% if show_all %}
+                <span class="toggle-badge toggle-badge-dark"><i class="fas fa-list"></i>Showing all complaints</span>
+            {% else %}
+                <span class="toggle-badge toggle-badge-orange"><i class="fas fa-bell"></i>Showing new complaints only</span>
+            {% endif %}
+        </div>
+        <div>
+            {% if show_all %}
+                <a href="?show_all=false" class="toggle-btn toggle-btn-orange"><i class="fas fa-filter"></i>Show New Complaints Only</a>
+            {% else %}
+                <a href="?show_all=true" class="toggle-btn toggle-btn-dark"><i class="fas fa-list-ul"></i>Show All Complaints</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if complaints %}
+        {% for complaint in complaints %}
+            <div class="complaint-card">
+                <div class="complaint-header">
+                    <div class="complaint-title">{{ complaint.complaint_type }}</div>
+                    <div class="complaint-id">ID: {{ complaint.id }}</div>
+                </div>
+                
+                <div class="complaint-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Complainant</div>
+                        <div class="detail-value">{{ complaint.user.first_name }} {{ complaint.user.last_name }}</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Contact</div>
+                        <div class="detail-value">{{ complaint.user.phone }}</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">{{ complaint.user.email }}</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Incident Date</div>
+                        <div class="detail-value">{{ complaint.incident_date }}</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Incident Time</div>
+                        <div class="detail-value">{{ complaint.incident_time }}</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">Incident Location</div>
+                        <div class="detail-value">{{ complaint.incident_location }}</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Registration Date</div>
+                        <div class="detail-value">{{ complaint.registered_at|date:"Y-m-d H:i" }}</div>
+                    </div>
+                    {% if complaint.evidence %}
+                    <div class="detail-group">
+                        <div class="detail-label">Evidence</div>
+                        <div class="detail-value">
+                            <a href="{{ complaint.evidence.url }}" class="evidence-file" target="_blank">
+                                <i>📎</i> {{ complaint.filename }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            {% if complaint.status == 'Pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elif complaint.status == 'Under Investigation' %}
+                                <span class="badge badge-investigation">Under Investigation</span>
+                            {% elif complaint.status == 'Resolved' %}
+                                <span class="badge badge-resolved">Resolved</span>
+                            {% elif complaint.status == 'Rejected' %}
+                                <span class="badge badge-rejected">Rejected</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+
+                </div>
+                
+                <div class="detail-group">
+                    <div class="detail-label">Description</div>
+                    <div class="complaint-description">{{ complaint.description }}</div>
+                </div>
+                
+                {% if complaint.status == 'Pending' %}
+                <div class="complaint-actions">
+                    <form method="post" action="{% url 'update_complaint_status' complaint.id 'approve' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-approve">Approve & Investigate</button>
+                    </form>
+                    <form method="post" action="{% url 'update_complaint_status' complaint.id 'reject' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-reject">Reject</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            {% if show_all %}
+                <h3>No complaints found</h3>
+                <p>There are no complaints registered with your police station at this time.</p>
+            {% else %}
+                <h3>No new complaints found</h3>
+                <p>There are no new complaints waiting for your review.</p>
+                <a href="?show_all=true" class="toggle-btn toggle-btn-dark" style="margin-top: 20px;"><i class="fas fa-list-ul"></i>Show All Complaints</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

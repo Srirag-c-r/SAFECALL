@@ -1,0 +1,801 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate - Safe Call</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff0000;
+            --dark-bg: #121212;
+            --card-bg: #1E1E1E;
+            --text-primary: #ffffff;
+            --text-secondary: #B0B0B0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #000000, #1a0000);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{% static "LOGOS/crimescene.jpg" %}') center/cover no-repeat;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, rgba(0,0,0,0.95), rgba(20,0,0,0.95)) !important;
+            border-bottom: 3px solid #ff0000;
+            position: relative;
+            padding: 15px 0;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+        }
+
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            height: 15px;
+            background-image: repeating-linear-gradient(
+                45deg,
+                #000 0%,
+                #000 10%,
+                #ff0000 10%,
+                #ff0000 20%
+            );
+            opacity: 0.7;
+            transform: translateY(-2px);
+        }
+
+        .navbar-brand {
+            position: relative;
+            font-family: 'Crimson Text', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            margin-right: 30px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            background: linear-gradient(45deg, rgba(139, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .navbar-brand i {
+            color: #ff0000;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        .navbar-brand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .navbar-brand:hover::before {
+            transform: translateX(100%);
+        }
+
+        .nav-link {
+            color: #fff !important;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #ff0000, transparent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #8b0000, #ff0000);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            font-family: 'Crimson Text', serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+            color: white;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .navbar-toggler {
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            padding: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            border-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 0, 0, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.4rem;
+                padding: 8px 15px;
+            }
+
+            .navbar-brand i {
+                font-size: 1.6rem;
+            }
+
+            .nav-link {
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            .btn-custom {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+
+        /* Specific styles for navbar buttons */
+        .navbar .btn-custom {
+            padding: 10px 25px;
+            font-size: 0.9rem;
+            background: linear-gradient(45deg, #1a1a1a, #8b0000);
+            clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+        }
+
+        .navbar .btn-custom:hover {
+            background: linear-gradient(45deg, #8b0000, #ff0000);
+        }
+
+        .quote-card {
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(20, 20, 20, 0.9));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .quote-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .quote-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .reason-card {
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(20, 20, 20, 0.9));
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reason-card i {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff0000, #8b0000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .reason-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .donation-form {
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .donation-amount-btn {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 15px 30px;
+            margin: 5px;
+            border: 2px solid #ff0000;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            font-family: 'Crimson Text', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .donation-amount-btn:hover, .donation-amount-btn.active {
+            background: linear-gradient(45deg, #ff0000, #8b0000);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 0, 0, 0.1);
+            color: #e0e0e0;
+            padding: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+            color: #ffffff;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-donate {
+            background: linear-gradient(45deg, #8b0000, #ff0000);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-family: 'Crimson Text', serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .btn-donate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-donate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-donate:hover::before {
+            left: 100%;
+        }
+
+        .impact-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0000, #8b0000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-family: 'Crimson Text', serif;
+        }
+
+        .section-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #ff0000, #8b0000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #ff0000, transparent);
+        }
+
+        /* Custom Toast Styles */
+        .custom-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: none;
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #ff0000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toast-animation {
+            width: 60px;
+            height: 60px;
+        }
+
+        .toast-message {
+            color: var(--text-primary);
+        }
+
+        .toast-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ff0000, #8b0000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-shield-alt me-2"></i>Safe Call
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item me-3">
+                        <a href="{% url 'about' %}" class="nav-link">
+                            <button class="btn btn-custom">
+                                <i class="fas fa-info-circle me-2"></i>About
+                            </button>
+                        </a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a href="{% url 'donate' %}" class="nav-link">
+                            <button class="btn btn-custom active">
+                                <i class="fas fa-heart me-2"></i>Donate
+                            </button>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'custom_admin:login' %}" class="nav-link">
+                            <button class="btn btn-custom">
+                                <i class="fas fa-user-shield me-2"></i>Admin Login
+                            </button>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5 mt-5">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-4">Support Our Mission</h1>
+            <p class="lead">Help us create a safer society by supporting our crime reporting system</p>
+        </div>
+
+        <!-- Quote Section -->
+        <div class="quote-card text-center mb-5">
+            <i class="fas fa-quote-left fa-2x text-primary mb-3"></i>
+            <p class="lead mb-3">"The only thing necessary for the triumph of evil is for good men to do nothing."</p>
+            <footer class="blockquote-footer text-light">Edmund Burke</footer>
+        </div>
+
+        <!-- Why Donate Section -->
+        <h2 class="text-center mb-4">Why Your Support Matters</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="reason-card text-center">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Enhance Security</h4>
+                    <p>Your donation helps us improve our security infrastructure and protect user data.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="reason-card text-center">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Better Accessibility</h4>
+                    <p>Help us develop mobile applications and make our system more accessible to everyone.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="reason-card text-center">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>System Upgrades</h4>
+                    <p>Support continuous improvements and new features in our crime reporting system.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Impact Section -->
+        <div class="row my-5">
+            <div class="col-md-4 text-center">
+                <div class="impact-number">{{ stats.total_cases }}</div>
+                <p>Cases Reported</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="impact-number">{{ stats.resolved_cases }}</div>
+                <p>Cases Resolved</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="impact-number">{{ stats.total_users }}</div>
+                <p>Active Users</p>
+            </div>
+        </div>
+
+        <!-- Donation Form -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="donation-form">
+                    <h3 class="text-center mb-4">Make a Donation</h3>
+                    <form id="donationForm">
+                        <div class="mb-3">
+                            <label for="donorName" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="donorName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="donorEmail" class="form-label">Your Email</label>
+                            <input type="email" class="form-control" id="donorEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Amount</label>
+                            <div class="d-flex flex-wrap justify-content-center">
+                                <button type="button" class="donation-amount-btn" data-amount="100">₹100</button>
+                                <button type="button" class="donation-amount-btn" data-amount="500">₹500</button>
+                                <button type="button" class="donation-amount-btn" data-amount="1000">₹1000</button>
+                                <button type="button" class="donation-amount-btn" data-amount="2000">₹2000</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customAmount" class="form-label">Or Enter Custom Amount</label>
+                            <input type="number" class="form-control" id="customAmount" min="1" step="1">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-donate">Donate Now</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="custom-toast" id="successToast">
+        <div class="toast-content">
+            <div class="toast-animation" id="donationAnimation"></div>
+            <div class="toast-message">
+                <div class="toast-title">Thank You!</div>
+                <div>Your donation has been received. Together we can make a difference!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('donationForm');
+            const amountButtons = document.querySelectorAll('.donation-amount-btn');
+            const customAmountInput = document.getElementById('customAmount');
+            const donorNameInput = document.getElementById('donorName');
+            const donorEmailInput = document.getElementById('donorEmail');
+            
+            let selectedAmount = 0;
+            
+            // Handle amount button clicks
+            amountButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    amountButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedAmount = parseFloat(this.dataset.amount);
+                    customAmountInput.value = '';
+                });
+            });
+            
+            // Handle custom amount input
+            customAmountInput.addEventListener('input', function() {
+                amountButtons.forEach(btn => btn.classList.remove('active'));
+                selectedAmount = parseFloat(this.value) || 0;
+            });
+            
+            // Handle form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate inputs
+                if (!donorNameInput.value.trim()) {
+                    alert('Please enter your name');
+                    return;
+                }
+                
+                if (!donorEmailInput.value.trim()) {
+                    alert('Please enter your email');
+                    return;
+                }
+                
+                if (selectedAmount <= 0) {
+                    alert('Please select or enter a valid amount');
+                    return;
+                }
+                
+                try {
+                    console.log('Creating donation order...');
+                    const response = await fetch('{% url "create_donation_order" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            amount: selectedAmount,
+                            name: donorNameInput.value.trim(),
+                            email: donorEmailInput.value.trim(),
+                            payment_method: 'upi'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    
+                    console.log('Opening Razorpay checkout...');
+                    const options = {
+                        key: data.razorpay_key_id,
+                        amount: data.amount,
+                        currency: data.currency,
+                        name: 'SafeCall',
+                        description: 'Donation to SafeCall',
+                        order_id: data.order_id,
+                        prefill: data.prefill,
+                        handler: async function(response) {
+                            console.log('Payment successful:', response);
+                            try {
+                                const verifyResponse = await fetch('{% url "verify_donation" %}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': '{{ csrf_token }}'
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_signature: response.razorpay_signature
+                                    })
+                                });
+                                
+                                const verifyData = await verifyResponse.json();
+                                
+                                if (verifyData.status === 'success') {
+                                    alert('Thank you for your donation!');
+                                    window.location.href = '{% url "home" %}';
+                                } else {
+                                    alert('Payment verification failed: ' + (verifyData.error || 'Please contact support.'));
+                                }
+                            } catch (error) {
+                                console.error('Error verifying payment:', error);
+                                alert('Error verifying payment. Please contact support.');
+                            }
+                        },
+                        modal: {
+                            ondismiss: function() {
+                                console.log('Checkout form closed');
+                            }
+                        }
+                    };
+                    
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        // Function to show toast message with different styles
+        function showToast(title, message, isSuccess = true) {
+            const toast = document.getElementById('successToast');
+            const toastTitle = toast.querySelector('.toast-title');
+            const toastMessage = toast.querySelector('.toast-message div:last-child');
+            const animationContainer = document.getElementById('donationAnimation');
+            
+            // Update toast content
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // Set border color based on type
+            toast.style.borderLeftColor = isSuccess ? '#28a745' : '#dc3545';
+            
+            // Clear any existing animations
+            animationContainer.innerHTML = '';
+            
+            // Load appropriate animation
+            const animation = lottie.loadAnimation({
+                container: animationContainer,
+                renderer: 'svg',
+                loop: true,  // Make the animation loop for success
+                autoplay: true,
+                path: isSuccess 
+                    ? 'https://assets3.lottiefiles.com/packages/lf20_rbtawnwz.json'  // Helping hands with heart animation
+                    : 'https://assets9.lottiefiles.com/packages/lf20_qpwbukxj.json',  // Error animation
+                rendererSettings: {
+                    preserveAspectRatio: 'xMidYMid slice'
+                }
+            });
+
+            // Show toast with animation
+            toast.style.display = 'block';
+            toast.style.animation = 'slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+
+            // For success messages, keep the animation running longer
+            const displayTime = isSuccess ? 7000 : 5000;
+
+            // Hide toast after display time
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    animation.destroy(); // Clean up animation
+                }, 500);
+            }, displayTime);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

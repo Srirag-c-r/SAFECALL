@@ -1,0 +1,173 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Donation Details - Safe Call Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Donation Details</h1>
+        <a href="{% url 'custom_admin:donation_history' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to List
+        </a>
+    </div>
+
+    <!-- Donation Details Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Transaction Information</h6>
+            <span class="badge {% if donation.payment_status == 'successful' %}bg-success{% elif donation.payment_status == 'failed' %}bg-danger{% else %}bg-warning{% endif %} px-3 py-2">
+                {{ donation.payment_status|title }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-4">Basic Information</h5>
+                    <table class="table">
+                        <tr>
+                            <th width="40%">Transaction Date</th>
+                            <td>{{ donation.created_at|date:"Y-m-d H:i:s" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Amount</th>
+                            <td>₹{{ donation.amount }}</td>
+                        </tr>
+                        <tr>
+                            <th>Payment Method</th>
+                            <td>{{ donation.payment_response.payment_method|default:"N/A" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Payment ID</th>
+                            <td>{{ donation.payment_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Order ID</th>
+                            <td>{{ donation.order_id }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="mb-4">Donor Information</h5>
+                    <table class="table">
+                        <tr>
+                            <th width="40%">Name</th>
+                            <td>{{ donation.payment_response.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ donation.payment_response.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td>{{ donation.payment_response.contact|default:"N/A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="mb-4">Payment Response Details</h5>
+                    <div class="bg-light p-3 rounded">
+                        <pre class="mb-0"><code>{{ donation.payment_response|pprint }}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            {% if donation.payment_status == 'failed' %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">Payment Failed</h5>
+                        <p class="mb-0">{{ donation.payment_response.error_description|default:"No error description available" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Timeline Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Transaction Timeline</h6>
+        </div>
+        <div class="card-body">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-primary"></div>
+                    <div class="timeline-content">
+                        <h6 class="timeline-title">Order Created</h6>
+                        <p class="timeline-date">{{ donation.created_at|date:"Y-m-d H:i:s" }}</p>
+                        <p>Order ID: {{ donation.order_id }}</p>
+                    </div>
+                </div>
+
+                {% if donation.payment_id %}
+                <div class="timeline-item">
+                    <div class="timeline-marker {% if donation.payment_status == 'successful' %}bg-success{% else %}bg-danger{% endif %}"></div>
+                    <div class="timeline-content">
+                        <h6 class="timeline-title">Payment {{ donation.payment_status|title }}</h6>
+                        <p class="timeline-date">{{ donation.updated_at|date:"Y-m-d H:i:s" }}</p>
+                        <p>Payment ID: {{ donation.payment_id }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    height: calc(100% + 15px);
+    width: 2px;
+    background-color: #e3e6f0;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-content {
+    padding-bottom: 10px;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.timeline-date {
+    color: #858796;
+    font-size: 0.875rem;
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %} 

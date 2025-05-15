@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Complaint Details - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .detail-container {
+        width: 100%;
+        max-width: 800px;
+        background-color: #222;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #444;
+    }
+    
+    .complaint-id {
+        font-size: 24px;
+        color: #fff;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    .status-pending {
+        background-color: #FFC107;
+        color: #000;
+    }
+    
+    .status-investigating {
+        background-color: #2196F3;
+        color: #fff;
+    }
+    
+    .status-resolved {
+        background-color: #4CAF50;
+        color: #fff;
+    }
+    
+    .status-rejected {
+        background-color: #F44336;
+        color: #fff;
+    }
+    
+    .detail-section {
+        margin-bottom: 25px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        color: #aaa;
+        margin-bottom: 10px;
+    }
+    
+    .section-content {
+        font-size: 16px;
+        color: #fff;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .description {
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 4px;
+        white-space: pre-line;
+    }
+    
+    .evidence-section {
+        margin-top: 30px;
+    }
+    
+    .evidence-file {
+        display: inline-block;
+        margin-top: 10px;
+        background-color: #333;
+        padding: 10px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #2196F3;
+    }
+    
+    .evidence-file:hover {
+        background-color: #444;
+    }
+    
+    .back-btn {
+        background-color: #607D8B;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+    
+    .back-btn:hover {
+        background-color: #455A64;
+        text-decoration: none;
+        color: white;
+    }
+    
+    .timeline {
+        margin-top: 40px;
+        border-left: 3px solid #2196F3;
+        padding-left: 20px;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+    }
+    
+    .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: -26px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #2196F3;
+    }
+    
+    .timeline-date {
+        color: #aaa;
+        font-size: 14px;
+    }
+    
+    .timeline-content {
+        color: #fff;
+        font-size: 16px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-header">
+        <h2 class="complaint-id">Complaint #{{ complaint.id }}</h2>
+        <span class="status-badge 
+            {% if complaint.status == 'Pending' %}status-pending
+            {% elif complaint.status == 'Under Investigation' %}status-investigating
+            {% elif complaint.status == 'Resolved' %}status-resolved
+            {% elif complaint.status == 'Rejected' %}status-rejected{% endif %}">
+            {{ complaint.status }}
+        </span>
+    </div>
+    
+    <div class="info-grid">
+        <div class="detail-section">
+            <div class="section-title">Complaint Type</div>
+            <div class="section-content">{{ complaint.complaint_type }}</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="section-title">Filed On</div>
+            <div class="section-content">{{ complaint.created_at|date:"d M Y, h:i A" }}</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="section-title">Incident Date</div>
+            <div class="section-content">{{ complaint.incident_date|date:"d M Y" }}</div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="section-title">Incident Time</div>
+            <div class="section-content">{{ complaint.incident_time }}</div>
+        </div>
+    </div>
+    
+    <div class="detail-section">
+        <div class="section-title">Police Station</div>
+        <div class="section-content">{{ complaint.police_station.location }}, {{ complaint.police_station.district }} ({{ complaint.police_station.pincode }})</div>
+    </div>
+    
+    <div class="detail-section">
+        <div class="section-title">Description</div>
+        <div class="section-content description">{{ complaint.description }}</div>
+    </div>
+    
+    {% if complaint.evidence %}
+        <div class="detail-section evidence-section">
+            <div class="section-title">Evidence</div>
+            <div class="section-content">
+                <a href="{{ complaint.evidence.url }}" target="_blank" class="evidence-file">
+                    <i class="fas fa-file"></i> View Uploaded Evidence
+                </a>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="timeline">
+        <h3 class="section-title">Complaint Timeline</h3>
+        
+        <div class="timeline-item">
+            <div class="timeline-date">{{ complaint.created_at|date:"d M Y, h:i A" }}</div>
+            <div class="timeline-content">Complaint registered</div>
+        </div>
+        
+        {% if complaint.status != 'Pending' %}
+            <div class="timeline-item">
+                <div class="timeline-date">{{ complaint.updated_at|date:"d M Y, h:i A" }}</div>
+                <div class="timeline-content">Status updated to {{ complaint.status }}</div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'view_complaints' %}" class="back-btn">Back to All Complaints</a>
+    </div>
+</div>
+{% endblock %}

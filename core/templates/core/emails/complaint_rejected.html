@@ -1,0 +1,44 @@
+{% extends "core/emails/base_email.html" %}
+
+{% block content %}
+<div class="content">
+    <h2>Complaint Status Update</h2>
+    <div class="info-box">
+        <p>Dear {{ user_name }},</p>
+        <p>We regret to inform you that your complaint has been reviewed and cannot be processed further at this time.</p>
+        
+        <h3>Complaint Details:</h3>
+        <table>
+            <tr>
+                <td><strong>Complaint ID:</strong></td>
+                <td>{{ complaint_id }}</td>
+            </tr>
+            <tr>
+                <td><strong>Type:</strong></td>
+                <td>{{ complaint_type }}</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td><span class="status-failed">Rejected</span></td>
+            </tr>
+        </table>
+
+        <div class="info-box" style="border-left-color: #b2222e; margin-top: 20px;">
+            <h4 style="margin-top: 0;">Possible Reasons for Rejection:</h4>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Insufficient information provided</li>
+                <li>The incident does not fall under our jurisdiction</li>
+                <li>The complaint may require filing in a different format or through a different channel</li>
+            </ul>
+        </div>
+    </div>
+
+    <p>If you believe this decision was made in error or would like to provide additional information, please visit our help center or contact your nearest police station.</p>
+    
+    <div style="text-align: center; margin: 20px 0;">
+        <a href="{{ help_center_url }}" class="button">Visit Help Center</a>
+    </div>
+    
+    <p>Thank you for your understanding.</p>
+</div>
+{% endblock %}

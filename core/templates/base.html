@@ -1,127 +1,566 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Safe Call{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'LOGOS/gpttlogo.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'LOGOS/gpttlogo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'LOGOS/gpttlogo.png' %}">
+    <meta name="msapplication-TileImage" content="{% static 'LOGOS/gpttlogo.png' %}">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Audiowide&family=Cinzel:wght@400..900&family=Rock+Salt&family=Space+Grotesk:wght@300..700&family=Tektur:wght@400..900&display=swap" rel="stylesheet">
+    
+    <!-- Dark theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     {% block styles %}
     <style>
+        /* Base styling */
+        :root {
+            --primary-color: #728b94;
+            --secondary-color: #93a0a0;
+            --dark-bg: #121418;
+            --light-text: #e0e0e0;
+            --accent-color: #b2222e;
+            --card-bg: rgba(25, 26, 31, 0.8);
+            --hover-color: #2a2d36;
+            --gradient-start: #1a1d24;
+            --gradient-end: #2c3037;
+        }
+
+        /* Global font settings */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #FFFFFF;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--light-text);
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.6;
         }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar .logo {
+            font-family: 'Audiowide', cursive;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--light-text);
+            text-shadow: 0 0 15px rgba(114, 139, 148, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+
+        .navbar ul li a {
+            font-family: 'Tektur', sans-serif;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.95rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            font-family: 'Tektur', sans-serif;
+            font-weight: 600;
+        }
+
+        .empty-state-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+        }
+
+        .empty-state-text {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Enhanced Radar background animation */
+        .radar-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.4;
+        }
+
+        .radar-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200vw;
+            height: 200vw;
+            border: 1px solid rgba(178, 34, 46, 0.15);
+            border-radius: 50%;
+            animation: radar-pulse 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .radar-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: left center;
+            width: 100vw;
+            height: 2px;
+            background: linear-gradient(to right, rgba(178, 34, 46, 0.6), transparent);
+            animation: radar-scan 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(178, 34, 46, 0.4);
+        }
+
+        .radar-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(1px);
+            box-shadow: 0 0 10px rgba(178, 34, 46, 0.6);
+            animation: radar-dot-pulse 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes radar-pulse {
+            0% { width: 0; height: 0; opacity: 0.8; }
+            100% { width: 200vw; height: 200vw; opacity: 0; }
+        }
+
+        @keyframes radar-scan {
+            from { transform: rotate(0deg) translateX(0); }
+            to { transform: rotate(360deg) translateX(0); }
+        }
+
+        @keyframes radar-dot-pulse {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Modern Glassmorphic Navbar */
         .navbar {
-            background-color: #333;
-            padding: 15px 20px;
+            background: rgba(18, 20, 24, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
         }
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
+
+        .navbar .logo:before {
+            content: '';
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            background: conic-gradient(from 45deg, var(--accent-color), transparent);
+            border-radius: 50%;
+            animation: rotate 3s linear infinite;
+            box-shadow: 0 0 20px rgba(178, 34, 46, 0.4);
         }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .navbar ul {
             list-style: none;
             display: flex;
             margin: 0;
             padding: 0;
+            gap: 1rem;
         }
+
         .navbar ul li {
-            margin: 0 15px;
+            position: relative;
         }
-        .navbar ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
+
+        .navbar ul li a:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: 0.5s;
         }
+
         .navbar ul li a:hover {
-            text-decoration: underline;
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: #fff;
         }
+
+        .navbar ul li a:hover:before {
+            left: 100%;
+        }
+
+        .navbar ul li a.active {
+            background: var(--accent-color);
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(178, 34, 46, 0.4);
+        }
+
+        /* Enhanced Container */
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            padding: 20px;
-            min-height: 80vh;
+            padding: 3rem 2rem;
+            min-height: calc(100vh - 80px);
+            position: relative;
+            z-index: 1;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        /* Toast notification styles */
+        /* Modern Toast Notifications */
         .toast-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 2rem;
+            right: 2rem;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 1rem;
         }
+
         .toast {
-            min-width: 250px;
-            max-width: 350px;
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            min-width: 300px;
+            max-width: 400px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            background: rgba(25, 26, 31, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
             color: white;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            animation: slide-in 0.3s ease-out, fade-out 0.5s ease-out 5s forwards;
-            opacity: 0.95;
+            animation: slide-in 0.3s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .toast-error { background-color: #FF5722; }
-        .toast-success { background-color: #4CAF50; }
-        .toast-info { background-color: #2196F3; }
-        .toast-warning { background-color: #FF9800; }
+
+        .toast-error { 
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .toast-success { 
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .toast-info { 
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .toast-warning { 
+            border-left: 4px solid #ffa500;
+        }
+
         .toast-close {
             background: none;
             border: none;
-            color: white;
-            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.25rem;
             cursor: pointer;
-            padding: 0 0 0 15px;
+            padding: 0 0 0 1rem;
+            transition: all 0.2s ease;
         }
+
+        .toast-close:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        /* Animations */
         @keyframes slide-in {
             from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 0.95; }
+            to { transform: translateX(0); opacity: 1; }
         }
+
         @keyframes fade-out {
-            from { opacity: 0.95; }
+            from { opacity: 1; }
             to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .navbar .logo {
+                font-size: 1.4rem;
+            }
+            
+            .navbar .logo:before {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .navbar ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(18, 20, 24, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            
+            .navbar ul.show {
+                display: flex;
+            }
+            
+            .navbar ul li a {
+                display: block;
+                text-align: center;
+                padding: 0.8rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .menu-toggle {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                cursor: pointer;
+                padding: 0.5rem;
+            }
+            
+            .menu-toggle span {
+                display: block;
+                width: 25px;
+                height: 2px;
+                background-color: var(--light-text);
+                transition: all 0.3s ease;
+                border-radius: 2px;
+            }
+            
+            .menu-toggle.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+            
+            .menu-toggle.active span:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .menu-toggle.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(7px, -7px);
+            }
+            
+            .container {
+                padding: 2rem 1rem;
+            }
+            
+            .toast-container {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+            }
+            
+            .toast {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Scroll Bar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d42636;
+        }
+
+        /* Navbar Icon Styles */
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            vertical-align: middle;
+            stroke-width: 1.5;
+            transition: all 0.3s ease;
+            color: var(--light-text);
+        }
+
+        .navbar ul li a {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1.2rem;
+            gap: 8px;
+        }
+
+        .navbar ul li a:hover .nav-icon {
+            transform: scale(1.2);
+            color: var(--accent-color);
+        }
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar .logo .nav-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-color);
+        }
+
+        /* Mobile menu icon adjustments */
+        @media (max-width: 768px) {
+            .navbar ul li a {
+                justify-content: center;
+            }
+            
+            .nav-icon {
+                margin-right: 12px;
+            }
         }
     </style>
     {% endblock %}    
 </head>
 <body>
+    <!-- Radar Background -->
+    <div class="radar-background">
+        <div class="radar-circle"></div>
+        <div class="radar-circle" style="animation-delay: 1s;"></div>
+        <div class="radar-circle" style="animation-delay: 2s;"></div>
+        <div class="radar-circle" style="animation-delay: 3s;"></div>
+        <div class="radar-line"></div>
+        <!-- Dynamic radar dots will be added by JS -->
+    </div>
 
     <nav class="navbar">
-        <div class="logo">Safe Call</div>
-        <ul>
+        <div class="logo">
+            <img src="{% static 'LOGOS/gpttlogo.png' %}" alt="Safe Call Logo" style="height: 40px; margin-right: 10px;">
+            Safe Call
+        </div>
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul id="nav-menu">
             {% if request.session.user_id %}
                 <!-- Navbar for Public User -->
-                <li><a href="{% url 'user_dashboard' %}">Home</a></li>
-                <li><a href="">Add Complaints</a></li>
-                <li><a href="">View Complaints</a></li>
-                <li><a href="">Contact</a></li>
-                <li><a href="{% url 'user_logout' %}">Logout</a></li>
+                <li><a href="{% url 'user_dashboard' %}"><i data-lucide="home" class="nav-icon"></i>Home</a></li>
+                <li><a href="{% url 'add_complaint' %}"><i data-lucide="file-plus" class="nav-icon"></i>Add Complaints</a></li>
+                <li><a href="{% url 'view_complaints' %}"><i data-lucide="list" class="nav-icon"></i>Complaint Status</a></li>
+                <li><a href="{% url 'update_profile' %}"><i data-lucide="user-cog" class="nav-icon"></i>Update Profile</a></li>
+                <li><a href="{% url 'contact' %}"><i data-lucide="phone" class="nav-icon"></i>Contact</a></li>
+                <li><a href="{% url 'user_logout' %}"><i data-lucide="log-out" class="nav-icon"></i>Logout</a></li>
             {% elif request.session.police_station_id %}
                 <!-- Navbar for Police Station -->
-                <li><a href="{% url 'police_station_dashboard' %}">Home</a></li>
-                <li><a href="">View Complaints</a></li>
-                <li><a href="">Manage FIRs</a></li>
-                <li><a href="{% url 'police_logout' %}">Logout</a></li>
+                <li><a href="{% url 'police_station_dashboard' %}"><i data-lucide="home" class="nav-icon"></i>Home</a></li>
+                <li><a href="{% url 'police_view_complaints' %}"><i data-lucide="clipboard-list" class="nav-icon"></i>View Complaints</a></li>
+                <li><a href="{% url 'manage_fir' %}"><i data-lucide="file-text" class="nav-icon"></i>Manage FIRs</a></li>
+                <li><a href="{% url 'police_logout' %}"><i data-lucide="log-out" class="nav-icon"></i>Logout</a></li>
             {% else %}
                 <!-- Navbar for Guests -->
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'about' %}">About</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
+                <li><a href="{% url 'home' %}"><i data-lucide="home" class="nav-icon"></i>Home</a></li>
+                <li><a href="{% url 'about' %}"><i data-lucide="info" class="nav-icon"></i>About</a></li>
+                <li><a href="{% url 'login' %}"><i data-lucide="log-in" class="nav-icon"></i>Login</a></li>
+                <li><a href="{% url 'register' %}"><i data-lucide="user-plus" class="nav-icon"></i>Register</a></li>
             {% endif %}
         </ul>
     </nav>    
@@ -134,15 +573,81 @@
     <!-- Toast notifications container -->
     <div class="toast-container" id="toast-container"></div>
 
-    <!-- JavaScript for toast notifications -->
+    <!-- JavaScript for interactions -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navMenu = document.getElementById('nav-menu');
+            
+            if (mobileMenu) {
+                mobileMenu.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    navMenu.classList.toggle('show');
+                });
+            }
+            
+            // Create radar dots randomly
+            const radarBackground = document.querySelector('.radar-background');
+            
+            function createRadarDots() {
+                for (let i = 0; i < 15; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'radar-dot';
+                    
+                    // Random position
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * window.innerHeight;
+                    
+                    dot.style.left = x + 'px';
+                    dot.style.top = y + 'px';
+                    
+                    // Random delay
+                    dot.style.animationDelay = (Math.random() * 5) + 's';
+                    
+                    radarBackground.appendChild(dot);
+                }
+            }
+            
+            createRadarDots();
+            
             // Process Django messages and convert them to toasts
             {% if messages %}
                 {% for message in messages %}
-                    createToast("{{ message }}", "{{ message.tags }}");
+                    createToast("{{ message|escapejs }}", "{{ message.tags|escapejs }}");
                 {% endfor %}
             {% endif %}
+            
+            // Add active class to current navigation item
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar ul li a');
+            
+            navLinks.forEach(link => {
+                const linkPath = new URL(link.href).pathname;
+                if (currentPath === linkPath) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Initialize Lucide icons
+            lucide.createIcons({
+                attrs: {
+                    class: 'nav-icon'
+                }
+            });
+
+            // Add hover animation to icons
+            document.querySelectorAll('.nav-icon').forEach(icon => {
+                icon.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.2)';
+                    this.style.color = 'var(--accent-color)';
+                });
+
+                icon.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.color = 'var(--light-text)';
+                });
+            });
         });
 
         function createToast(message, type) {
@@ -160,9 +665,9 @@
             // Add close button
             const closeButton = document.createElement('button');
             closeButton.className = 'toast-close';
-            closeButton.textContent = '✕';
+            closeButton.innerHTML = '&times;';
             closeButton.onclick = function() {
-                toast.remove();
+                fadeOutToast(toast);
             };
             toast.appendChild(closeButton);
             
@@ -172,10 +677,63 @@
             // Remove toast after 5 seconds
             setTimeout(function() {
                 if (toast.parentNode) {
-                    toast.remove();
+                    fadeOutToast(toast);
                 }
             }, 5500);
         }
+        
+        function fadeOutToast(toast) {
+            toast.style.animation = 'fade-out 0.5s forwards';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 500);
+        }
+        
+        // Function to create ripple effect on buttons
+        document.addEventListener('click', function(e) {
+            const target = e.target;
+            
+            if (target.tagName === 'A' || target.tagName === 'BUTTON') {
+                const rect = target.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                target.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+        });
+        
+        // Function to animate elements when they come into view
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight;
+                
+                if (elementPosition < screenPosition - 100) {
+                    element.classList.add('animated');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Initialize animations on load
+        setTimeout(animateOnScroll, 300);
     </script>
+    
+    {% block extra_scripts %}
+    {% endblock %}
 </body>
 </html>

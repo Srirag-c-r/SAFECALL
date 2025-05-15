@@ -16,8 +16,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from core import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),  # Includes the core app URLs
+    path('custom-admin/', include('custom_admin.urls')),  # Include custom admin URLs
+    path('create-donation-order/', views.create_donation_order, name='create_donation_order'),
+    path('verify-donation/', views.verify_donation, name='verify_donation'),
+    path('donate/', views.donate, name='donate'),
 ]
+
+# Serve static files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Add these imports and code at the end of your main urls.py file
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

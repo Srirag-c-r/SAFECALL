@@ -1,0 +1,270 @@
+{% extends "admin/base.html" %}
+
+{% block title %}User Management - Safe Call Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Public Users Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Public Users</h1>
+        <div class="btn-group">
+            <a href="?filter=all" class="btn btn-outline-primary {% if current_filter == 'all' %}active{% endif %}">All Users</a>
+            <a href="?filter=verified" class="btn btn-outline-primary {% if current_filter == 'verified' %}active{% endif %}">Verified</a>
+            <a href="?filter=new" class="btn btn-outline-primary {% if current_filter == 'new' %}active{% endif %}">New Registrations</a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Aadhaar</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in public_users %}
+                        <tr>
+                            <td>#{{ user.id }}</td>
+                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.adhaar }}</td>
+                            <td>
+                                {% if user.is_verified %}
+                                    <span class="badge bg-success">Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_type" value="public">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        {% if not user.is_verified %}
+                                            <button type="submit" name="action" value="verify" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" name="action" value="suspend" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+
+                                <!-- Edit User Modal -->
+                                <div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="POST" action="{% url 'custom_admin:edit_user' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_type" value="public">
+                                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit User Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">First Name</label>
+                                                        <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Last Name</label>
+                                                        <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Phone</label>
+                                                        <input type="tel" class="form-control" name="phone" value="{{ user.phone }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No public users found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Police Stations Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Police Stations</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPoliceStationModal">
+            <i class="fas fa-plus me-2"></i>Add Police Station
+        </button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Station ID</th>
+                            <th>District</th>
+                            <th>Location</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for station in police_stations %}
+                        <tr>
+                            <td>#{{ station.id }}</td>
+                            <td>{{ station.district }}</td>
+                            <td>{{ station.location }}</td>
+                            <td>{{ station.contact }}</td>
+                            <td>{{ station.email }}</td>
+                            <td>
+                                {% if station.approved %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editStationModal{{ station.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_type" value="police">
+                                        <input type="hidden" name="user_id" value="{{ station.id }}">
+                                        {% if not station.approved %}
+                                            <button type="submit" name="action" value="approve" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" name="action" value="suspend" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+
+                                <!-- Edit Station Modal -->
+                                <div class="modal fade" id="editStationModal{{ station.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="POST" action="{% url 'custom_admin:edit_user' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_type" value="police">
+                                                <input type="hidden" name="user_id" value="{{ station.id }}">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Police Station</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">District</label>
+                                                        <input type="text" class="form-control" name="district" value="{{ station.district }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Location</label>
+                                                        <input type="text" class="form-control" name="location" value="{{ station.location }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Contact</label>
+                                                        <input type="tel" class="form-control" name="contact" value="{{ station.contact }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Pincode</label>
+                                                        <input type="text" class="form-control" name="pincode" value="{{ station.pincode }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No police stations found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Police Station Modal -->
+<div class="modal fade" id="addPoliceStationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'custom_admin:add_police_station' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Police Station</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">District</label>
+                        <input type="text" class="form-control" name="district" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-control" name="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pincode</label>
+                        <input type="text" class="form-control" name="pincode" required maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Number</label>
+                        <input type="tel" class="form-control" name="contact" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Police Station</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

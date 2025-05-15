@@ -1,0 +1,1625 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Profile - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .form-container {
+        background-color: #1E1E1E;
+        border-radius: 10px;
+        padding: 40px;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 20px;
+            margin: 10px;
+        }
+    }
+    
+    .form-title {
+        color: #FFFFFF;
+        font-size: 24px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #E0E0E0;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+        color: #FFFFFF;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #2196F3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+    }
+    
+    .form-control:disabled {
+        background-color: #2a2a2a;
+        cursor: not-allowed;
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23FFFFFF' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 30px;
+    }
+    
+    .btn {
+        padding: 14px 28px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        min-width: 120px;
+    }
+    
+    .btn-primary {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+    
+    .btn-secondary {
+        background-color: #666;
+        color: white;
+        border: none;
+        margin-left: 15px;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #555;
+    }
+    
+    .profile-picture-container {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+        border: 3px solid #444;
+    }
+    
+    .file-input-container {
+        position: relative;
+        margin-top: 15px;
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .file-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .file-input-label {
+        display: block;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+        padding: 12px;
+        text-align: center;
+        color: #FFFFFF;
+        cursor: pointer;
+    }
+
+    .row {
+        margin-left: -15px;
+        margin-right: -15px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col-md-6 {
+        padding-left: 15px;
+        padding-right: 15px;
+        flex: 0 0 50%;
+        max-width: 50%;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .btn-secondary {
+            margin-left: 0;
+        }
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .mt-4 {
+        margin-top: 2rem;
+    }
+
+    .form-control.is-changed {
+        border-color: #4CAF50;
+        background-color: rgba(76, 175, 80, 0.05);
+    }
+
+    .optional-field {
+        color: #888;
+        font-size: 12px;
+        margin-left: 8px;
+        font-weight: normal;
+    }
+
+    .required-field::after {
+        content: "*";
+        color: #f44336;
+        margin-left: 4px;
+    }
+
+    .validation-message {
+        display: none;
+        font-size: 12px;
+        margin-top: 5px;
+        color: #f44336;
+    }
+
+    .validation-message.show {
+        display: block;
+    }
+
+    .success-message {
+        display: none;
+        font-size: 12px;
+        margin-top: 5px;
+        color: #4CAF50;
+    }
+
+    .success-message.show {
+        display: block;
+    }
+
+    .placeholder-text {
+        color: #666;
+        font-style: italic;
+    }
+
+    .form-control::placeholder {
+        color: #666;
+        font-style: italic;
+    }
+
+    .empty-field {
+        color: #666;
+        font-style: italic;
+    }
+
+    .field-info {
+        font-size: 12px;
+        color: #888;
+        margin-top: 4px;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+
+    .form-control.is-valid {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+
+    .error-message.show {
+        display: block;
+    }
+
+    .form-group.has-error .form-label {
+        color: #dc3545;
+    }
+
+    .form-group.has-error .form-control {
+        border-color: #dc3545;
+    }
+
+    .form-control:disabled {
+        background-color: #2a2a2a;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .password-strength {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .password-strength .weak {
+        color: #dc3545;
+    }
+
+    .password-strength .medium {
+        color: #ffc107;
+    }
+
+    .password-strength .strong {
+        color: #28a745;
+    }
+
+    .phone-hint {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Toast Notification Styles */
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    .toast {
+        background-color: #333;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 5px;
+        margin-top: 10px;
+        min-width: 250px;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideUpIn 0.3s ease-in-out;
+        transition: all 0.3s ease;
+    }
+
+    .toast.success {
+        background-color: #4CAF50;
+        border-left: 5px solid #45a049;
+    }
+
+    .toast.error {
+        background-color: #f44336;
+        border-left: 5px solid #da3a2f;
+    }
+
+    .toast.warning {
+        background-color: #ff9800;
+        border-left: 5px solid #f57c00;
+    }
+
+    .toast.info {
+        background-color: #2196F3;
+        border-left: 5px solid #1976d2;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0 5px;
+        margin-left: 10px;
+    }
+
+    @keyframes slideUpIn {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOutDown {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    /* Styling for hints */
+    .hint-text {
+        display: none;
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 4px;
+        font-style: italic;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus + .hint-text {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Additional toast styles */
+    .toast.hint {
+        background-color: #333;
+        border-left: 5px solid #1976d2;
+        max-width: 300px;
+    }
+
+    #container {
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(60, 60, 60, 0.8) 100%);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        max-width: 850px;
+        margin: 50px auto;
+        display: flex;
+        flex-direction: column;
+        color: white;
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 0 15px;
+    }
+
+    .form-control {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 5px;
+        padding: 10px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: #fd5d93;
+        box-shadow: 0 0 0 2px rgba(253, 93, 147, 0.25);
+        outline: none;
+    }
+
+    /* Enhanced hint styling */
+    .hint-text {
+        position: absolute;
+        left: 15px;
+        bottom: -20px;
+        font-size: 12px;
+        color: #aaa;
+        transition: all 0.3s ease;
+        opacity: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 5;
+        width: calc(100% - 30px);
+        text-align: left;
+        border-left: 2px solid #fd5d93;
+    }
+
+    .form-control:focus + .hint-text,
+    .hint-text.show {
+        opacity: 1;
+        bottom: -25px;
+    }
+
+    /* Validation indicators */
+    .form-group.has-success .form-control {
+        border-color: #00f2c3;
+        background-color: rgba(0, 242, 195, 0.1);
+    }
+
+    .form-group.has-success .hint-text {
+        color: #00f2c3;
+        border-left-color: #00f2c3;
+    }
+
+    .form-group.has-error .form-control {
+        border-color: #fd5d93;
+        background-color: rgba(253, 93, 147, 0.1);
+    }
+
+    .form-group.has-error .hint-text {
+        color: #fd5d93;
+        border-left-color: #fd5d93;
+    }
+
+    .password-strength {
+        height: 5px;
+        margin-top: 5px;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    /* Toast styling */
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        transform: translateY(-20px);
+        opacity: 0;
+        max-width: 350px;
+    }
+
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .toast-success {
+        border-left: 4px solid #00f2c3;
+    }
+
+    .toast-error {
+        border-left: 4px solid #fd5d93;
+    }
+
+    .toast-icon {
+        margin-right: 10px;
+        font-size: 20px;
+    }
+
+    .toast-message {
+        flex: 1;
+    }
+
+    .toast-close {
+        cursor: pointer;
+        padding-left: 10px;
+        font-size: 18px;
+        opacity: 0.7;
+    }
+
+    .toast-close:hover {
+        opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+        .form-group {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Add Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="container">
+    <div class="form-container">
+        <h2 class="form-title">Update Profile</h2>
+        <p class="text-center" style="color: #888; margin-bottom: 20px;">Fill in only the fields you wish to update. Empty fields will retain their current values.</p>
+        
+        <form id="updateProfileForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+            <div class="profile-picture-container">
+                            {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-picture" id="profilePreview">
+                            {% else %}
+                    <img src="{% static 'images/default_profile.png' %}" alt="Default Profile" class="profile-picture" id="profilePreview">
+                            {% endif %}
+                <div class="file-input-container">
+                    <input type="file" name="profile_picture" id="profilePicture" class="file-input" accept="image/*">
+                    <label for="profilePicture" class="file-input-label">
+                        <i class="fas fa-camera"></i> Change Profile Picture
+                    </label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label required-field">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                               value="{{ user.first_name }}" data-original="{{ user.first_name }}">
+                        <div class="hint-text" id="first_name-hint">Enter your first name (2-50 letters only)</div>
+                        <div class="validation-message" id="first_name-error"></div>
+                        <div class="success-message" id="first_name-success"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="last_name" class="form-label required-field">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                               value="{{ user.last_name }}" data-original="{{ user.last_name }}">
+                        <div class="hint-text" id="last_name-hint">Enter your last name (2-50 letters only)</div>
+                        <div class="validation-message" id="last_name-error"></div>
+                        <div class="success-message" id="last_name-success"></div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="email" class="form-label required-field">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ user.email }}" readonly>
+                        <div class="hint-text" id="email-hint">Email address cannot be changed</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number <span class="optional-field">(Optional)</span></label>
+                        <input type="tel" class="form-control" id="phone" name="phone" 
+                               value="{{ user.phone }}" data-original="{{ user.phone }}">
+                        <div class="hint-text" id="phone-hint">Enter a 10-digit mobile number starting with 6-9</div>
+                        <div class="validation-message" id="phone-error"></div>
+                        <div class="success-message" id="phone-success"></div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="date_of_birth" class="form-label">Date of Birth <span class="optional-field">(Optional)</span></label>
+                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                               value="{{ user.date_of_birth|date:'Y-m-d' }}" data-original="{{ user.date_of_birth|date:'Y-m-d' }}">
+                        <div class="hint-text" id="date_of_birth-hint">You must be at least 18 years old</div>
+                        <div class="validation-message" id="date_of_birth-error"></div>
+                        <div class="success-message" id="date_of_birth-success"></div>
+                    </div>
+                            </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="gender" class="form-label">Gender <span class="optional-field">(Optional)</span></label>
+                        <select class="form-control" id="gender" name="gender" data-original="{{ user.gender }}">
+                            <option value="" {% if not user.gender %}selected{% endif %}>Select Gender</option>
+                                    <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                    <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                        <div class="hint-text" id="gender-hint">Select your gender from the options</div>
+                            </div>
+                        </div>
+                        </div>
+
+            <div class="form-group">
+                <label for="address" class="form-label">Address <span class="optional-field">(Optional)</span></label>
+                <textarea class="form-control" id="address" name="address" rows="3" 
+                          data-original="{{ user.address }}">{{ user.address }}</textarea>
+                <div class="hint-text" id="address-hint">Enter your complete residential address</div>
+                <div class="validation-message" id="address-error"></div>
+                <div class="success-message" id="address-success"></div>
+                        </div>
+
+                        <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="district" class="form-label">District <span class="optional-field">(Optional)</span></label>
+                        <input type="text" class="form-control" id="district" name="district" 
+                               value="{{ user.district }}" data-original="{{ user.district }}">
+                        <div class="hint-text" id="district-hint">Enter your district name (letters only)</div>
+                        <div class="validation-message" id="district-error"></div>
+                        <div class="success-message" id="district-success"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="pincode" class="form-label">Pincode <span class="optional-field">(Optional)</span></label>
+                        <input type="text" class="form-control" id="pincode" name="pincode" 
+                               value="{{ user.pincode }}" data-original="{{ user.pincode }}">
+                        <div class="hint-text" id="pincode-hint">Enter a valid 6-digit pincode</div>
+                        <div class="validation-message" id="pincode-error"></div>
+                        <div class="success-message" id="pincode-success"></div>
+                            </div>
+                            </div>
+                        </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="password" class="form-label">New Password <span class="optional-field">(Optional)</span></label>
+                        <input type="password" class="form-control" id="password" name="password">
+                        <div class="hint-text" id="password-hint">Minimum 8 characters with letters, numbers, and special characters</div>
+                        <div class="validation-message" id="password-error"></div>
+                        <div class="success-message" id="password-success"></div>
+                        <div id="passwordStrength"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                        <div class="hint-text" id="confirmPassword-hint">Re-enter the password exactly as above</div>
+                        <div class="validation-message" id="confirmPassword-error"></div>
+                        <div class="success-message" id="confirmPassword-success"></div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-primary" id="updateButton" onclick="forceUpdateProfile()">Update Profile</button>
+                <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Add Toast Notification Functions
+    function createToast(message, type = 'info', duration = 3000) {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const content = document.createElement('span');
+        content.textContent = message;
+        
+        const closeButton = document.createElement('button');
+        closeButton.className = 'toast-close';
+        closeButton.innerHTML = '&times;';
+        closeButton.onclick = () => removeToast(toast);
+        
+        toast.appendChild(content);
+        toast.appendChild(closeButton);
+        toastContainer.appendChild(toast);
+        
+        // Auto remove after duration
+        setTimeout(() => removeToast(toast), duration);
+    }
+
+    function removeToast(toast) {
+        toast.style.animation = 'fadeOutDown 0.3s ease-in-out forwards';
+        setTimeout(() => toast.remove(), 300);
+    }
+
+    // Force update profile function (called by button)
+    function forceUpdateProfile() {
+        console.log("Force update profile called");
+        
+        // Get the form
+        const form = document.getElementById('updateProfileForm');
+        if (!form) {
+            console.error("Form not found");
+            return;
+        }
+        
+        // Validate all fields first
+        if (!validateAllFields()) {
+            createToast('Please fix the validation errors before submitting.', 'error');
+            return;
+        }
+        
+        // Check for any changes in the address field
+        const addressField = document.getElementById('address');
+        let addressChanged = false;
+        if (addressField) {
+            const currentValue = addressField.value.trim();
+            const originalValue = addressField.getAttribute('data-original') || '';
+            addressChanged = currentValue !== originalValue;
+            
+            if (addressChanged) {
+                console.log("Address field changed:", currentValue);
+            }
+        }
+        
+        // Check other fields for changes
+        let anyChanges = false;
+        
+        // Check changed fields map
+        if (window.changedFields && window.changedFields.size > 0) {
+            anyChanges = true;
+        }
+        
+        // If the address changed, we can submit the form
+        if (addressChanged && !addressField.classList.contains('is-invalid')) {
+            window.changedFields.set('address', addressField.value.trim());
+            anyChanges = true;
+        }
+        
+        // Check text inputs
+        form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="password"], textarea, select').forEach(field => {
+            if (field.id) {
+                const currentValue = field.value.trim();
+                const originalValue = field.getAttribute('data-original') || '';
+                
+                if (currentValue !== originalValue && !field.classList.contains('is-invalid')) {
+                    console.log(`Field ${field.id} changed:`, currentValue);
+                    window.changedFields.set(field.id, currentValue);
+                    anyChanges = true;
+                }
+            }
+        });
+        
+        // Check file inputs (profile picture)
+        const profilePicture = document.getElementById('profilePicture');
+        if (profilePicture && profilePicture.files && profilePicture.files.length > 0) {
+            console.log("Profile picture changed");
+            anyChanges = true;
+        }
+        
+        if (anyChanges) {
+            createToast('Updating profile...', 'info');
+            console.log("Submitting form due to detected changes");
+            setTimeout(() => form.submit(), 100);
+        } else {
+            createToast('No changes have been made to update.', 'warning');
+        }
+    }
+    
+    // Function to validate all fields
+    function validateAllFields() {
+        let isValid = true;
+        let firstError = null;
+        
+        // Get form
+        const form = document.getElementById('updateProfileForm');
+        
+        // Reset all validation states
+        form.querySelectorAll('.validation-message').forEach(elem => {
+            elem.classList.remove('show');
+        });
+        form.querySelectorAll('.success-message').forEach(elem => {
+            elem.classList.remove('show');
+        });
+        form.querySelectorAll('.form-control').forEach(elem => {
+            elem.classList.remove('is-invalid');
+            elem.classList.remove('is-valid');
+        });
+        
+        // Validate required fields (first name, last name)
+        const firstName = document.getElementById('first_name');
+        if (firstName) {
+            if (!firstName.value.trim()) {
+                showError('first_name', 'First name is required');
+                isValid = false;
+                if (!firstError) firstError = firstName;
+            } else if (!/^[A-Za-z\s]{2,50}$/.test(firstName.value.trim())) {
+                showError('first_name', 'First name should be 2-50 characters long and contain only letters');
+                isValid = false;
+                if (!firstError) firstError = firstName;
+            } else {
+                showSuccess('first_name');
+            }
+        }
+        
+        const lastName = document.getElementById('last_name');
+        if (lastName) {
+            if (!lastName.value.trim()) {
+                showError('last_name', 'Last name is required');
+                isValid = false;
+                if (!firstError) firstError = lastName;
+            } else if (!/^[A-Za-z\s]{2,50}$/.test(lastName.value.trim())) {
+                showError('last_name', 'Last name should be 2-50 characters long and contain only letters');
+                isValid = false;
+                if (!firstError) firstError = lastName;
+            } else {
+                showSuccess('last_name');
+            }
+        }
+        
+        // Validate phone number (if provided)
+        const phone = document.getElementById('phone');
+        if (phone && phone.value.trim()) {
+            if (!/^[6-9]\d{9}$/.test(phone.value.trim())) {
+                showError('phone', 'Please enter a valid 10-digit mobile number starting with 6-9');
+                isValid = false;
+                if (!firstError) firstError = phone;
+            } else {
+                showSuccess('phone');
+            }
+        }
+        
+        // Validate date of birth (if provided)
+        const dob = document.getElementById('date_of_birth');
+        if (dob && dob.value.trim()) {
+            const dobDate = new Date(dob.value);
+                    const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Calculate age
+            let age = today.getFullYear() - dobDate.getFullYear();
+            const monthDiff = today.getMonth() - dobDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+                        age--;
+                    }
+                    
+            if (isNaN(dobDate.getTime())) {
+                showError('date_of_birth', 'Please enter a valid date');
+                isValid = false;
+                if (!firstError) firstError = dob;
+            } else if (dobDate > today) {
+                showError('date_of_birth', 'Date of birth cannot be in the future');
+                isValid = false;
+                if (!firstError) firstError = dob;
+            } else if (age < 18) {
+                showError('date_of_birth', 'You must be at least 18 years old');
+                isValid = false;
+                if (!firstError) firstError = dob;
+            } else {
+                showSuccess('date_of_birth');
+            }
+        }
+        
+        // Validate pincode (if provided)
+        const pincode = document.getElementById('pincode');
+        if (pincode && pincode.value.trim()) {
+            if (!/^[1-9][0-9]{5}$/.test(pincode.value.trim())) {
+                showError('pincode', 'Please enter a valid 6-digit pincode');
+                isValid = false;
+                if (!firstError) firstError = pincode;
+            } else {
+                showSuccess('pincode');
+            }
+        }
+        
+        // Validate district (if provided)
+        const district = document.getElementById('district');
+        if (district && district.value.trim()) {
+            if (!/^[A-Za-z\s]{3,50}$/.test(district.value.trim())) {
+                showError('district', 'District should be 3-50 characters long and contain only letters');
+                isValid = false;
+                if (!firstError) firstError = district;
+            } else {
+                showSuccess('district');
+            }
+        }
+        
+        // Validate address (for profanity)
+        const address = document.getElementById('address');
+        if (address && address.value.trim()) {
+            // List of common bad words to filter
+            const badWords = [
+                'ass', 'asshole', 'bastard', 'bitch', 'bullshit', 'cunt', 'damn', 
+                'dick', 'fuck', 'fucking', 'motherfucker', 'shit', 'whore', 'pussy',
+                'slut', 'piss', 'penis', 'vagina', 'cock', 'retard', 'negro', 'nigga',
+                'sex', 'anal', 'porn', 'weed', 'drugs'
+            ];
+            
+            const lowerValue = address.value.toLowerCase();
+            let hasBadWord = false;
+            let detectedWord = '';
+            
+            // Check for bad words
+            for (const word of badWords) {
+                const pattern = new RegExp(`\\b${word}\\b`, 'i');
+                if (pattern.test(lowerValue)) {
+                    hasBadWord = true;
+                    detectedWord = word;
+                    break;
+                }
+            }
+            
+            if (hasBadWord) {
+                showError('address', `Your address contains inappropriate language ("${detectedWord}"). Please remove it.`);
+                isValid = false;
+                if (!firstError) firstError = address;
+            } else {
+                showSuccess('address');
+            }
+        }
+        
+        // Validate password fields (if either is filled)
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        
+        if ((password && password.value) || (confirmPassword && confirmPassword.value)) {
+            // Both password fields must be filled
+            if (!password.value) {
+                showError('password', 'Password is required when changing password');
+                isValid = false;
+                if (!firstError) firstError = password;
+            } else if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(password.value)) {
+                showError('password', 'Password must be at least 8 characters long and include letters, numbers, and special characters');
+                isValid = false;
+                if (!firstError) firstError = password;
+            } else {
+                showSuccess('password');
+            }
+            
+            if (!confirmPassword.value) {
+                showError('confirmPassword', 'Please confirm your password');
+                isValid = false;
+                if (!firstError) firstError = confirmPassword;
+            } else if (password.value !== confirmPassword.value) {
+                showError('confirmPassword', 'Passwords do not match');
+                isValid = false;
+                if (!firstError) firstError = confirmPassword;
+            } else {
+                showSuccess('confirmPassword');
+            }
+        }
+        
+        // Scroll to first error if any
+        if (!isValid && firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        return isValid;
+    }
+    
+    // Function to show error message
+    function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+        const errorElement = document.getElementById(`${fieldId}-error`);
+        const parentGroup = field ? field.closest('.form-group') : null;
+        
+        if (field && errorElement && parentGroup) {
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            
+            parentGroup.classList.add('has-error');
+            parentGroup.classList.remove('has-success');
+            
+            // Update hint if available
+            const hintElement = document.getElementById(`${fieldId}-hint`);
+            if (hintElement) {
+                hintElement.textContent = message;
+                hintElement.style.color = '#f44336';
+            }
+            }
+        }
+
+        // Function to show success message
+    function showSuccess(fieldId, message = '') {
+            const field = document.getElementById(fieldId);
+        const errorElement = document.getElementById(`${fieldId}-error`);
+        const successElement = document.getElementById(`${fieldId}-success`);
+        const parentGroup = field ? field.closest('.form-group') : null;
+        
+        if (field && errorElement && parentGroup) {
+                field.classList.remove('is-invalid');
+                field.classList.add('is-valid');
+            errorElement.classList.remove('show');
+            
+            parentGroup.classList.remove('has-error');
+            parentGroup.classList.add('has-success');
+            
+            // Update hint if available
+            const hintElement = document.getElementById(`${fieldId}-hint`);
+            if (hintElement) {
+                hintElement.textContent = message || 'Looks good!';
+                hintElement.style.color = '#4CAF50';
+            }
+            
+            if (successElement && message) {
+                successElement.textContent = message;
+                successElement.classList.add('show');
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('updateProfileForm');
+        const changedFields = new Map();
+        const profilePicture = document.getElementById('profilePicture');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        
+        // Make changedFields accessible globally for the direct submit handler
+        window.changedFields = changedFields;
+        
+        // Setup enhanced hints
+        setupEnhancedHints();
+        
+        // Show helpful toast when a user focuses on a field for the first time
+        setupFieldContextHints();
+        
+        // Add validation event listeners for all fields
+        
+        // First name validation
+        const firstNameField = document.getElementById('first_name');
+        if (firstNameField) {
+            firstNameField.addEventListener('input', function() {
+                validateField('first_name', this.value.trim());
+                updateHint('first_name', this.value.trim());
+            });
+            
+            firstNameField.addEventListener('focus', function() {
+                showHint('first_name');
+            });
+            
+            firstNameField.addEventListener('blur', function() {
+                hideHint('first_name');
+            });
+        }
+        
+        // Last name validation
+        const lastNameField = document.getElementById('last_name');
+        if (lastNameField) {
+            lastNameField.addEventListener('input', function() {
+                validateField('last_name', this.value.trim());
+                updateHint('last_name', this.value.trim());
+            });
+            
+            lastNameField.addEventListener('focus', function() {
+                showHint('last_name');
+            });
+            
+            lastNameField.addEventListener('blur', function() {
+                hideHint('last_name');
+            });
+        }
+        
+        // Phone validation
+        const phoneField = document.getElementById('phone');
+        if (phoneField) {
+            phoneField.addEventListener('input', function() {
+                if (!this.value.trim()) {
+                    // Phone is optional, so empty is valid
+                    clearValidation('phone');
+                } else {
+                    validateField('phone', this.value.trim());
+                }
+                updateHint('phone', this.value.trim());
+            });
+            
+            phoneField.addEventListener('focus', function() {
+                showHint('phone');
+            });
+            
+            phoneField.addEventListener('blur', function() {
+                hideHint('phone');
+            });
+        }
+        
+        // Date of birth validation
+        const dobField = document.getElementById('date_of_birth');
+        if (dobField) {
+            dobField.addEventListener('change', function() {
+                if (!this.value.trim()) {
+                    // DOB is optional, so empty is valid
+                    clearValidation('date_of_birth');
+                } else {
+                    validateDateOfBirth(this.value);
+                }
+                updateHint('date_of_birth', this.value);
+            });
+            
+            dobField.addEventListener('focus', function() {
+                showHint('date_of_birth');
+            });
+            
+            dobField.addEventListener('blur', function() {
+                hideHint('date_of_birth');
+            });
+        }
+        
+        // District validation
+        const districtField = document.getElementById('district');
+        if (districtField) {
+            districtField.addEventListener('input', function() {
+                if (!this.value.trim()) {
+                    // District is optional, so empty is valid
+                    clearValidation('district');
+                } else {
+                    validateField('district', this.value.trim());
+                }
+                updateHint('district', this.value.trim());
+            });
+            
+            districtField.addEventListener('focus', function() {
+                showHint('district');
+            });
+            
+            districtField.addEventListener('blur', function() {
+                hideHint('district');
+            });
+        }
+        
+        // Pincode validation
+        const pincodeField = document.getElementById('pincode');
+        if (pincodeField) {
+            pincodeField.addEventListener('input', function() {
+                if (!this.value.trim()) {
+                    // Pincode is optional, so empty is valid
+                    clearValidation('pincode');
+                } else {
+                    validateField('pincode', this.value.trim());
+                }
+                updateHint('pincode', this.value.trim());
+            });
+            
+            pincodeField.addEventListener('focus', function() {
+                showHint('pincode');
+            });
+            
+            pincodeField.addEventListener('blur', function() {
+                hideHint('pincode');
+            });
+        }
+        
+        // Address validation
+        const addressField = document.getElementById('address');
+        if (addressField) {
+            addressField.addEventListener('focus', function() {
+                showHint('address');
+            });
+            
+            addressField.addEventListener('blur', function() {
+                hideHint('address');
+            });
+            
+            addressField.addEventListener('input', function() {
+                updateHint('address', this.value.trim());
+            });
+        }
+        
+        // Password validation
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                if (!this.value) {
+                    // Password change is optional, so empty is valid
+                    clearValidation('password');
+                } else {
+                    validateField('password', this.value);
+                }
+                
+                // Also validate confirm password if it has a value
+                if (confirmPasswordInput && confirmPasswordInput.value) {
+                    validatePasswordMatch();
+                }
+                
+                updatePasswordHint(this.value);
+            });
+            
+            passwordInput.addEventListener('focus', function() {
+                showHint('password');
+            });
+            
+            passwordInput.addEventListener('blur', function() {
+                hideHint('password');
+            });
+        }
+        
+        // Confirm password validation
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', function() {
+                if (!this.value) {
+                    // If no password is being set, empty confirm is valid
+                    if (!passwordInput.value) {
+                        clearValidation('confirmPassword');
+                    } else {
+                        showError('confirmPassword', 'Please confirm your password');
+                    }
+                } else {
+                    validatePasswordMatch();
+                }
+                
+                updateHint('confirmPassword', this.value);
+            });
+            
+            confirmPasswordInput.addEventListener('focus', function() {
+                showHint('confirmPassword');
+            });
+            
+            confirmPasswordInput.addEventListener('blur', function() {
+                hideHint('confirmPassword');
+            });
+        }
+        
+        // Setup enhanced hints system
+        function setupEnhancedHints() {
+            // Override default CSS-based behavior by hiding all hints initially
+            document.querySelectorAll('.hint-text').forEach(hint => {
+                hint.style.display = 'none';
+            });
+        }
+        
+        // Show hint for a field
+        function showHint(fieldId) {
+            const hintElement = document.getElementById(`${fieldId}-hint`);
+            if (hintElement) {
+                hintElement.style.display = 'block';
+                hintElement.style.opacity = '1';
+            }
+        }
+        
+        // Hide hint for a field
+        function hideHint(fieldId) {
+            const hintElement = document.getElementById(`${fieldId}-hint`);
+            if (hintElement) {
+                // Don't immediately hide, use smooth fadeout
+                hintElement.style.opacity = '0';
+                setTimeout(() => {
+                    if (hintElement.style.opacity === '0') {
+                        hintElement.style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+        
+        // Update hint based on current input
+        function updateHint(fieldId, value) {
+            const hintElement = document.getElementById(`${fieldId}-hint`);
+            if (!hintElement) return;
+            
+            switch(fieldId) {
+                case 'first_name':
+                    if (!value) {
+                        hintElement.textContent = 'Enter your first name (2-50 letters only)';
+                    } else if (value.length < 2) {
+                        hintElement.textContent = 'Name is too short (minimum 2 characters)';
+                    } else if (!/^[A-Za-z\s]+$/.test(value)) {
+                        hintElement.textContent = 'Use letters only (no numbers or special characters)';
+                    } else {
+                        hintElement.textContent = 'Looks good!';
+                    }
+                        break;
+                    
+                case 'last_name':
+                    if (!value) {
+                        hintElement.textContent = 'Enter your last name (2-50 letters only)';
+                    } else if (value.length < 2) {
+                        hintElement.textContent = 'Name is too short (minimum 2 characters)';
+                    } else if (!/^[A-Za-z\s]+$/.test(value)) {
+                        hintElement.textContent = 'Use letters only (no numbers or special characters)';
+                    } else {
+                        hintElement.textContent = 'Looks good!';
+                    }
+                        break;
+                    
+                case 'phone':
+                    if (!value) {
+                        hintElement.textContent = 'Enter a 10-digit mobile number starting with 6-9';
+                    } else if (!/^[6-9]/.test(value)) {
+                        hintElement.textContent = 'Mobile number must start with 6, 7, 8, or 9';
+                    } else if (value.length !== 10) {
+                        hintElement.textContent = `${value.length}/10 digits entered (need exactly 10 digits)`;
+                    } else if (!/^\d+$/.test(value)) {
+                        hintElement.textContent = 'Numbers only, no spaces or special characters';
+                    } else {
+                        hintElement.textContent = 'Valid mobile number format!';
+                    }
+                        break;
+                    
+                case 'pincode':
+                    if (!value) {
+                        hintElement.textContent = 'Enter a valid 6-digit pincode';
+                    } else if (value.length !== 6) {
+                        hintElement.textContent = `${value.length}/6 digits entered (need exactly 6 digits)`;
+                    } else if (!/^[1-9][0-9]{5}$/.test(value)) {
+                        hintElement.textContent = 'Pincode should be 6 digits starting with non-zero digit';
+                    } else {
+                        hintElement.textContent = 'Valid pincode format!';
+                    }
+                        break;
+                    
+                case 'district':
+                    if (!value) {
+                        hintElement.textContent = 'Enter your district name (letters only)';
+                    } else if (value.length < 3) {
+                        hintElement.textContent = 'District name is too short (minimum 3 characters)';
+                    } else if (!/^[A-Za-z\s]+$/.test(value)) {
+                        hintElement.textContent = 'Use letters only (no numbers or special characters)';
+                    } else {
+                        hintElement.textContent = 'Valid district format!';
+                    }
+                        break;
+                }
+        }
+        
+        // Update password hint with strength indicators
+        function updatePasswordHint(password) {
+            const hintElement = document.getElementById('password-hint');
+            const strengthIndicator = document.getElementById('passwordStrength');
+            
+            if (!hintElement || !strengthIndicator) return;
+            
+            if (!password) {
+                hintElement.textContent = 'Minimum 8 characters with letters, numbers, and special characters';
+                hintElement.style.color = '#aaa';
+                strengthIndicator.style.width = '0%';
+                strengthIndicator.style.backgroundColor = 'transparent';
+                return;
+            }
+            
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const isLongEnough = password.length >= 8;
+            
+            let missingItems = [];
+            
+            if (!isLongEnough) missingItems.push('8+ characters');
+            if (!hasLowerCase) missingItems.push('lowercase letter');
+            if (!hasUpperCase) missingItems.push('uppercase letter');
+            if (!hasNumbers) missingItems.push('number');
+            if (!hasSpecialChars) missingItems.push('special character');
+            
+            // Calculate password strength (0-5, based on criteria met)
+            const criteriaCount = [isLongEnough, hasLowerCase, hasUpperCase, hasNumbers, hasSpecialChars]
+                .filter(Boolean).length;
+            
+            // Set strength indicator
+            strengthIndicator.style.height = '4px';
+            strengthIndicator.style.borderRadius = '2px';
+            strengthIndicator.style.margin = '5px 0';
+            strengthIndicator.style.transition = 'all 0.3s ease';
+            
+            // Update visual indicator based on strength
+            if (criteriaCount === 0) {
+                strengthIndicator.style.width = '0%';
+                strengthIndicator.style.backgroundColor = 'transparent';
+                        } else {
+                const strengthPercentage = (criteriaCount / 5) * 100;
+                strengthIndicator.style.width = `${strengthPercentage}%`;
+                
+                if (criteriaCount <= 2) {
+                    // Weak password
+                    strengthIndicator.style.backgroundColor = '#f44336'; // Red
+                    hintElement.style.color = '#f44336';
+                } else if (criteriaCount <= 4) {
+                    // Medium strength password
+                    strengthIndicator.style.backgroundColor = '#ff9800'; // Orange
+                    hintElement.style.color = '#ff9800';
+                    } else {
+                    // Strong password
+                    strengthIndicator.style.backgroundColor = '#4CAF50'; // Green
+                    hintElement.style.color = '#4CAF50';
+                }
+            }
+            
+            if (missingItems.length === 0) {
+                hintElement.textContent = 'Strong password!';
+                    } else {
+                hintElement.textContent = `Missing: ${missingItems.join(', ')}`;
+            }
+        }
+        
+        // Function to validate password match
+        function validatePasswordMatch() {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                        showError('confirmPassword', 'Passwords do not match');
+                
+                // Update hint
+                const hintElement = document.getElementById('confirmPassword-hint');
+                if (hintElement) {
+                    hintElement.textContent = 'Passwords don\'t match!';
+                    hintElement.style.color = '#f44336';
+                }
+            } else {
+                showSuccess('confirmPassword');
+                
+                // Update hint
+                const hintElement = document.getElementById('confirmPassword-hint');
+                if (hintElement) {
+                    hintElement.textContent = 'Passwords match!';
+                    hintElement.style.color = '#4CAF50';
+                }
+            }
+        }
+        
+        // Function to validate a specific field
+        function validateField(fieldId, value) {
+            switch(fieldId) {
+                case 'first_name':
+                    if (!value) {
+                        showError(fieldId, 'First name is required');
+                    } else if (!/^[A-Za-z\s]{2,50}$/.test(value)) {
+                        showError(fieldId, 'First name should be 2-50 characters long and contain only letters');
+                    } else {
+                        showSuccess(fieldId);
+                    }
+                    break;
+                    
+                case 'last_name':
+                    if (!value) {
+                        showError(fieldId, 'Last name is required');
+                    } else if (!/^[A-Za-z\s]{2,50}$/.test(value)) {
+                        showError(fieldId, 'Last name should be 2-50 characters long and contain only letters');
+                    } else {
+                        showSuccess(fieldId);
+                    }
+                    break;
+                    
+                case 'phone':
+                    if (!/^[6-9]\d{9}$/.test(value)) {
+                        showError(fieldId, 'Please enter a valid 10-digit mobile number starting with 6-9');
+                    } else {
+                        showSuccess(fieldId);
+                    }
+                    break;
+                    
+                case 'district':
+                    if (!/^[A-Za-z\s]{3,50}$/.test(value)) {
+                        showError(fieldId, 'District should be 3-50 characters long and contain only letters');
+                    } else {
+                        showSuccess(fieldId);
+                    }
+                    break;
+                    
+                case 'pincode':
+                    if (!/^[1-9][0-9]{5}$/.test(value)) {
+                        showError(fieldId, 'Please enter a valid 6-digit pincode');
+                    } else {
+                        showSuccess(fieldId);
+                    }
+                    break;
+                    
+                case 'password':
+                    if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(value)) {
+                        showError(fieldId, 'Password must be at least 8 characters long and include letters, numbers, and special characters');
+                    } else {
+                        showSuccess(fieldId);
+                    }
+                    break;
+            }
+        }
+        
+        // Function to validate date of birth
+        function validateDateOfBirth(value) {
+            const dobDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Calculate age
+            let age = today.getFullYear() - dobDate.getFullYear();
+            const monthDiff = today.getMonth() - dobDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+                age--;
+            }
+            
+            if (isNaN(dobDate.getTime())) {
+                showError('date_of_birth', 'Please enter a valid date');
+            } else if (dobDate > today) {
+                showError('date_of_birth', 'Date of birth cannot be in the future');
+            } else if (age < 18) {
+                showError('date_of_birth', 'You must be at least 18 years old');
+            } else {
+                showSuccess('date_of_birth');
+            }
+        }
+        
+        // Function to clear validation state
+        function clearValidation(fieldId) {
+            const errorDiv = document.getElementById(`${fieldId}-error`);
+            const successDiv = document.getElementById(`${fieldId}-success`);
+            const field = document.getElementById(fieldId);
+            
+            if (errorDiv) errorDiv.classList.remove('show');
+            if (successDiv) successDiv.classList.remove('show');
+            if (field) {
+                field.classList.remove('is-invalid');
+                field.classList.remove('is-valid');
+            }
+        }
+        
+        // Track changes to all form fields
+        form.querySelectorAll('input, select, textarea').forEach(field => {
+            if (field.id && field.id !== 'email' && field.type !== 'file') {
+                field.addEventListener('change', function() {
+                    const currentValue = this.value.trim();
+                    const originalValue = this.getAttribute('data-original') || '';
+                    
+                    if (currentValue !== originalValue && !this.classList.contains('is-invalid')) {
+                        changedFields.set(this.id, currentValue);
+                        this.classList.add('is-changed');
+                    } else if (currentValue === originalValue) {
+                        changedFields.delete(this.id);
+                        this.classList.remove('is-changed');
+                    }
+                });
+            }
+        });
+    });
+
+    // Show contextual hints via toast when fields are focused for the first time
+    function setupFieldContextHints() {
+        const fieldsVisited = new Set();
+        
+        const fieldHints = {
+            'first_name': 'Enter your legal first name as it appears on your ID documents',
+            'last_name': 'Enter your legal last name as it appears on your ID documents',
+            'phone': 'Your phone number will only be used for important notifications',
+            'date_of_birth': 'Your date of birth helps verify your identity and age',
+            'gender': 'This information is used for demographic purposes only',
+            'address': 'Please provide your current residential address for verification',
+            'district': 'Enter the district where you currently reside',
+            'pincode': 'Your pincode helps us provide location-specific services',
+            'password': 'Create a strong password that you don\'t use on other websites'
+        };
+        
+        // Add focus listeners to all relevant fields
+        document.querySelectorAll('.form-control').forEach(field => {
+            if (!field.id) return;
+            
+            field.addEventListener('focus', function() {
+                if (!fieldsVisited.has(this.id) && fieldHints[this.id]) {
+                    // Show hint toast for this field
+                    createToast(fieldHints[this.id], 'info', 4000);
+                    fieldsVisited.add(this.id);
+            }
+        });
+    });
+    }
+</script>
+{% endblock %}

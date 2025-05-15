@@ -1,0 +1,997 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Complaint - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .form-container {
+        background-color: #1E1E1E;
+        border-radius: 10px;
+        padding: 30px;
+        width: 100%;
+        max-width: 800px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-title {
+        color: #FFFFFF;
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #E0E0E0;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+        color: #FFFFFF;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #2196F3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+    }
+    
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+    
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23FFFFFF' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 30px;
+    }
+    
+    .submit-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 14px 20px;
+        margin-top: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        transition: background-color 0.3s;
+    }
+    
+    .submit-btn:hover {
+        background-color: #45a049;
+    }
+    
+    .required {
+        color: #FF5252;
+        margin-left: 5px;
+    }
+    
+    .file-input-container {
+        position: relative;
+    }
+    
+    .file-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .file-input-label {
+        display: block;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+        padding: 12px;
+        text-align: center;
+        color: #FFFFFF;
+    }
+    
+    .file-name {
+        margin-top: 8px;
+        font-size: 14px;
+        color: #9E9E9E;
+    }
+    
+    /* Validation Styles */
+    .form-control.error {
+        border-color: #ff4444;
+        background-color: rgba(255, 68, 68, 0.1);
+    }
+    
+    .form-control.error:focus {
+        box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.3);
+    }
+    
+    .error-message {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .form-control:focus + .error-message {
+        display: block;
+    }
+    
+    .form-control.error + .error-message {
+        display: block;
+    }
+    
+    .file-input.error + .file-input-label {
+        border-color: #ff4444;
+        background-color: rgba(255, 68, 68, 0.1);
+    }
+    
+    .file-error {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .character-count {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+        text-align: right;
+    }
+    
+    .character-count.error {
+        color: #ff4444;
+    }
+
+    /* Hint text styling */
+    .hint-text {
+        position: absolute;
+        left: 0;
+        top: calc(100% + 5px);
+        font-size: 12px;
+        color: #aaa;
+        transition: all 0.3s ease;
+        opacity: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 4px 8px;
+        border-radius: 4px;
+        z-index: 5;
+        width: 100%;
+        pointer-events: none;
+        border-left: 2px solid #2196F3;
+    }
+
+    .form-control:focus + .hint-text,
+    .hint-text.show {
+        opacity: 1;
+    }
+
+    /* Style hints differently based on validation state */
+    .form-control.error + .hint-text {
+        color: #ff4444;
+        border-left-color: #ff4444;
+    }
+
+    .form-control.valid + .hint-text {
+        color: #4CAF50;
+        border-left-color: #4CAF50;
+    }
+
+    .language-feedback {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: 500;
+    }
+    
+    .language-feedback.inappropriate {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-left: 3px solid #F44336;
+    }
+    
+    .language-feedback.incomplete {
+        background-color: rgba(255, 152, 0, 0.1);
+        border-left: 3px solid #FF9800;
+    }
+    
+    .language-feedback.vague {
+        background-color: rgba(255, 152, 0, 0.1);
+        border-left: 3px solid #FF9800;
+    }
+    
+    .language-feedback.detailed {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-left: 3px solid #4CAF50;
+    }
+    
+    .language-feedback.specific {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-left: 3px solid #4CAF50;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">Register New Complaint</h2>
+    
+    <form method="POST" enctype="multipart/form-data" id="complaintForm" onsubmit="return validateForm(event)">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label class="form-label">Police Station District<span class="required">*</span></label>
+            <select class="form-control" name="district" id="district" required>
+                <option value="">Select District</option>
+                {% for district in districts %}
+                    <option value="{{ district }}">{{ district }}</option>
+                {% endfor %}
+            </select>
+            <div class="hint-text" id="district-hint">Select the district where the police station is located</div>
+            <div class="error-message">Please select a district</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Police Station Location<span class="required">*</span></label>
+            <select class="form-control" name="location" id="location" required disabled>
+                <option value="">Select District First</option>
+            </select>
+            <div class="hint-text" id="location-hint">Select the specific police station location</div>
+            <div class="error-message">Please select a police station</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Complaint Type<span class="required">*</span></label>
+            <select class="form-control" name="complaint_type" id="complaint_type" required>
+                <option value="">Select Complaint Type</option>
+                {% for value, label in complaint_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <div class="hint-text" id="complaint_type-hint">Select the category that best describes your complaint</div>
+            <div class="error-message">Please select a complaint type</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Description<span class="required">*</span></label>
+            <textarea class="form-control" name="description" id="description" 
+                      placeholder="Provide detailed description of the incident..." 
+                      required maxlength="1000" oninput="checkForBadWords(this)"></textarea>
+            <div class="hint-text" id="description-hint">Describe what happened in detail (minimum 50 characters)</div>
+            <div class="character-count">0/1000 characters</div>
+            <div class="error-message">Please provide a description (minimum 50 characters)</div>
+            <div class="bad-words-warning" style="color: #ff4444; font-size: 12px; margin-top: 5px; display: none;">Warning: Please avoid using inappropriate language</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Incident Location<span class="required">*</span></label>
+            <input type="text" class="form-control" name="incident_location" id="incident_location" 
+                   placeholder="Enter the location where the incident occurred" required>
+            <div class="hint-text" id="incident_location-hint">Provide a specific address or landmark where the incident took place</div>
+            <div class="error-message">Please enter a valid location</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Date of Incident<span class="required">*</span></label>
+            <input type="date" class="form-control" name="incident_date" id="incident_date" 
+                   required max="{{ today }}">
+            <div class="hint-text" id="incident_date-hint">Select the date when the incident occurred (must not be in the future)</div>
+            <div class="error-message">Please select a valid date</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Time of Incident<span class="required">*</span></label>
+            <select class="form-control" name="incident_time" id="incident_time" required>
+                <option value="">Select Time</option>
+                {% for value, label in time_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <div class="hint-text" id="incident_time-hint">Select the approximate time when the incident took place</div>
+            <div class="error-message">Please select the time of incident</div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Evidence (optional)</label>
+            <div class="file-input-container">
+                <label class="file-input-label">
+                    <span id="fileLabel">Click to upload evidence (image/video/document)</span>
+                    <input type="file" name="evidence" class="file-input" id="evidence" 
+                           accept="image/*,video/*,.pdf,.doc,.docx">
+                </label>
+            </div>
+            <div class="hint-text" id="evidence-hint">Upload any photos, videos or documents related to your complaint (max 10MB)</div>
+            <div class="file-name" id="fileName"></div>
+            <div class="file-error">File size must be less than 10MB</div>
+        </div>
+        
+        <button type="submit" class="submit-btn">Submit Complaint</button>
+    </form>
+</div>
+
+<script>
+    // Initialize hints when the page loads
+    let badWordsRegex;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        setupHints();
+        
+        // Create regex for bad words detection
+        badWordsRegex = new RegExp('\\b(' + badWords.join('|') + ')\\b', 'i');
+    });
+
+    // Setup hints system
+    function setupHints() {
+        // Hide all hints initially
+        document.querySelectorAll('.hint-text').forEach(hint => {
+            hint.style.opacity = '0';
+        });
+
+        // Add focus and blur event listeners to all form fields
+        document.querySelectorAll('.form-control').forEach(field => {
+            // Show hint on focus
+            field.addEventListener('focus', function() {
+                const hintId = `${this.id}-hint`;
+                const hint = document.getElementById(hintId);
+                if (hint) {
+                    showHint(hint);
+                }
+            });
+
+            // Hide hint on blur
+            field.addEventListener('blur', function() {
+                const hintId = `${this.id}-hint`;
+                const hint = document.getElementById(hintId);
+                if (hint) {
+                    hideHint(hint);
+                }
+            });
+
+            // Update hint on input where applicable
+            if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') {
+                field.addEventListener('input', function() {
+                    updateHint(this);
+                });
+            } else if (field.tagName === 'SELECT') {
+                field.addEventListener('change', function() {
+                    updateHint(this);
+                });
+            }
+        });
+    }
+
+    // Show hint with animation
+    function showHint(hint) {
+        hint.style.opacity = '1';
+    }
+
+    // Hide hint with animation
+    function hideHint(hint) {
+        hint.style.opacity = '0';
+    }
+
+    // Update hint based on field content
+    function updateHint(field) {
+        const hintId = `${field.id}-hint`;
+        const hint = document.getElementById(hintId);
+        if (!hint) return;
+
+        // Update hint text based on field type and content
+        switch(field.id) {
+            case 'description':
+                updateDescriptionHint(field, hint);
+                break;
+            case 'incident_location':
+                updateLocationHint(field, hint);
+                break;
+            case 'incident_date':
+                updateDateHint(field, hint);
+                break;
+            case 'district':
+                updateDropdownHint(field, hint, 'district');
+                break;
+            case 'location':
+                updateDropdownHint(field, hint, 'location');
+                break;
+            case 'complaint_type':
+                updateDropdownHint(field, hint, 'complaint type');
+                break;
+            case 'incident_time':
+                updateDropdownHint(field, hint, 'time');
+                break;
+        }
+    }
+
+    // Update hint for description field
+    function updateDescriptionHint(field, hint) {
+        const text = field.value.trim();
+        const length = text.length;
+        const languageFeedback = analyzeLanguage(text);
+        const charCountDiv = field.parentElement.querySelector('.character-count');
+        
+        // Update character count
+        if (charCountDiv) {
+            charCountDiv.textContent = `${length}/1000 characters`;
+        }
+
+        if (length === 0) {
+            hint.textContent = 'Describe what happened in detail (minimum 50 characters)';
+            hint.style.color = '#aaa';
+            field.classList.remove('valid');
+            field.classList.remove('error');
+        } else if (length < 50) {
+            hint.textContent = `${length}/50 characters minimum (${50 - length} more needed)`;
+            hint.style.color = '#ff9800'; // Orange for warning
+            field.classList.remove('valid');
+            field.classList.remove('error');
+        } else {
+            // Show language feedback once we have enough text
+            if (languageFeedback.score > 0) {
+                hint.innerHTML = `<span class="language-feedback ${languageFeedback.class}">${languageFeedback.message}</span>`;
+                hint.style.color = languageFeedback.color;
+            } else if (length <= 500) {
+                hint.textContent = 'Good description length';
+                hint.style.color = '#4CAF50'; // Green for success
+            } else if (length <= 900) {
+                hint.textContent = 'Detailed description provided';
+                hint.style.color = '#4CAF50';
+            } else {
+                hint.textContent = `${length}/1000 characters (approaching maximum)`;
+                hint.style.color = '#ff9800';
+            }
+            
+            field.classList.add('valid');
+            field.classList.remove('error');
+        }
+    }
+
+    // Update hint for location field
+    function updateLocationHint(field, hint) {
+        const text = field.value.trim();
+        const length = text.length;
+
+        if (length === 0) {
+            hint.textContent = 'Provide a specific address or landmark where the incident took place';
+            hint.style.color = '#aaa';
+            field.classList.remove('valid');
+            field.classList.remove('error');
+        } else if (length < 5) {
+            hint.textContent = 'Location is too short (minimum 5 characters)';
+            hint.style.color = '#ff9800';
+            field.classList.remove('valid');
+            field.classList.remove('error');
+        } else if (length >= 5 && length <= 20) {
+            hint.textContent = 'Consider adding more details to the location';
+            hint.style.color = '#ff9800';
+            field.classList.add('valid');
+            field.classList.remove('error');
+        } else {
+            hint.textContent = 'Good location description';
+            hint.style.color = '#4CAF50';
+            field.classList.add('valid');
+            field.classList.remove('error');
+        }
+    }
+
+    // Update hint for date field
+    function updateDateHint(field, hint) {
+        const selectedDate = field.value;
+        
+        if (!selectedDate) {
+            hint.textContent = 'Select the date when the incident occurred (must not be in the future)';
+            hint.style.color = '#aaa';
+            field.classList.remove('valid');
+            field.classList.remove('error');
+            return;
+        }
+        
+        const incidentDate = new Date(selectedDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (incidentDate > today) {
+            hint.textContent = 'Date cannot be in the future';
+            hint.style.color = '#ff4444';
+            field.classList.remove('valid');
+            field.classList.add('error');
+        } else {
+            const timeDiff = today.getTime() - incidentDate.getTime();
+            const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            
+            if (daysDiff === 0) {
+                hint.textContent = 'Incident occurred today';
+            } else if (daysDiff === 1) {
+                hint.textContent = 'Incident occurred yesterday';
+            } else if (daysDiff <= 7) {
+                hint.textContent = `Incident occurred ${daysDiff} days ago`;
+            } else if (daysDiff <= 30) {
+                hint.textContent = `Incident occurred ${Math.floor(daysDiff / 7)} weeks ago`;
+            } else if (daysDiff <= 365) {
+                hint.textContent = `Incident occurred ${Math.floor(daysDiff / 30)} months ago`;
+            } else {
+                hint.textContent = `Incident occurred ${Math.floor(daysDiff / 365)} years ago`;
+            }
+            
+            hint.style.color = '#4CAF50';
+            field.classList.add('valid');
+            field.classList.remove('error');
+        }
+    }
+
+    // Update hint for dropdown fields
+    function updateDropdownHint(field, hint, fieldType) {
+        if (!field.value) {
+            hint.textContent = `Select a ${fieldType}`;
+            hint.style.color = '#aaa';
+            field.classList.remove('valid');
+            field.classList.remove('error');
+        } else {
+            hint.textContent = `Selected ${fieldType}: ${field.options[field.selectedIndex].text}`;
+            hint.style.color = '#4CAF50';
+            field.classList.add('valid');
+            field.classList.remove('error');
+        }
+    }
+
+    // Handle file input change
+    document.getElementById('evidence').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const fileName = file ? file.name : '';
+        document.getElementById('fileName').textContent = fileName;
+        document.getElementById('fileLabel').textContent = fileName ? 'File selected' : 'Click to upload evidence (image/video/document)';
+        
+        // Update hint
+        const hint = document.getElementById('evidence-hint');
+        if (hint) {
+            if (!file) {
+                hint.textContent = 'Upload any photos, videos or documents related to your complaint (max 10MB)';
+                hint.style.color = '#aaa';
+            } else {
+                const fileSize = file.size / (1024 * 1024); // Size in MB
+                const fileType = file.type.split('/')[0];
+                let typeText = '';
+                
+                switch(fileType) {
+                    case 'image':
+                        typeText = 'Image file';
+                        break;
+                    case 'video':
+                        typeText = 'Video file';
+                        break;
+                    case 'application':
+                        if (file.type.includes('pdf')) {
+                            typeText = 'PDF document';
+                        } else {
+                            typeText = 'Document';
+                        }
+                        break;
+                    default:
+                        typeText = 'File';
+                }
+                
+                if (fileSize > 10) {
+                    hint.textContent = `${typeText} is too large (${fileSize.toFixed(1)}MB > 10MB maximum)`;
+                    hint.style.color = '#ff4444';
+                    this.classList.add('error');
+                    document.querySelector('.file-error').style.display = 'block';
+                } else {
+                    hint.textContent = `${typeText} selected (${fileSize.toFixed(1)}MB)`;
+                    hint.style.color = '#4CAF50';
+                    this.classList.remove('error');
+                    document.querySelector('.file-error').style.display = 'none';
+                }
+            }
+        }
+    });
+    
+    // Handle district change - populate locations dropdown
+    document.getElementById('district').addEventListener('change', function() {
+        const district = this.value;
+        const locationSelect = document.getElementById('location');
+        
+        // Clear current options
+        locationSelect.innerHTML = '';
+        
+        if (district) {
+            // Enable the location dropdown
+            locationSelect.disabled = false;
+            
+            // Add loading option
+            const loadingOption = document.createElement('option');
+            loadingOption.text = 'Loading locations...';
+            loadingOption.value = '';
+            locationSelect.add(loadingOption);
+            
+            // Fetch locations for selected district using XMLHttpRequest for better compatibility
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/get-locations/?district=${encodeURIComponent(district)}`, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    locationSelect.innerHTML = ''; // Clear loading option
+                    
+                    if (xhr.status === 200) {
+                        // Parse response
+                        const response = JSON.parse(xhr.responseText);
+                        
+                        // Add default option
+                        const defaultOption = document.createElement('option');
+                        defaultOption.text = 'Select Location';
+                        defaultOption.value = '';
+                        locationSelect.add(defaultOption);
+                        
+                        // Add location options
+                        response.locations.forEach(function(location) {
+                            const option = document.createElement('option');
+                            option.text = location;
+                            option.value = location;
+                            locationSelect.add(option);
+                        });
+                    } else {
+                        // Error handling
+                        const errorOption = document.createElement('option');
+                        errorOption.text = 'Error loading locations';
+                        errorOption.value = '';
+                        locationSelect.add(errorOption);
+                        console.error('Error fetching locations:', xhr.status);
+                    }
+                }
+            };
+            xhr.send();
+        } else {
+            // Disable the location dropdown if no district is selected
+            locationSelect.disabled = true;
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.text = 'Select District First';
+            defaultOption.value = '';
+            locationSelect.add(defaultOption);
+        }
+
+        // Update hint for district
+        updateHint(this);
+    });
+
+    // Function to analyze language and provide appropriate hints
+    function analyzeLanguage(text) {
+        if (!text || text.length < 20) {
+            return { score: 0, message: '', color: '', class: '' };
+        }
+        
+        // Check for inappropriate language
+        const containsBadWords = badWordsRegex.test(text.toLowerCase());
+        if (containsBadWords) {
+            return {
+                score: 3,
+                message: 'Please use appropriate language in your description',
+                color: '#F44336',
+                class: 'inappropriate'
+            };
+        }
+        
+        // Check for very short sentences (potentially incomplete thoughts)
+        const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        const shortSentences = sentences.filter(s => s.trim().split(/\s+/).length < 5);
+        const shortSentenceRatio = sentences.length > 0 ? shortSentences.length / sentences.length : 0;
+        
+        if (shortSentenceRatio > 0.5 && sentences.length > 2) {
+            return {
+                score: 1,
+                message: 'Try to provide more complete sentences with details',
+                color: '#FF9800',
+                class: 'incomplete'
+            };
+        }
+        
+        // Check for vague language
+        const vagueWords = ['thing', 'stuff', 'something', 'someone', 'somewhere', 'somehow', 'whatever', 'etc'];
+        const vagueWordCount = vagueWords.reduce((count, word) => {
+            const regex = new RegExp('\\b' + word + '\\b', 'gi');
+            return count + (text.match(regex) || []).length;
+        }, 0);
+        
+        if (vagueWordCount > 2) {
+            return {
+                score: 1,
+                message: 'Try to be more specific instead of using vague terms',
+                color: '#FF9800',
+                class: 'vague'
+            };
+        }
+        
+        // Check for good descriptive language
+        const wordCount = text.trim().split(/\s+/).length;
+        const avgWordLength = text.replace(/[^a-zA-Z]/g, '').length / wordCount;
+        const detailWords = ['because', 'when', 'where', 'how', 'why', 'what', 'who', 'which', 'then', 'after', 'before', 'during'];
+        
+        let detailWordCount = 0;
+        detailWords.forEach(word => {
+            const regex = new RegExp('\\b' + word + '\\b', 'gi');
+            detailWordCount += (text.match(regex) || []).length;
+        });
+        
+        if (detailWordCount >= 3 && avgWordLength > 4.5) {
+            return {
+                score: 2,
+                message: 'Good detailed description with specific information',
+                color: '#4CAF50',
+                class: 'detailed'
+            };
+        }
+        
+        // Check if text includes dates, times, or locations (good for complaints)
+        const hasTimePattern = /\b([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]\b|\b([0-9]|0[0-9]|1[0-9]|2[0-3]) (am|pm)\b/i.test(text);
+        const hasDatePattern = /\b(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}\b|\b\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])\b/.test(text);
+        const hasLocationIndicator = /\bat\b|\bin\b|\bnear\b|\bclose to\b|\baround\b/.test(text);
+        
+        if ((hasTimePattern || hasDatePattern) && hasLocationIndicator) {
+            return {
+                score: 2,
+                message: 'Excellent - includes specific time and location details',
+                color: '#4CAF50',
+                class: 'specific'
+            };
+        }
+        
+        return { score: 0, message: '', color: '', class: '' };
+    }
+    
+    // Bad words list
+    const badWords = [
+        'fuck', 'shit', 'bitch', 'ass', 'damn', 'bastard', 'cunt', 'dick', 'piss',
+        'whore', 'slut','patty','thendi', 'pussy', 'cock', 'penis', 'vagina', 'motherfucker', 'asshole',
+        // Add more bad words as needed
+    ];
+
+    function checkForBadWords(textarea) {
+        const text = textarea.value.toLowerCase();
+        const warningDiv = textarea.parentElement.querySelector('.bad-words-warning');
+        const submitBtn = document.querySelector('.submit-btn');
+        
+        // Check if text contains any bad words using the regex
+        const containsBadWords = badWordsRegex.test(text);
+        
+        // Show or hide warning
+        if (containsBadWords) {
+            warningDiv.style.display = 'block';
+            textarea.style.borderColor = '#ff4444';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.title = 'Please remove inappropriate language before submitting';
+        } else {
+            warningDiv.style.display = 'none';
+            textarea.style.borderColor = '';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.title = '';
+            
+            // Update hint based on content
+            updateHint(textarea);
+        }
+        
+        return !containsBadWords;
+    }
+
+    // Form validation
+    function validateForm(event) {
+        event.preventDefault();
+        
+        let isValid = true;
+        const form = event.target;
+        
+        // Reset all error states
+        form.querySelectorAll('.form-control').forEach(input => {
+            input.classList.remove('error');
+            input.classList.remove('valid');
+        });
+        form.querySelectorAll('.error-message').forEach(msg => {
+            msg.style.display = 'none';
+        });
+        
+        // Validate district and location
+        const district = document.getElementById('district');
+        const districtHint = document.getElementById('district-hint');
+        if (!district.value) {
+            district.classList.add('error');
+            district.nextElementSibling.style.display = 'block';
+            if (districtHint) {
+                districtHint.textContent = 'Please select a district';
+                districtHint.style.color = '#ff4444';
+                showHint(districtHint);
+            }
+            isValid = false;
+        } else {
+            district.classList.add('valid');
+        }
+        
+        const location = document.getElementById('location');
+        const locationHint = document.getElementById('location-hint');
+        if (!location.value) {
+            location.classList.add('error');
+            location.nextElementSibling.style.display = 'block';
+            if (locationHint) {
+                locationHint.textContent = 'Please select a police station';
+                locationHint.style.color = '#ff4444';
+                showHint(locationHint);
+            }
+            isValid = false;
+        } else {
+            location.classList.add('valid');
+        }
+        
+        // Validate complaint type
+        const complaintType = document.getElementById('complaint_type');
+        const complaintTypeHint = document.getElementById('complaint_type-hint');
+        if (!complaintType.value) {
+            complaintType.classList.add('error');
+            complaintType.nextElementSibling.style.display = 'block';
+            if (complaintTypeHint) {
+                complaintTypeHint.textContent = 'Please select a complaint type';
+                complaintTypeHint.style.color = '#ff4444';
+                showHint(complaintTypeHint);
+            }
+            isValid = false;
+        } else {
+            complaintType.classList.add('valid');
+        }
+        
+        // Validate description
+        const description = document.getElementById('description');
+        const descriptionHint = document.getElementById('description-hint');
+        if (!description.value || description.value.length < 50) {
+            description.classList.add('error');
+            description.nextElementSibling.nextElementSibling.style.display = 'block';
+            if (descriptionHint) {
+                descriptionHint.textContent = description.value.length === 0 
+                    ? 'Description is required' 
+                    : `Description too short (${description.value.length}/50 characters minimum)`;
+                descriptionHint.style.color = '#ff4444';
+                showHint(descriptionHint);
+            }
+            isValid = false;
+        } else {
+            description.classList.add('valid');
+        }
+        
+        // Validate incident location
+        const incidentLocation = document.getElementById('incident_location');
+        const incidentLocationHint = document.getElementById('incident_location-hint');
+        if (!incidentLocation.value || incidentLocation.value.length < 5) {
+            incidentLocation.classList.add('error');
+            incidentLocation.nextElementSibling.style.display = 'block';
+            if (incidentLocationHint) {
+                incidentLocationHint.textContent = incidentLocation.value.length === 0 
+                    ? 'Incident location is required' 
+                    : `Location too short (${incidentLocation.value.length}/5 characters minimum)`;
+                incidentLocationHint.style.color = '#ff4444';
+                showHint(incidentLocationHint);
+            }
+            isValid = false;
+        } else {
+            incidentLocation.classList.add('valid');
+        }
+        
+        // Validate incident date
+        const incidentDate = document.getElementById('incident_date');
+        const incidentDateHint = document.getElementById('incident_date-hint');
+        if (!incidentDate.value) {
+            incidentDate.classList.add('error');
+            incidentDate.nextElementSibling.style.display = 'block';
+            if (incidentDateHint) {
+                incidentDateHint.textContent = 'Please select a date for the incident';
+                incidentDateHint.style.color = '#ff4444';
+                showHint(incidentDateHint);
+            }
+            isValid = false;
+        } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selectedDate = new Date(incidentDate.value);
+            if (selectedDate > today) {
+                incidentDate.classList.add('error');
+                incidentDate.nextElementSibling.style.display = 'block';
+                if (incidentDateHint) {
+                    incidentDateHint.textContent = 'Date cannot be in the future';
+                    incidentDateHint.style.color = '#ff4444';
+                    showHint(incidentDateHint);
+                }
+                isValid = false;
+            } else {
+                incidentDate.classList.add('valid');
+            }
+        }
+        
+        // Validate incident time
+        const incidentTime = document.getElementById('incident_time');
+        const incidentTimeHint = document.getElementById('incident_time-hint');
+        if (!incidentTime.value) {
+            incidentTime.classList.add('error');
+            incidentTime.nextElementSibling.style.display = 'block';
+            if (incidentTimeHint) {
+                incidentTimeHint.textContent = 'Please select the time of incident';
+                incidentTimeHint.style.color = '#ff4444';
+                showHint(incidentTimeHint);
+            }
+            isValid = false;
+        } else {
+            incidentTime.classList.add('valid');
+        }
+        
+        // Validate file if selected
+        const evidence = document.getElementById('evidence');
+        const evidenceHint = document.getElementById('evidence-hint');
+        if (evidence.files.length > 0) {
+            const file = evidence.files[0];
+            if (file.size > 10 * 1024 * 1024) {
+                evidence.classList.add('error');
+                document.querySelector('.file-error').style.display = 'block';
+                if (evidenceHint) {
+                    const fileSize = (file.size / (1024 * 1024)).toFixed(1);
+                    evidenceHint.textContent = `File too large: ${fileSize}MB (maximum 10MB)`;
+                    evidenceHint.style.color = '#ff4444';
+                    showHint(evidenceHint);
+                }
+                isValid = false;
+            } else {
+                evidence.classList.add('valid');
+            }
+        }
+        
+        // If form is valid, show a loading message before submitting
+        if (isValid) {
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            
+            // Submit after a short delay to show the loading state
+            setTimeout(() => {
+                form.submit();
+            }, 500);
+        } else {
+            // Scroll to the first error element
+            const firstError = form.querySelector('.error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+        
+        return false;
+    }
+
+    // Real-time validation
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', function() {
+            // Clear error state when user types
+            this.classList.remove('error');
+            const errorMsg = this.nextElementSibling.nextElementSibling;
+            if (errorMsg && errorMsg.classList.contains('error-message')) {
+                errorMsg.style.display = 'none';
+            }
+            
+            // Update hint
+            updateHint(this);
+        });
+    });
+</script>
+{% endblock %}

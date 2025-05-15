@@ -1,0 +1,145 @@
+:root {
+    /* Dark theme color variables */
+    --primary-bg: #1a1a1a;
+    --secondary-bg: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --accent-color: #728b94;
+    --link-color: #81d4fa;
+    --border-color: #404040;
+    --error-color: #ff5252;
+    --success-color: #4caf50;
+    --input-bg: #333333;
+    --input-text: #ffffff;
+    --button-hover: #546e7a;
+    --card-bg: #2d2d2d;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme styles */
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--secondary-bg);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.navbar ul li a {
+    color: var(--text-primary);
+}
+
+.navbar ul li a:hover {
+    background-color: var(--button-hover);
+    color: var(--text-primary);
+}
+
+/* Cards and containers */
+.card, .container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+/* Forms */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--border-color);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent-color);
+}
+
+/* Buttons */
+.button, button {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+.button:hover, button:hover {
+    background-color: var(--button-hover);
+}
+
+/* Links */
+a {
+    color: var(--link-color);
+}
+
+a:hover {
+    color: var(--text-primary);
+}
+
+/* Tables */
+table {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+th {
+    background-color: var(--secondary-bg);
+    color: var(--text-primary);
+}
+
+tr:nth-child(even) {
+    background-color: var(--secondary-bg);
+}
+
+/* Messages and alerts */
+.alert, .message {
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+}
+
+.alert-error {
+    background-color: var(--error-color);
+    color: var(--text-primary);
+}
+
+.alert-success {
+    background-color: var(--success-color);
+    color: var(--text-primary);
+}
+
+/* Modals and popups */
+.modal {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    background-color: var(--secondary-bg);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover);
+} 

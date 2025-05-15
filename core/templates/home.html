@@ -1,83 +1,301 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Call - Crime Reporting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --darker-bg: #141414;
+            --accent: #007bff;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+        }
 
-{% block title %}SafeCall{% endblock %}
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
 
-{% block styles %}
-<style>
+        .navbar {
+            background-color: var(--darker-bg) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .container{
-        display: flex;
-        flex-direction: column;
-    }
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #FFFFFF;
-        margin: 0;
-        padding: 0;
-    }
-    /* Navbar Styles */
-    .navbar {
-        background-color: #333;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .navbar .logo {
-        font-size: 24px;
-        font-weight: bold;
-        color: white;
-    }
-    .navbar ul {
-        list-style: none;
-        display: flex;
-        margin: 0;
-        padding: 0;
-    }
-    .navbar ul li {
-        margin: 0 15px;
-    }
-    .navbar ul li a {
-        text-decoration: none;
-        color: white;
-        font-size: 18px;
-    }
-    .navbar ul li a:hover {
-        text-decoration: underline;
-    }
-    /* Page Content */
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 90vh;
-        text-align: center;
-    }
-    /* Button Styles */
-    .button {
-        display: inline-block;
-        padding: 15px 30px;
-        font-size: 18px;
-        color: #FFFFFF;
-        background-color: #FF5722;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-    .button:hover {
-        background-color: #E64A19;
-    }
-</style>
+        .hero-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #141414 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 100px 0;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+        }
 
-{% endblock %}
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 123, 255, 0.1) 0%, transparent 50%);
+            animation: pulse 4s infinite;
+        }
 
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 0.2; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
 
-{% block content %}
-<div class="container">
-    <h1>SafeCall</h1> <br>
-    <p>Welcome to SafeCall, your trusted platform for reporting crimes confidentially and securely. Together, we can make our community safer.</p> <br>
-    <a href="{% url 'login' %}" class="button">Register Complaint</a><br>
-</div>
-{% endblock %}
+        .typewriter h1 {
+            overflow: hidden;
+            border-right: .15em solid var(--accent);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--accent); }
+        }
+
+        .btn-custom {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--text);
+            padding: 12px 30px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+        }
+
+        .btn-custom:hover {
+            background: var(--accent);
+            color: var(--text);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+            text-decoration: none;
+        }
+
+        .stats-card {
+            background: var(--darker-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .stats-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.5;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+
+        #chart-container {
+            background: var(--darker-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">Safe Call</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="{% url 'custom_admin:login' %}" class="nav-link">
+                            <button class="btn btn-custom">Admin Login</button>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mx-auto text-center">
+                    <div class="typewriter mb-4">
+                        <h1>Safe Call - Crime Reportiiiiiiiiing System</h1>
+                    </div>
+                    <p class="lead mb-5">Report Crimes Anonymously | Get Instant Updates | Help Build a Safer Society</p>
+                    <div>
+                        <a href="{% url 'add_complaint' %}" class="btn btn-custom">
+                            <i class="fas fa-file-alt me-2"></i> File a Complaint
+                        </a>
+                        <a href="{% url 'track_complaint' %}" class="btn btn-custom">
+                            <i class="fas fa-search me-2"></i> Track Complaint Status
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stats-card position-relative">
+                        <i class="fas fa-file-alt stats-icon"></i>
+                        <div class="stats-number" data-target="{{ total_complaints }}">0</div>
+                        <div class="stats-label">Total Complaints Filed</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card position-relative">
+                        <i class="fas fa-clipboard-list stats-icon"></i>
+                        <div class="stats-number" data-target="{{ total_firs }}">0</div>
+                        <div class="stats-label">FIRs Created</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card position-relative">
+                        <i class="fas fa-check-circle stats-icon"></i>
+                        <div class="stats-number" data-target="{{ resolved_cases }}">0</div>
+                        <div class="stats-label">Resolved Cases</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stats-card position-relative">
+                        <i class="fas fa-users stats-icon"></i>
+                        <div class="stats-number" data-target="{{ total_users }}">0</div>
+                        <div class="stats-label">Registered Users</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stats-card position-relative">
+                        <i class="fas fa-building stats-icon"></i>
+                        <div class="stats-number" data-target="{{ active_stations }}">0</div>
+                        <div class="stats-label">Active Police Stations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaint Distribution Chart -->
+            <div class="row mt-5">
+                <div class="col-lg-8 mx-auto">
+                    <div id="chart-container">
+                        <canvas id="complaintChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Animated counter function
+        function animateCounter(element) {
+            const target = parseInt(element.getAttribute('data-target'));
+            const duration = 2000; // 2 seconds
+            const step = target / (duration / 16); // 60fps
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 16);
+        }
+
+        // Start animation when elements are in view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        document.querySelectorAll('.stats-number').forEach(counter => {
+            observer.observe(counter);
+        });
+
+        // Complaint Distribution Chart
+        const ctx = document.getElementById('complaintChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ complaint_types|safe }},
+                datasets: [{
+                    data: {{ complaint_counts|safe }},
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8',
+                        '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6f42c1'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Complaint Type Distribution',
+                        color: '#ffffff',
+                        font: {
+                            size: 16
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

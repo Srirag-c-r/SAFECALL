@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}My Complaints - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .complaints-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .page-title {
+        color: #f1f1f1;
+        margin-bottom: 30px;
+        text-align: center;
+        font-size: 28px;
+    }
+    
+    .complaint-card {
+        background-color: #292929;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .complaint-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: #333;
+    }
+    
+    .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .status-pending {
+        background-color: #FFC107;
+        color: #212121;
+    }
+    
+    .status-investigation {
+        background-color: #3F51B5;
+        color: white;
+    }
+    
+    .status-resolved {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .status-rejected {
+        background-color: #F44336;
+        color: white;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+    }
+    
+    .detail-item {
+        margin-bottom: 10px;
+    }
+    
+    .detail-label {
+        font-size: 14px;
+        color: #aaaaaa;
+        margin-bottom: 5px;
+    }
+    
+    .detail-value {
+        font-size: 16px;
+    }
+    
+    .description-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #444;
+    }
+    
+    .description-label {
+        font-size: 16px;
+        color: #aaaaaa;
+        margin-bottom: 10px;
+    }
+    
+    .description-content {
+        background-color: #333;
+        padding: 15px;
+        border-radius: 5px;
+        line-height: 1.6;
+    }
+    
+    .evidence-section {
+        margin-top: 20px;
+    }
+    
+    .evidence-link {
+        display: inline-flex;
+        align-items: center;
+        background-color: #444;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .evidence-link:hover {
+        background-color: #555;
+    }
+    
+    .evidence-icon {
+        margin-right: 10px;
+    }
+    
+    .timeline-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #444;
+    }
+    
+    .timeline-item {
+        display: flex;
+        margin-bottom: 15px;
+    }
+    
+    .timeline-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: #2196F3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .timeline-content {
+        flex-grow: 1;
+    }
+    
+    .timeline-date {
+        font-size: 14px;
+        color: #aaaaaa;
+    }
+    
+    .timeline-action {
+        font-size: 16px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: #292929;
+        border-radius: 8px;
+    }
+    
+    .empty-state-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+        color: #555;
+    }
+    
+    .empty-state-title {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #f1f1f1;
+    }
+    
+    .empty-state-text {
+        font-size: 16px;
+        color: #aaaaaa;
+        margin-bottom: 30px;
+    }
+    
+    .btn-primary {
+        background-color: #2196F3;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0b7dda;
+    }
+    
+    .complaint-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #292929;
+        border-radius: 8px;
+        align-items: center;
+    }
+    
+    .filter-label {
+        font-size: 14px;
+        color: #aaaaaa;
+        margin-right: 5px;
+    }
+    
+    .filter-select {
+        padding: 8px 12px;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+        color: white;
+        outline: none;
+    }
+    
+    .filter-select:focus {
+        border-color: #2196F3;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 24px;
+        }
+        
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .status-badge {
+            margin-top: 10px;
+        }
+        
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .complaint-filters {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .filter-item {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        
+        .filter-select {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="complaints-container">
+    <h1 class="page-title">My Complaints</h1>
+    
+    <div class="complaint-filters">
+        <div class="filter-item">
+            <span class="filter-label">Filter by status:</span>
+            <select id="status-filter" class="filter-select">
+                <option value="all">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Under Investigation">Under Investigation</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        
+        <!-- <div class="filter-item">
+            <span class="filter-label">Sort by:</span>
+            <select id="sort-filter" class="filter-select">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+        </div> -->
+    </div>
+    
+    {% if complaints %}
+        <div id="complaints-list">
+            {% for complaint in complaints %}
+                <div class="complaint-card" data-status="{{ complaint.status }}">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            {{ complaint.complaint_type }} - #{{ complaint.id }}
+                        </h3>
+                        
+                        <span class="status-badge status-{{ complaint.status|lower|slugify }}">
+                            {{ complaint.status }}
+                        </span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Police Station</div>
+                                <div class="detail-value">{{ complaint.police_station.location }}, {{ complaint.police_station.district }}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Registered On</div>
+                                <div class="detail-value">{{ complaint.registered_at|date:"F d, Y" }}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Incident Date</div>
+                                <div class="detail-value">{{ complaint.incident_date|date:"F d, Y" }}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Incident Time</div>
+                                <div class="detail-value">{{ complaint.get_incident_time_display }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Incident Location</div>
+                                <div class="detail-value">{{ complaint.incident_location }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="description-section">
+                            <div class="description-label">Description</div>
+                            <div class="description-content">{{ complaint.description }}</div>
+                        </div>
+                        {% if complaint.status != 'Pending' and complaint.status != 'Rejected' %}
+                        <div class="evidence-section">
+                            <!-- <a href="{% url 'view_fir' complaint.id %}" class="evidence-link">
+                                <span class="evidence-icon">📄</span>
+                                View FIR
+                            </a> -->
+                            <a href="{% url 'download_fir' complaint.id %}" class="evidence-link">
+                                <span class="evidence-icon">📥</span>
+                                Download FIR
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if complaint.evidence %}
+                            <div class="evidence-section">
+                                <a href="{{ complaint.evidence.url }}" class="evidence-link" target="_blank">
+                                    <span class="evidence-icon">📎</span>
+                                    View Evidence ({{ complaint.filename }})
+                                </a>
+                            </div>
+                        {% endif %}
+                        <div class="timeline-section">
+                            <div class="timeline-item">
+                                <div class="timeline-icon">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-date">{{ complaint.registered_at|date:"F d, Y - h:i A" }}</div>
+                                    <div class="timeline-action">Complaint Registered</div>
+                                </div>
+                            </div>
+                            {% if complaint.status != "Pending" %}
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">👁️</div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-date">Updated</div>
+                                        <div class="timeline-action">Status changed to {{ complaint.status }}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h2 class="empty-state-title">No complaints found</h2>
+            <p class="empty-state-text">You haven't registered any complaints yet.</p>
+            <a href="{% url 'add_complaint' %}" class="btn-primary">Register a Complaint</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Status filter functionality
+        const statusFilter = document.getElementById('status-filter');
+        const sortFilter = document.getElementById('sort-filter');
+        const complaintsList = document.getElementById('complaints-list');
+        
+        if (statusFilter && complaintsList) {
+            statusFilter.addEventListener('change', function() {
+                const selectedStatus = this.value;
+                const cards = complaintsList.querySelectorAll('.complaint-card');
+                
+                cards.forEach(card => {
+                    const cardStatus = card.dataset.status;
+                    if (selectedStatus === 'all' || cardStatus === selectedStatus) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Sort functionality
+        if (sortFilter && complaintsList) {
+            sortFilter.addEventListener('change', function() {
+                const selectedSort = this.value;
+                const cards = Array.from(complaintsList.querySelectorAll('.complaint-card'));
+                
+                cards.sort((a, b) => {
+                    const dateA = new Date(a.querySelector('.timeline-date').textContent);
+                    const dateB = new Date(b.querySelector('.timeline-date').textContent);
+                    
+                    if (selectedSort === 'newest') {
+                        return dateB - dateA;
+                    } else {
+                        return dateA - dateB;
+                    }
+                });
+                
+                // Remove all cards
+                cards.forEach(card => {
+                    card.remove();
+                });
+                
+                // Add sorted cards back
+                cards.forEach(card => {
+                    complaintsList.appendChild(card);
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,627 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Police Station Analytics - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@700&display=swap" rel="stylesheet">
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    :root {
+        --primary-color: #b2222e;
+        --secondary-color: #728b94;
+        --dark-bg: #121212;
+        --card-bg: #1E1E1E;
+        --card-bg-hover: #2a2a2a;
+        --text-primary: #ffffff;
+        --text-secondary: #B0B0B0;
+        --accent-blue: #1a3a8f;
+        --accent-dark-blue: #0c1f4b;
+        --accent-orange: #FF5722;
+        --accent-green: #4CAF50;
+        --accent-red: #F44336;
+        --accent-yellow: #FFC107;
+    }
+    
+    body {
+        background-color: var(--dark-bg);
+        color: var(--text-primary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .analytics-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    /* Header Section */
+    .analytics-header {
+        background: linear-gradient(135deg, var(--accent-dark-blue), var(--primary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+    
+    .analytics-header h2 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+        font-family: 'Crimson Text', serif;
+        position: relative;
+        z-index: 1;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .analytics-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin-top: 1rem;
+    }
+    
+    .analytics-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/police-badge.png" %}') no-repeat right bottom;
+        background-size: 150px;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    
+    /* Stat Cards */
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background-color: var(--card-bg-hover);
+    }
+    
+    .stat-card .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+    
+    .stat-card .stat-count {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-card .stat-label {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Colors for different stat cards */
+    .stat-total .stat-icon { color: var(--accent-blue); }
+    .stat-pending .stat-icon { color: var(--accent-yellow); }
+    .stat-rejected .stat-icon { color: var(--accent-red); }
+    .stat-approved .stat-icon { color: var(--accent-green); }
+    .stat-resolved .stat-icon { color: var(--accent-orange); }
+    .stat-fir .stat-icon { color: var(--secondary-color); }
+    
+    /* Chart containers */
+    .chart-sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 580px) {
+        .chart-sections {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .chart-container {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    .chart-container h3 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+    }
+    
+    .chart-container canvas {
+        width: 100% !important;
+        margin: 0 auto;
+    }
+    
+    .small-chart-container {
+        height: 300px;
+    }
+    
+    .large-chart-container {
+        height: 400px;
+    }
+    
+    /* Data insights section */
+    .data-insights {
+        background-color: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 1s ease-out forwards;
+    }
+    
+    .data-insights h3 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+    }
+    
+    .insight-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .insight-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .insight-card h4 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .insight-card h4 i {
+        margin-right: 10px;
+        color: var(--accent-orange);
+    }
+    
+    .insight-card p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Back button */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        background-color: var(--card-bg);
+        color: var(--text-primary);
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    
+    .back-button:hover {
+        background-color: var(--card-bg-hover);
+    }
+    
+    .back-button i {
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <a href="{% url 'police_station_dashboard' %}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    
+    <div class="analytics-header">
+        <h2>Case Reports Analytics</h2>
+        <p>Comprehensive analytics and insights to help you understand crime patterns, case resolution efficiency, and resource allocation for effective policing.</p>
+    </div>
+    
+    <!-- Statistics Overview -->
+    <div class="stats-overview">
+        <div class="stat-card stat-total">
+            <i class="fas fa-file-alt stat-icon"></i>
+            <div class="stat-count">{{ total_complaints }}</div>
+            <div class="stat-label">Total Cases</div>
+        </div>
+        <div class="stat-card stat-pending">
+            <i class="fas fa-clock stat-icon"></i>
+            <div class="stat-count">{{ pending_complaints }}</div>
+            <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card stat-rejected">
+            <i class="fas fa-times-circle stat-icon"></i>
+            <div class="stat-count">{{ rejected_complaints }}</div>
+            <div class="stat-label">Rejected</div>
+        </div>
+        <div class="stat-card stat-approved">
+            <i class="fas fa-check-circle stat-icon"></i>
+            <div class="stat-count">{{ approved_complaints }}</div>
+            <div class="stat-label">Approved</div>
+        </div>
+        <div class="stat-card stat-resolved">
+            <i class="fas fa-flag-checkered stat-icon"></i>
+            <div class="stat-count">{{ resolved_complaints }}</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+        <div class="stat-card stat-fir">
+            <i class="fas fa-file-signature stat-icon"></i>
+            <div class="stat-count">{{ complaints_with_fir }}</div>
+            <div class="stat-label">FIRs Filed</div>
+        </div>
+    </div>
+    
+    <!-- Charts Section 1 -->
+    <div class="chart-sections">
+        <div class="chart-container">
+            <!-- <h3>Case Status Distribution</h3>
+            <div class="small-chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div> -->
+        <div class="chart-container">
+            <h3>Complaint Type Distribution</h3>
+            <div class="small-chart-container">
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Section 2 -->
+    <div class="chart-sections">
+        <div class="chart-container">
+            <h3>Monthly Trend (Last 12 Months)</h3>
+            <div class="large-chart-container">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <h3>Weekly Trend (Last 10 Weeks)</h3>
+            <div class="large-chart-container">
+                <canvas id="weeklyTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Daily Trend Chart -->
+    <div class="chart-container">
+        <h3>Daily Complaint Activity (Last 14 Days)</h3>
+        <div class="large-chart-container">
+            <canvas id="dailyTrendChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Data Insights Section -->
+    <div class="data-insights">
+        <h3>Key Insights</h3>
+        <div class="insight-grid">
+            <div class="insight-card">
+                <h4><i class="fas fa-chart-line"></i> Case Resolutions</h4>
+                <p>Average resolution time: <strong>{{ avg_resolution_time }} days</strong>. This metric helps track efficiency in case handling and resolution.</p>
+            </div>
+            <div class="insight-card">
+                <h4><i class="fas fa-balance-scale"></i> FIR Registration</h4>
+                <p><strong>{{ complaints_with_fir }}</strong> cases have FIRs filed out of <strong>{{ total_complaints }}</strong> total complaints ({{ complaints_with_fir|floatformat:1 }}% conversion rate).</p>
+            </div>
+            <div class="insight-card">
+                <h4><i class="fas fa-calendar-check"></i> Efficiency Metrics</h4>
+                <p>Case resolution rate: <strong>{{ resolved_complaints|floatformat:1 }}%</strong> of all complaints. Higher rates indicate effective case management.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Color palette
+        const colors = {
+            blue: '#4285F4',
+            red: '#EA4335',
+            yellow: '#FBBC05',
+            green: '#34A853',
+            purple: '#8E24AA',
+            orange: '#FB8C00',
+            teal: '#00ACC1',
+            pink: '#E91E63',
+            brown: '#795548',
+            grey: '#9E9E9E'
+        };
+        
+        // Status Distribution Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Approved', 'Rejected', 'Resolved'],
+                datasets: [{
+                    data: [
+                        {{ pending_complaints }}, 
+                        {{ approved_complaints }}, 
+                        {{ rejected_complaints }}, 
+                        {{ resolved_complaints }}
+                    ],
+                    backgroundColor: [colors.yellow, colors.green, colors.red, colors.blue],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#FFFFFF',
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw || 0;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Complaint Type Distribution Chart
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        const typeData = {
+            labels: [{% for type in complaint_types %}"{{ type.complaint_type }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for type in complaint_types %}{{ type.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: [
+                    colors.blue, colors.red, colors.yellow, colors.green, 
+                    colors.purple, colors.orange, colors.teal, colors.pink, 
+                    colors.brown, colors.grey
+                ],
+                borderWidth: 0
+            }]
+        };
+        
+        new Chart(typeCtx, {
+            type: 'pie',
+            data: typeData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#FFFFFF',
+                            padding: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw || 0;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Monthly Trend Chart
+        const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+        const monthlyData = {
+            labels: [{% for item in months_data %}"{{ item.month }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Cases',
+                data: [{% for item in months_data %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(66, 133, 244, 0.5)',
+                borderColor: 'rgba(66, 133, 244, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(66, 133, 244, 1)',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.1
+            }]
+        };
+        
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: monthlyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#B0B0B0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#B0B0B0'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#FFFFFF'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Weekly Trend Chart
+        const weeklyCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+        const weeklyData = {
+            labels: [{% for item in weeks_data %}"{{ item.week }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Cases',
+                data: [{% for item in weeks_data %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(251, 140, 0, 0.5)',
+                borderColor: 'rgba(251, 140, 0, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(251, 140, 0, 1)',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.1
+            }]
+        };
+        
+        new Chart(weeklyCtx, {
+            type: 'line',
+            data: weeklyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#B0B0B0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#B0B0B0'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#FFFFFF'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Daily Trend Chart
+        const dailyCtx = document.getElementById('dailyTrendChart').getContext('2d');
+        const dailyData = {
+            labels: [{% for item in days_data %}"{{ item.day }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Number of Cases',
+                data: [{% for item in days_data %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(52, 168, 83, 0.5)',
+                borderColor: 'rgba(52, 168, 83, 1)',
+                borderWidth: 2,
+                fill: true
+            }]
+        };
+        
+        new Chart(dailyCtx, {
+            type: 'bar',
+            data: dailyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#B0B0B0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#B0B0B0'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#FFFFFF'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "core/emails/base_email.html" %}
+
+{% block content %}
+<style>
+    /* Override base email styles with SafeCall's theme */
+    .header {
+        border-bottom: 2px solid #b2222e;
+    }
+    
+    .title {
+        color: #b2222e;
+        font-family: 'Crimson Text', serif;
+    }
+    
+    .button {
+        background: linear-gradient(45deg, #8b0000, #b2222e);
+        border: none;
+        font-family: 'Crimson Text', serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(178, 34, 46, 0.3);
+    }
+    
+    .highlight {
+        color: #FF9800;
+        font-weight: 600;
+    }
+    
+    .info-box {
+        border-left: 4px solid #b2222e;
+    }
+    
+    table {
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    th {
+        background-color: rgba(178, 34, 46, 0.1);
+        color: #b2222e;
+    }
+    
+    .invoice-header {
+        background: linear-gradient(135deg, rgba(30, 30, 30, 0.05), rgba(178, 34, 46, 0.05));
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(178, 34, 46, 0.1);
+    }
+    
+    .invoice-number {
+        font-size: 1.2rem;
+        color: #b2222e;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .total-amount {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #FF9800;
+        margin: 15px 0;
+    }
+    
+    /* Status styles */
+    .status-success {
+        color: #4CAF50;
+    }
+    
+    .status-failed {
+        color: #b2222e;
+    }
+</style>
+
+<div class="content">
+    <h2 style="color: #b2222e;">Thank You for Your Donation!</h2>
+    
+    <p>Dear <span class="highlight">{{ donor_name }}</span>,</p>
+    
+    <p>Thank you for your generous donation to SafeCall. Your contribution helps us improve our crime reporting system and create a safer society for everyone. We're deeply grateful for your support.</p>
+    
+    <div class="invoice-header">
+        <div class="invoice-number">Invoice #{{ order_id }}</div>
+        <div>Date: {{ transaction_date }}</div>
+    </div>
+    
+    <table>
+        <tr>
+            <th>Description</th>
+            <th>Amount</th>
+        </tr>
+        <tr>
+            <td>Donation to SafeCall Crime Reporting System</td>
+            <td>₹{{ amount }}</td>
+        </tr>
+        {% if transaction_fee %}
+        <tr>
+            <td>Transaction Fee</td>
+            <td>₹{{ transaction_fee }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <th>Total</th>
+            <th>₹{{ total_amount }}</th>
+        </tr>
+    </table>
+    
+    <div class="total-amount">₹{{ total_amount }}</div>
+    
+    <div class="info-box">
+        <p><strong>Transaction Details:</strong></p>
+        <p>Transaction ID: {{ transaction_id }}<br>
+        Payment Method: {{ payment_method }}<br>
+        Status: <span class="{% if status == 'Success' %}status-success{% else %}status-failed{% endif %}">{{ status }}</span></p>
+    </div>
+    
+    <p>This donation receipt may qualify as a tax-deductible contribution. Please consult with your tax advisor for details.</p>
+    
+    <p>If you have any questions about your donation, please contact us at support@safecall.com.</p>
+    
+    <a href="{{ receipt_url }}" class="button">View Receipt Online</a>
+</div>
+{% endblock %} 
