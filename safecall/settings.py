@@ -96,7 +96,8 @@ WSGI_APPLICATION = 'safecall.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Database configuration with dj-database-url
+# Database configuration
+# Default to SQLite for development and initial deployment
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -104,16 +105,18 @@ DATABASES = {
     }
 }
 
-# Use DATABASE_URL environment variable if available (Render, Heroku, etc.)
+# Try to use DATABASE_URL if available
 if DATABASE_URL_AVAILABLE:
     try:
-        DATABASE_URL = os.environ.get('DATABASE_URL')
-        if DATABASE_URL and DATABASE_URL.strip():
-            DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
-            print(f"Using database URL: {DATABASE_URL[:10]}...")
+        database_url = os.environ.get('DATABASE_URL', '')
+        if database_url and len(database_url.strip()) > 10:  # Ensure it's not empty or too short
+            print(f"Using database URL: {database_url[:10]}...")
+            DATABASES['default'] = dj_database_url.parse(database_url)
+        else:
+            print("DATABASE_URL not set or invalid. Using SQLite database.")
     except Exception as e:
-        print(f"Error parsing DATABASE_URL: {e}")
-        print("Using default SQLite database instead.")
+        print(f"Error setting up database: {e}")
+        print("Falling back to SQLite database.")
 
 
 # Password validation

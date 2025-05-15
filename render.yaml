@@ -4,6 +4,8 @@ services:
     env: python
     buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --no-input"
     startCommand: "gunicorn safecall.wsgi:application"
+    # You need to manually create a PostgreSQL database in the Render dashboard
+    # and set the DATABASE_URL environment variable in your service
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.11
@@ -14,6 +16,8 @@ services:
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
       - key: DATABASE_URL
+        # NOTE: This will only work if the database is created first
+        # If DATABASE_URL is not set, the app will use SQLite by default
         fromDatabase:
           name: safecall_db
           property: connectionString
@@ -34,6 +38,8 @@ services:
       - key: NEWSAPI_KEY
         sync: false
 
+# Create this database manually in the Render dashboard if using render.yaml
+# or remove this section and create the database separately
 databases:
   - name: safecall_db
     databaseName: safecall
