@@ -5,5 +5,10 @@ Pillow>=10.0.0
 newsapi-python>=0.2.7
 gunicorn>=20.0.4
 dj-database-url>=2.0.0
+whitenoise>=6.0.0
+
+# Non-pinned versions to avoid dependency conflicts
+httpx>=0.24.0  # Newer version that works with idna 3.x
+
 # Add any other dependencies needed for production
 # But exclude Windows-specific packages like pywin32 
