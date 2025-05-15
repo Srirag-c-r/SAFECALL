@@ -2,7 +2,7 @@ services:
   - type: web
     name: safecall
     env: python
-    buildCommand: "./build.sh"
+    buildCommand: "pip install -r requirements-render.txt && python manage.py migrate && python manage.py collectstatic --no-input"
     startCommand: "gunicorn safecall.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
