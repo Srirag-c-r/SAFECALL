@@ -14,7 +14,9 @@ services:
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: safecall_db
+          property: connectionString
       - key: EMAIL_HOST
         sync: false  
       - key: EMAIL_PORT
@@ -30,4 +32,9 @@ services:
       - key: RAZORPAY_KEY_SECRET
         sync: false
       - key: NEWSAPI_KEY
-        sync: false 
+        sync: false
+
+databases:
+  - name: safecall_db
+    databaseName: safecall
+    plan: free 

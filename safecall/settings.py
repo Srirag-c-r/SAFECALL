@@ -105,9 +105,15 @@ DATABASES = {
 }
 
 # Use DATABASE_URL environment variable if available (Render, Heroku, etc.)
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL and DATABASE_URL_AVAILABLE:
-    DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
+if DATABASE_URL_AVAILABLE:
+    try:
+        DATABASE_URL = os.environ.get('DATABASE_URL')
+        if DATABASE_URL and DATABASE_URL.strip():
+            DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
+            print(f"Using database URL: {DATABASE_URL[:10]}...")
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {e}")
+        print("Using default SQLite database instead.")
 
 
 # Password validation
