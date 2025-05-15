@@ -235,11 +235,82 @@
 {% block content %}
 <!-- Video Background -->
 <div class="video-background">
-    <video autoplay muted loop playsinline>
-        <source src="{% static 'LOGOS/papereffect.mp4' %}" type="video/mp4">
+    <video autoplay muted loop playsinline id="background-video">
+        <source src="{% static 'LOGOS/papereffect.mp4' %}?v={{ timestamp }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timestamp = new Date().getTime();
+        const video = document.getElementById('background-video');
+        
+        // First source - via static
+        const staticSource = video.querySelector('source');
+        if (staticSource) {
+            // Add timestamp to prevent caching
+            if (!staticSource.src.includes('?v=')) {
+                staticSource.src = staticSource.src + '?v=' + timestamp;
+            }
+        }
+        
+        // Function to try different sources
+        function trySource(url, type) {
+            console.log('Trying video source:', url);
+            
+            // Clear existing sources
+            while (video.firstChild) {
+                video.removeChild(video.firstChild);
+            }
+            
+            // Add new source
+            const newSource = document.createElement('source');
+            newSource.src = url;
+            newSource.type = type || 'video/mp4';
+            video.appendChild(newSource);
+            
+            // Try to load the video again
+            video.load();
+            return video.play();
+        }
+        
+        // Setup error handling for video
+        video.addEventListener('error', function(e) {
+            console.error('Video loading error:', e);
+            
+            // Try fallback 1: Direct serve URL
+            const directServeUrl = '/serve-video/papereffect.mp4?v=' + timestamp;
+            console.log('Trying direct serve URL:', directServeUrl);
+            
+            trySource(directServeUrl)
+                .catch(function(e) {
+                    console.error('Failed to play from direct serve:', e);
+                    
+                    // Try fallback 2: CDN URL
+                    const cdnUrl = 'https://cdn.jsdelivr.net/gh/Srirag-c-r/SAFECALL@main/safecall/static/LOGOS/papereffect.mp4?v=' + timestamp;
+                    
+                    return trySource(cdnUrl);
+                })
+                .catch(function(e) {
+                    console.error('Failed to play from CDN:', e);
+                    
+                    // Try fallback 3: Absolute URL
+                    const absoluteUrl = window.location.origin + '/static/LOGOS/papereffect.mp4?v=' + timestamp;
+                    
+                    return trySource(absoluteUrl);
+                })
+                .catch(function(e) {
+                    console.error('All video sources failed:', e);
+                    
+                    // If all sources fail, add a CSS gradient background as final fallback
+                    video.style.display = 'none';
+                    document.querySelector('.video-background').style.background = 
+                        'radial-gradient(circle at center, #1a237e 0%, #000000 70%)';
+                });
+        });
+    });
+</script>
 
 <div class="login-container">
     <div class="animated-bg"></div>

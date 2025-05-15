@@ -67,6 +67,37 @@ def setup_static_files():
         if os.path.exists(logo_path):
             logo_files = os.listdir(logo_path)
             print(f"Files in LOGOS directory: {logo_files}")
+            
+            # Check specifically for video files
+            video_files = [f for f in logo_files if f.endswith(('.mp4', '.webm', '.ogg'))]
+            if video_files:
+                print(f"Video files found: {video_files}")
+            else:
+                print("No video files found in LOGOS directory! Checking source directory...")
+                
+                # Check if video files exist in source
+                source_logos = os.path.join(BASE_DIR, "static", "LOGOS")
+                source_video_files = [f for f in os.listdir(source_logos) if f.endswith(('.mp4', '.webm', '.ogg'))]
+                if source_video_files:
+                    print(f"Video files found in source: {source_video_files}")
+                    # Copy video files specifically with binary mode
+                    for video_file in source_video_files:
+                        src_file = os.path.join(source_logos, video_file)
+                        dst_file = os.path.join(logo_path, video_file)
+                        try:
+                            with open(src_file, 'rb') as src, open(dst_file, 'wb') as dst:
+                                dst.write(src.read())
+                            print(f"Copied video file {video_file} to {logo_path}")
+                            # Verify file size after copy
+                            src_size = os.path.getsize(src_file)
+                            dst_size = os.path.getsize(dst_file)
+                            print(f"Source size: {src_size}, Destination size: {dst_size}")
+                            if src_size != dst_size:
+                                print(f"WARNING: File sizes don't match for {video_file}!")
+                        except Exception as e:
+                            print(f"Error copying video file {video_file}: {e}")
+                else:
+                    print("No video files found in source directory!")
         else:
             print("LOGOS directory not found in staticfiles!")
             
@@ -77,8 +108,14 @@ def setup_static_files():
                 for file in os.listdir(source_logos):
                     src_file = os.path.join(source_logos, file)
                     dst_file = os.path.join(logo_path, file)
-                    shutil.copy2(src_file, dst_file)
-                    print(f"Copied {file} to {logo_path}")
+                    
+                    # Use binary mode for copying to ensure file integrity
+                    try:
+                        with open(src_file, 'rb') as src, open(dst_file, 'wb') as dst:
+                            dst.write(src.read())
+                        print(f"Copied {file} to {logo_path}")
+                    except Exception as e:
+                        print(f"Error copying file {file}: {e}")
     else:
         print("STATIC_ROOT directory does not exist!")
 

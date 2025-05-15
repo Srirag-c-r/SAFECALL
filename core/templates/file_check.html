@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}File Check Utility - Safe Call{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .file-check-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: linear-gradient(to bottom, #1E1E1E, #2A2A2A);
+        border-radius: 10px;
+        border: 1px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .file-check-title {
+        margin-bottom: 20px;
+        color: #ff3333;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+    }
+    
+    .file-check-form {
+        margin-bottom: 30px;
+    }
+    
+    .results-container {
+        background: #111;
+        border-radius: 8px;
+        padding: 20px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .code {
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+    
+    .text-success { color: #4CAF50; }
+    .text-danger { color: #F44336; }
+    
+    .common-files {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .common-file-btn {
+        background: #1E1E1E;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .common-file-btn:hover {
+        background: #333;
+        border-color: #ff3333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="file-check-container">
+    <h1 class="file-check-title">Static File Check Utility</h1>
+    
+    <div class="file-check-form">
+        <form id="fileCheckForm" method="post" action="{% url 'file_check' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="filePath" class="form-label">Enter File Path</label>
+                <input type="text" class="form-control" id="filePath" name="file_path" 
+                       placeholder="LOGOS/papereffect.mp4" required>
+                <div class="form-text">Enter the path relative to the static directory. 
+                    For example: LOGOS/papereffect.mp4</div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Check File</button>
+        </form>
+    </div>
+    
+    <h4>Common Files</h4>
+    <div class="common-files">
+        <button class="common-file-btn" data-path="LOGOS/papereffect.mp4">papereffect.mp4</button>
+        <button class="common-file-btn" data-path="LOGOS/wp3007918-crime-wallpaper-in-hd.jpg">wp3007918-crime-wallpaper-in-hd.jpg</button>
+        <button class="common-file-btn" data-path="LOGOS/CREATOR.jpeg">CREATOR.jpeg</button>
+        <button class="common-file-btn" data-path="LOGOS/gpttlogo.png">gpttlogo.png</button>
+        <button class="common-file-btn" data-path="LOGOS/kerala-police-logo.png">kerala-police-logo.png</button>
+    </div>
+    
+    <h4 class="mt-4">Results</h4>
+    <div class="results-container">
+        <pre class="code" id="results">Submit a file path to check if it exists in the static files system.</pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('fileCheckForm');
+        const resultsElement = document.getElementById('results');
+        const commonFileButtons = document.querySelectorAll('.common-file-btn');
+        
+        // Function to handle form submission
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            try {
+                resultsElement.textContent = 'Checking file...';
+                
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                // Format the results
+                let formattedResults = formatResults(data);
+                
+                // Update the results container
+                resultsElement.innerHTML = formattedResults;
+            } catch (error) {
+                resultsElement.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        // Format the results with some HTML color coding
+        function formatResults(data) {
+            if (data.error) {
+                return `<span class="text-danger">Error: ${data.error}</span>`;
+            }
+            
+            let result = `<strong>File Path:</strong> ${data.file_path}\n`;
+            
+            // File exists in finders?
+            if (data.exists_in_finders) {
+                result += `<span class="text-success">✓ File found in finders at: ${data.found_at}</span>\n`;
+                if (data.file_size) {
+                    result += `<strong>File Size:</strong> ${formatFileSize(data.file_size)}\n`;
+                }
+                if (data.last_modified) {
+                    result += `<strong>Last Modified:</strong> ${new Date(data.last_modified * 1000).toLocaleString()}\n`;
+                }
+            } else {
+                result += `<span class="text-danger">✗ File not found in finders</span>\n`;
+            }
+            
+            result += `\n<strong>Static URL:</strong> ${data.static_url}\n`;
+            result += `<strong>Static Root:</strong> ${data.static_root}\n`;
+            
+            result += `\n<strong>Staticfiles Dirs:</strong>\n`;
+            data.staticfiles_dirs.forEach(dir => {
+                result += `- ${dir}\n`;
+            });
+            
+            result += `\n<strong>Locations Checked:</strong>\n`;
+            data.locations_checked.forEach(location => {
+                const status = location.exists 
+                    ? `<span class="text-success">✓ Found</span> (${formatFileSize(location.size)})`
+                    : `<span class="text-danger">✗ Not found</span>`;
+                result += `- ${location.path}: ${status}\n`;
+            });
+            
+            // Add some link to directly access the file
+            if (data.exists_in_finders) {
+                const staticUrl = data.static_url.endsWith('/') 
+                    ? data.static_url + data.file_path 
+                    : data.static_url + '/' + data.file_path;
+                
+                result += `\n<strong>Access URLs:</strong>\n`;
+                result += `- <a href="${staticUrl}" target="_blank">Access via static URL</a>\n`;
+                result += `- <a href="/serve-video/${data.file_path.split('/').pop()}" target="_blank">Access via direct serving</a>\n`;
+            }
+            
+            return result;
+        }
+        
+        // Format file size in a human-readable way
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            if (!bytes) return 'Unknown';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Set up event listeners
+        form.addEventListener('submit', submitForm);
+        
+        // Set up common file button listeners
+        commonFileButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const path = this.getAttribute('data-path');
+                document.getElementById('filePath').value = path;
+                form.dispatchEvent(new Event('submit'));
+            });
+        });
+    });
+</script>
+{% endblock %} 

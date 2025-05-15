@@ -76,4 +76,16 @@ urlpatterns = [
 
     # Add this new URL for debugging
     path('debug-static/', views.debug_static_files, name='debug_static_files'),
+
+    # Add URL for checking video files
+    path('check-video/<str:filename>/', views.check_video_file, name='check_video_file'),
+
+    # Direct video file serving as fallback
+    path('serve-video/<str:filename>/', views.serve_video_file, name='serve_video_file'),
+
+    # File check utility
+    path('file-check/', views.file_check, name='file_check'),
+    
+    # API configuration check
+    path('api-config-check/', views.api_config_check, name='api_config_check'),
 ]

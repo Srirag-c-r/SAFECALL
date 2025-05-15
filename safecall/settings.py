@@ -217,6 +217,21 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 if not DEBUG:
     # Use a simpler storage backend that doesn't hash file names
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    
+    # Configure WhiteNoise to serve specific file types without compression
+    # This is important for video files which should not be compressed
+    WHITENOISE_MIMETYPES = {
+        'image/png': 'image/png',
+        'image/jpeg': 'image/jpeg',
+        'image/gif': 'image/gif',
+        'video/mp4': 'video/mp4',
+        'video/webm': 'video/webm',
+        'video/ogg': 'video/ogg',
+        'application/font-woff': 'application/font-woff',
+        'application/font-woff2': 'application/font-woff2',
+        'application/vnd.ms-fontobject': 'application/vnd.ms-fontobject',
+        'application/x-font-ttf': 'application/x-font-ttf',
+    }
 else:
     # Simple storage for development
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
