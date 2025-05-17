@@ -90,6 +90,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.NoCacheMiddleware',
+    'core.middleware.StaticFilesHeadersMiddleware',
 ]
 
 ROOT_URLCONF = 'safecall.urls'
@@ -108,6 +109,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.debug_flag',
             ],
         },
     },
@@ -210,21 +212,14 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configure WhiteNoise for serving static files
-if not DEBUG:
-    # Use CompressedStaticFilesStorage instead of CompressedManifestStaticFilesStorage
-    # This will compress files but won't rename them with hashes
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    
-    # Configure WhiteNoise to not compress certain file types
-    WHITENOISE_MIMETYPES = {
-        'image/png': 'image/png',  # Don't compress PNG files
-        'image/jpeg': 'image/jpeg',  # Don't compress JPEG files
-        'image/gif': 'image/gif',  # Don't compress GIF files
-        'video/mp4': 'video/mp4',  # Don't compress MP4 files
-    }
-else:
-    # Simple storage for development
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Use the simplest storage option to avoid any file path issues
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+
+# Disable WhiteNoise compression for all files to ensure they're served as-is
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = [
+    'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'mov',
+    'css', 'js', 'pdf', 'ico', 'woff', 'woff2', 'ttf', 'eot'
+]
 
 # Make sure the static directories exist
 os.makedirs(os.path.join(BASE_DIR, "staticfiles"), exist_ok=True)

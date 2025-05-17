@@ -29,15 +29,20 @@ urlpatterns = [
     path('donate/', views.donate, name='donate'),
 ]
 
-# Serve static files during development
+# Serve static files during development and in production
+from django.views.static import serve
+from core.static_handler import serve_static_file
+
 if settings.DEBUG:
+    # Use Django's built-in static file serving for development
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
-    # For production - let WhiteNoise handle static files
-    # Add a fallback for media files in production
-    from django.views.static import serve
+    # For production - use our custom static file handler for better control
     urlpatterns += [
+        # Serve static files with our custom handler
+        path('static/<path:path>', serve_static_file, name='serve_static'),
+        # Serve media files with Django's built-in handler
         path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
     ]
 

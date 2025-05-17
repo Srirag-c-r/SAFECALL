@@ -6,11 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Safe Call{% endblock %}</title>
     
-    <!-- Favicon -->
+    <!-- Favicon with absolute URLs for production -->
+    {% if debug %}
+    <!-- Development environment -->
     <link rel="icon" type="image/png" href="{% static 'LOGOS/gpttlogo.png' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'LOGOS/gpttlogo.png' %}">
     <link rel="apple-touch-icon" href="{% static 'LOGOS/gpttlogo.png' %}">
     <meta name="msapplication-TileImage" content="{% static 'LOGOS/gpttlogo.png' %}">
+    {% else %}
+    <!-- Production environment with direct URLs -->
+    <link rel="icon" type="image/png" href="/static/direct/LOGOS/gpttlogo.png">
+    <link rel="shortcut icon" type="image/png" href="/static/direct/LOGOS/gpttlogo.png">
+    <link rel="apple-touch-icon" href="/static/direct/LOGOS/gpttlogo.png">
+    <meta name="msapplication-TileImage" content="/static/direct/LOGOS/gpttlogo.png">
+    {% endif %}
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +27,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Audiowide&family=Cinzel:wght@400..900&family=Rock+Salt&family=Space+Grotesk:wght@300..700&family=Tektur:wght@400..900&display=swap" rel="stylesheet">
     
     <!-- Dark theme CSS -->
+    {% if debug %}
     <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}">
+    {% else %}
+    <link rel="stylesheet" href="/static/direct/css/dark-theme.css">
+    {% endif %}
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
