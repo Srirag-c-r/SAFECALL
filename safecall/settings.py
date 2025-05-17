@@ -207,16 +207,18 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Use a single directory for all static files (simplify configuration)
+# Use multiple directories for static files to ensure all are found
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "safecall", "static"),  # Add the app's static directory
 ]
 
 # For production, set STATIC_ROOT where files will be collected
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configure WhiteNoise for serving static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Use ManifestStaticFilesStorage for better caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Disable compression for all media files to fix serving issues
 WHITENOISE_MIMETYPES = {
@@ -238,6 +240,9 @@ WHITENOISE_MIMETYPES = {
 
 # Allow all origins to fetch static files
 WHITENOISE_ALLOW_ALL_ORIGINS = True
+
+# Enable WhiteNoise to use finders during development
+WHITENOISE_USE_FINDERS = True
 
 # Make sure the static directories exist
 os.makedirs(os.path.join(BASE_DIR, "staticfiles"), exist_ok=True)
