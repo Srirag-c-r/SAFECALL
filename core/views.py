@@ -192,7 +192,8 @@ def home(request):
     return render(request, 'core/home.html', {
         'stats': stats,
         'news_articles': news_articles,
-        'razorpay_key_id': razorpay_key  # Use the safely retrieved key
+        'razorpay_key_id': razorpay_key,  # Use the safely retrieved key
+        'timeNow': timezone.now()  # Add the missing timeNow variable
     })
 
 

@@ -93,4 +93,7 @@ urlpatterns = [
     # Add URL for error check
     path('error-check/', views.error_check, name='error_check'),
     path('diagnostics/', TemplateView.as_view(template_name='core/error_check.html'), name='diagnostics'),
+    
+    # Add privacy policy URL
+    path('privacy-policy/', TemplateView.as_view(template_name='core/privacy_policy.html'), name='privacy_policy'),
 ]
