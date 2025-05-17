@@ -211,9 +211,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configure WhiteNoise for serving static files
 if not DEBUG:
-    # Enhanced compression and caching for production
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # Enable ManifestStaticFilesStorage with some exceptions to prevent hashing of filenames
+    # Use CompressedStaticFilesStorage instead of CompressedManifestStaticFilesStorage
+    # This will compress files but won't rename them with hashes
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    
+    # Configure WhiteNoise to not compress certain file types
     WHITENOISE_MIMETYPES = {
         'image/png': 'image/png',  # Don't compress PNG files
         'image/jpeg': 'image/jpeg',  # Don't compress JPEG files
