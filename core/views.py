@@ -2171,3 +2171,125 @@ def api_config_check(request):
     }
     
     return JsonResponse(response_data)
+
+def serve_media_file(request, path):
+    """
+    Serve media files directly.
+    This view provides a fallback for media files that aren't being served correctly
+    in production environments.
+    """
+    from django.http import FileResponse, Http404
+    import os
+    from django.conf import settings
+    
+    # Check if the file exists in the media directory
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        # Determine content type (simplified version)
+        content_type = None
+        if path.endswith('.jpg') or path.endswith('.jpeg'):
+            content_type = 'image/jpeg'
+        elif path.endswith('.png'):
+            content_type = 'image/png'
+        elif path.endswith('.gif'):
+            content_type = 'image/gif'
+        elif path.endswith('.pdf'):
+            content_type = 'application/pdf'
+        elif path.endswith('.mp4'):
+            content_type = 'video/mp4'
+        
+        # Return the file with proper content type
+        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+        response['Cache-Control'] = 'no-cache'
+        return response
+    else:
+        raise Http404(f"Media file '{path}' not found")
+
+def error_check(request):
+    """
+    View to check for common errors in the system configuration
+    and provide diagnostic information.
+    """
+    from django.http import JsonResponse
+    from django.conf import settings
+    import os
+    import sys
+    import platform
+    import django
+    from django.utils import timezone
+    
+    # Only allow in DEBUG mode or with debug_key
+    if not settings.DEBUG and 'debug_key' not in request.GET:
+        return JsonResponse({"error": "Debug key required"}, status=403)
+        
+    # Check system info
+    system_info = {
+        "python_version": sys.version,
+        "platform": platform.platform(),
+        "django_version": django.__version__,
+    }
+    
+    # Check static file configuration
+    static_info = {
+        "STATIC_URL": settings.STATIC_URL,
+        "STATIC_ROOT": str(settings.STATIC_ROOT),
+        "STATICFILES_DIRS": [str(d) for d in settings.STATICFILES_DIRS],
+        "STATICFILES_STORAGE": settings.STATICFILES_STORAGE,
+        "WHITENOISE_MIDDLEWARE": "whitenoise.middleware.WhiteNoiseMiddleware" in settings.MIDDLEWARE,
+    }
+    
+    # Check media configuration
+    media_info = {
+        "MEDIA_URL": settings.MEDIA_URL,
+        "MEDIA_ROOT": str(settings.MEDIA_ROOT),
+    }
+    
+    # Check for critical files
+    file_checks = {}
+    critical_files = [
+        {'path': 'LOGOS/papereffect.mp4', 'type': 'video'},
+        {'path': 'LOGOS/gpttlogo.png', 'type': 'image'},
+        {'path': 'LOGOS/CREATOR.jpeg', 'type': 'image'},
+    ]
+    
+    for file_info in critical_files:
+        file_path = file_info['path']
+        
+        # Check in STATIC_ROOT
+        static_path = os.path.join(settings.STATIC_ROOT, file_path)
+        static_exists = os.path.exists(static_path)
+        static_size = os.path.getsize(static_path) if static_exists else None
+        
+        # Check in each STATICFILES_DIR
+        dir_results = []
+        for dir_path in settings.STATICFILES_DIRS:
+            full_path = os.path.join(dir_path, file_path)
+            exists = os.path.exists(full_path)
+            size = os.path.getsize(full_path) if exists else None
+            dir_results.append({
+                'dir': str(dir_path),
+                'exists': exists,
+                'size': size,
+            })
+        
+        file_checks[file_path] = {
+            'static_root': {'exists': static_exists, 'size': static_size},
+            'staticfiles_dirs': dir_results,
+        }
+    
+    # Check middleware configuration
+    middleware_info = {
+        'CSRF_MIDDLEWARE': 'django.middleware.csrf.CsrfViewMiddleware' in settings.MIDDLEWARE,
+        'EXCEPTION_MIDDLEWARE': 'core.middleware.ExceptionLoggingMiddleware' in settings.MIDDLEWARE,
+    }
+    
+    # Return all diagnostic information
+    return JsonResponse({
+        "timestamp": timezone.now().isoformat(),
+        "system": system_info,
+        "static": static_info,
+        "media": media_info,
+        "file_checks": file_checks,
+        "middleware": middleware_info,
+        "debug_mode": settings.DEBUG,
+    })

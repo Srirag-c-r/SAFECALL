@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}System Diagnostic - Safe Call{% endblock %}
+
+{% block styles %}
+<style>
+    .diagnostic-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+    .section {
+        margin-bottom: 30px;
+        background: white;
+        border-radius: 5px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .section h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    pre {
+        background: #f6f8fa;
+        border-radius: 3px;
+        padding: 10px;
+        overflow-x: auto;
+    }
+    .file-status {
+        display: flex;
+        align-items: center;
+    }
+    .status-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    .status-ok { background-color: #28a745; }
+    .status-warning { background-color: #ffc107; }
+    .status-error { background-color: #dc3545; }
+    .settings-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .settings-table th, .settings-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    .settings-table th {
+        font-weight: bold;
+    }
+    .hidden {
+        display: none;
+    }
+    .btn-refresh {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="diagnostic-container">
+    <h2 class="text-center">System Diagnostic Tool</h2>
+    <p class="text-center">This tool provides diagnostic information about the system configuration and can help troubleshoot issues.</p>
+    
+    <button id="refreshBtn" class="btn btn-primary btn-refresh">Refresh Data</button>
+    <div id="loading" class="text-center hidden">
+        <p>Loading diagnostic data...</p>
+    </div>
+    
+    <div id="diagnosticResults">
+        <!-- Results will be loaded here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load initial data
+        loadDiagnosticData();
+        
+        // Set up refresh button
+        document.getElementById('refreshBtn').addEventListener('click', loadDiagnosticData);
+        
+        function loadDiagnosticData() {
+            const resultsDiv = document.getElementById('diagnosticResults');
+            const loadingDiv = document.getElementById('loading');
+            
+            // Show loading indicator
+            resultsDiv.innerHTML = '';
+            loadingDiv.classList.remove('hidden');
+            
+            // Add debug key if available from URL
+            let url = '/error-check/';
+            const urlParams = new URLSearchParams(window.location.search);
+            const debugKey = urlParams.get('debug_key');
+            if (debugKey) {
+                url += '?debug_key=' + encodeURIComponent(debugKey);
+            }
+            
+            // Fetch data
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading indicator
+                    loadingDiv.classList.add('hidden');
+                    
+                    // Build results HTML
+                    let html = '';
+                    
+                    // System info section
+                    html += buildSection('System Information', buildSystemInfo(data.system));
+                    
+                    // Static files section
+                    html += buildSection('Static Files Configuration', buildStaticFilesInfo(data.static));
+                    
+                    // Media files section
+                    html += buildSection('Media Configuration', buildMediaInfo(data.media));
+                    
+                    // File checks section
+                    html += buildSection('Critical Files Check', buildFileChecks(data.file_checks));
+                    
+                    // Middleware section
+                    html += buildSection('Middleware Configuration', buildMiddlewareInfo(data.middleware));
+                    
+                    // General info section
+                    html += buildSection('General Information', `
+                        <table class="settings-table">
+                            <tr>
+                                <th>Setting</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Debug Mode</td>
+                                <td>${data.debug_mode ? '<span class="text-success">Enabled</span>' : '<span class="text-danger">Disabled</span>'}</td>
+                            </tr>
+                            <tr>
+                                <td>Timestamp</td>
+                                <td>${data.timestamp}</td>
+                            </tr>
+                        </table>
+                    `);
+                    
+                    resultsDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    loadingDiv.classList.add('hidden');
+                    resultsDiv.innerHTML = `
+                        <div class="section">
+                            <h3 class="text-danger">Error</h3>
+                            <p>An error occurred while fetching diagnostic data:</p>
+                            <pre>${error.message}</pre>
+                            <p>Please check if the server is running and try again.</p>
+                        </div>
+                    `;
+                    console.error('Error fetching diagnostic data:', error);
+                });
+        }
+        
+        function buildSection(title, content) {
+            return `
+                <div class="section">
+                    <h3>${title}</h3>
+                    ${content}
+                </div>
+            `;
+        }
+        
+        function buildSystemInfo(system) {
+            return `
+                <table class="settings-table">
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Python Version</td>
+                        <td><code>${system.python_version}</code></td>
+                    </tr>
+                    <tr>
+                        <td>Platform</td>
+                        <td>${system.platform}</td>
+                    </tr>
+                    <tr>
+                        <td>Django Version</td>
+                        <td>${system.django_version}</td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        function buildStaticFilesInfo(static) {
+            let dirsHtml = '';
+            static.STATICFILES_DIRS.forEach(dir => {
+                dirsHtml += `<li>${dir}</li>`;
+            });
+            
+            return `
+                <table class="settings-table">
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>STATIC_URL</td>
+                        <td><code>${static.STATIC_URL}</code></td>
+                    </tr>
+                    <tr>
+                        <td>STATIC_ROOT</td>
+                        <td><code>${static.STATIC_ROOT}</code></td>
+                    </tr>
+                    <tr>
+                        <td>STATICFILES_STORAGE</td>
+                        <td><code>${static.STATICFILES_STORAGE}</code></td>
+                    </tr>
+                    <tr>
+                        <td>WhiteNoise Middleware</td>
+                        <td>${static.WHITENOISE_MIDDLEWARE ? 
+                            '<span class="text-success">Enabled</span>' : 
+                            '<span class="text-danger">Disabled</span>'}</td>
+                    </tr>
+                </table>
+                <h4>STATICFILES_DIRS</h4>
+                <ul>${dirsHtml}</ul>
+            `;
+        }
+        
+        function buildMediaInfo(media) {
+            return `
+                <table class="settings-table">
+                    <tr>
+                        <th>Setting</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>MEDIA_URL</td>
+                        <td><code>${media.MEDIA_URL}</code></td>
+                    </tr>
+                    <tr>
+                        <td>MEDIA_ROOT</td>
+                        <td><code>${media.MEDIA_ROOT}</code></td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        function buildFileChecks(file_checks) {
+            let html = '';
+            
+            for (const [path, info] of Object.entries(file_checks)) {
+                const staticRootExists = info.static_root.exists;
+                const anyDirExists = info.staticfiles_dirs.some(dir => dir.exists);
+                
+                let statusClass = 'status-error';
+                if (staticRootExists) {
+                    statusClass = 'status-ok';
+                } else if (anyDirExists) {
+                    statusClass = 'status-warning';
+                }
+                
+                html += `
+                    <div class="file-check">
+                        <div class="file-status">
+                            <span class="status-dot ${statusClass}"></span>
+                            <strong>${path}</strong>
+                        </div>
+                        <div class="mt-2">
+                            <h5>Static Root:</h5>
+                            <p>
+                                ${staticRootExists ? 
+                                    `<span class="text-success">File exists</span> (Size: ${info.static_root.size} bytes)` : 
+                                    '<span class="text-danger">File NOT found</span>'}
+                            </p>
+                            
+                            <h5>Static Directories:</h5>
+                            <ul>
+                                ${info.staticfiles_dirs.map(dir => `
+                                    <li>
+                                        ${dir.dir}: ${dir.exists ? 
+                                            `<span class="text-success">File exists</span> (Size: ${dir.size} bytes)` : 
+                                            '<span class="text-danger">File NOT found</span>'}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                `;
+            }
+            
+            return html;
+        }
+        
+        function buildMiddlewareInfo(middleware) {
+            return `
+                <table class="settings-table">
+                    <tr>
+                        <th>Middleware</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>CSRF Middleware</td>
+                        <td>${middleware.CSRF_MIDDLEWARE ? 
+                            '<span class="text-success">Enabled</span>' : 
+                            '<span class="text-danger">Disabled</span>'}</td>
+                    </tr>
+                    <tr>
+                        <td>Exception Logging Middleware</td>
+                        <td>${middleware.EXCEPTION_MIDDLEWARE ? 
+                            '<span class="text-success">Enabled</span>' : 
+                            '<span class="text-danger">Disabled</span>'}</td>
+                    </tr>
+                </table>
+            `;
+        }
+    });
+</script>
+{% endblock %} 

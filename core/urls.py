@@ -3,6 +3,7 @@
 # Existing imports
 from django.urls import path
 from . import views
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # Your existing URLs
@@ -88,4 +89,8 @@ urlpatterns = [
     
     # API configuration check
     path('api-config-check/', views.api_config_check, name='api_config_check'),
+
+    # Add URL for error check
+    path('error-check/', views.error_check, name='error_check'),
+    path('diagnostics/', TemplateView.as_view(template_name='core/error_check.html'), name='diagnostics'),
 ]

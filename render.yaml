@@ -12,7 +12,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: false
+        value: true
       - key: ALLOWED_HOSTS
         value: ".onrender.com,safecall.onrender.com"
       - key: DATABASE_URL
@@ -25,6 +25,8 @@ services:
       - key: STATIC_URL
         value: /static/
       - key: WHITENOISE_ALLOW_ALL_ORIGINS
+        value: "true"
+      - key: WHITENOISE_USE_FINDERS
         value: "true"
       - key: DISABLE_COLLECTSTATIC
         value: "0"

@@ -90,6 +90,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.NoCacheMiddleware',
+    'core.middleware.ExceptionLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'safecall.urls'
