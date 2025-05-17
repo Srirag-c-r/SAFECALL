@@ -96,4 +96,7 @@ urlpatterns = [
     
     # Add privacy policy URL
     path('privacy-policy/', TemplateView.as_view(template_name='core/privacy_policy.html'), name='privacy_policy'),
+    
+    # Add terms of service URL
+    path('terms/', TemplateView.as_view(template_name='core/terms.html'), name='terms'),
 ]
