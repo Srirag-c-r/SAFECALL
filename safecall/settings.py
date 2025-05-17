@@ -39,17 +39,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# For troubleshooting deployment issues, temporarily enable DEBUG
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 't', 'yes']
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Updated ALLOWED_HOSTS to include all Render domains
-# Always include safecall.onrender.com explicitly
-ALLOWED_HOSTS = ['safecall.onrender.com', 'localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # For Render deployment, ensure we include all possible domains
-render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(render_external_hostname)
+if not DEBUG:
+    render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if render_external_hostname:
+        ALLOWED_HOSTS.append(render_external_hostname)
+    # Add all possible Render domains
+    ALLOWED_HOSTS.extend([
+        '.onrender.com',
+        'safecall.onrender.com',
+        '*.onrender.com',
+    ])
 
 # Security settings for production
 CSRF_COOKIE_SECURE = not DEBUG
@@ -85,7 +90,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.NoCacheMiddleware',
-    'core.middleware.ExceptionLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'safecall.urls'
@@ -195,49 +199,30 @@ USE_TZ = True
 import os
 from pathlib import Path
 
-# Ensure STATIC_URL has a trailing slash
 STATIC_URL = '/static/'
 
-# Ensure MEDIA_URL and MEDIA_ROOT are defined
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Use multiple directories for static files to ensure all are found
+# This ensures Django looks for static files in the 'static' directory inside the project
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
-    os.path.join(BASE_DIR, "safecall", "static"),  # Add the app's static directory
 ]
 
-# For production, set STATIC_ROOT where files will be collected
+# For production, set STATIC_ROOT and collect static files
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Configure WhiteNoise for serving static files
-# Use ManifestStaticFilesStorage for better caching
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Disable compression for all media files to fix serving issues
-WHITENOISE_MIMETYPES = {
-    'application/font-woff': 'application/font-woff',
-    'application/font-woff2': 'application/font-woff2',
-    'application/vnd.ms-fontobject': 'application/vnd.ms-fontobject',
-    'application/x-font-ttf': 'application/x-font-ttf',
-    'image/png': 'image/png',
-    'image/jpeg': 'image/jpeg',
-    'image/gif': 'image/gif',
-    'image/svg+xml': 'image/svg+xml',
-    'video/mp4': 'video/mp4',
-    'video/webm': 'video/webm',
-    'video/ogg': 'video/ogg',
-    'audio/mpeg': 'audio/mpeg',
-    'audio/ogg': 'audio/ogg',
-    'application/octet-stream': 'application/octet-stream',
-}
-
-# Allow all origins to fetch static files
-WHITENOISE_ALLOW_ALL_ORIGINS = True
-
-# Enable WhiteNoise to use finders during development
-WHITENOISE_USE_FINDERS = True
+if not DEBUG:
+    # Enhanced compression and caching for production
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Enable ManifestStaticFilesStorage with some exceptions to prevent hashing of filenames
+    WHITENOISE_MIMETYPES = {
+        'image/png': 'image/png',  # Don't compress PNG files
+        'image/jpeg': 'image/jpeg',  # Don't compress JPEG files
+        'image/gif': 'image/gif',  # Don't compress GIF files
+        'video/mp4': 'video/mp4',  # Don't compress MP4 files
+    }
+else:
+    # Simple storage for development
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Make sure the static directories exist
 os.makedirs(os.path.join(BASE_DIR, "staticfiles"), exist_ok=True)
@@ -246,18 +231,6 @@ os.makedirs(os.path.join(BASE_DIR, "static", "css"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "js"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "images"), exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "LOGOS"), exist_ok=True)
-
-# Static file debug information
-print("===== Static Files Configuration =====")
-print(f"DEBUG mode: {DEBUG}")
-print(f"STATIC_URL: {STATIC_URL}")
-print(f"STATIC_ROOT: {STATIC_ROOT}")
-print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
-print(f"STATICFILES_STORAGE: {STATICFILES_STORAGE}")
-print(f"WhiteNoise enabled: {'whitenoise.middleware.WhiteNoiseMiddleware' in MIDDLEWARE}")
-print(f"WhiteNoise mimetypes configured: {len(WHITENOISE_MIMETYPES)} types")
-print(f"WHITENOISE_ALLOW_ALL_ORIGINS: {WHITENOISE_ALLOW_ALL_ORIGINS}")
-print("=====================================")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -11,179 +11,85 @@ import django
 import shutil
 from django.db import connections
 from django.db.utils import OperationalError
-from pathlib import Path
 
 MAX_RETRIES = 5
 RETRY_INTERVAL = 5  # seconds
 
-def setup_database():
-    """Setup the database with initial migrations"""
-    print("Running database migrations...")
-    try:
-        subprocess.run([sys.executable, "manage.py", "migrate"], check=True)
-        print("Migrations completed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error running migrations: {e}")
-        # Continue anyway, since other setup steps are important
-
-def setup_static_files():
-    """Prepare static files for production"""
-    print("Setting up static files...")
+def ensure_static_files():
+    """Ensure static files are correctly set up."""
+    project_path = os.path.dirname(os.path.abspath(__file__))
     
-    # Get the base directory
-    BASE_DIR = Path(__file__).resolve().parent
+    # Create static directories if they don't exist
+    static_dir = os.path.join(project_path, "static")
+    staticfiles_dir = os.path.join(project_path, "staticfiles")
     
-    # Create necessary static directories
-    static_dirs = [
-        os.path.join(BASE_DIR, "static"),
-        os.path.join(BASE_DIR, "static", "css"),
-        os.path.join(BASE_DIR, "static", "js"),
-        os.path.join(BASE_DIR, "static", "images"),
-        os.path.join(BASE_DIR, "static", "LOGOS"),
-        os.path.join(BASE_DIR, "staticfiles"),
-    ]
+    os.makedirs(static_dir, exist_ok=True)
+    os.makedirs(staticfiles_dir, exist_ok=True)
     
-    for directory in static_dirs:
-        os.makedirs(directory, exist_ok=True)
-        print(f"Created directory: {directory}")
+    # Create subdirectories 
+    for subdir in ['css', 'js', 'images', 'LOGOS']:
+        os.makedirs(os.path.join(static_dir, subdir), exist_ok=True)
     
-    # Run collectstatic to gather all static files
-    try:
-        print("Running collectstatic...")
-        subprocess.run([sys.executable, "manage.py", "collectstatic", "--no-input"], check=True)
-        print("Collectstatic completed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error running collectstatic: {e}")
-        print("Trying to copy files manually as a fallback...")
+    # Ensure LOGOS directory exists in staticfiles
+    logos_dir = os.path.join(staticfiles_dir, "LOGOS")
+    if not os.path.exists(logos_dir):
+        os.makedirs(logos_dir, exist_ok=True)
     
-    # Source and destination directories
-    static_root = os.path.join(BASE_DIR, "staticfiles")
-    static_source = os.path.join(BASE_DIR, "static")
-    
-    # Always verify important directories exist in staticfiles
-    important_dirs = ["LOGOS", "css", "js", "images"]
-    for dir_name in important_dirs:
-        os.makedirs(os.path.join(static_root, dir_name), exist_ok=True)
-    
-    # List of critical files that must be copied correctly
-    critical_files = [
-        {"src": os.path.join(static_source, "LOGOS", "papereffect.mp4"), 
-         "dst": os.path.join(static_root, "LOGOS", "papereffect.mp4")},
-        {"src": os.path.join(static_source, "LOGOS", "gpttlogo.png"), 
-         "dst": os.path.join(static_root, "LOGOS", "gpttlogo.png")},
-        {"src": os.path.join(static_source, "LOGOS", "CREATOR.jpeg"), 
-         "dst": os.path.join(static_root, "LOGOS", "CREATOR.jpeg")},
-    ]
-    
-    # Force-copy all critical files
-    for file_info in critical_files:
-        src_path = file_info["src"]
-        dst_path = file_info["dst"]
-        
-        if os.path.exists(src_path):
-            try:
-                print(f"Copying critical file: {os.path.basename(src_path)}")
-                # Use binary mode for all files to ensure integrity
-                with open(src_path, 'rb') as src, open(dst_path, 'wb') as dst:
-                    dst.write(src.read())
-                
-                # Verify file size
-                src_size = os.path.getsize(src_path)
-                dst_size = os.path.getsize(dst_path)
-                if src_size != dst_size:
-                    print(f"WARNING: File size mismatch for {os.path.basename(src_path)}: {src_size} vs {dst_size}")
-                else:
-                    print(f"Successfully copied and verified: {os.path.basename(src_path)} ({src_size} bytes)")
-            except Exception as e:
-                print(f"ERROR copying {os.path.basename(src_path)}: {e}")
-        else:
-            print(f"WARNING: Critical file not found: {src_path}")
-    
-    # Copy all files from LOGOS directory
-    logos_src = os.path.join(static_source, "LOGOS")
-    logos_dst = os.path.join(static_root, "LOGOS")
-    
-    if os.path.exists(logos_src):
-        print(f"Copying all logo files from {logos_src} to {logos_dst}...")
-        try:
-            for filename in os.listdir(logos_src):
-                src_file = os.path.join(logos_src, filename)
-                dst_file = os.path.join(logos_dst, filename)
-                
-                # Skip directories
-                if os.path.isdir(src_file):
-                    continue
-                    
-                # Copy with binary mode
-                try:
-                    with open(src_file, 'rb') as src, open(dst_file, 'wb') as dst:
-                        dst.write(src.read())
-                    print(f"Copied: {filename}")
-                except Exception as e:
-                    print(f"Error copying {filename}: {e}")
-        except Exception as e:
-            print(f"Error accessing logos directory: {e}")
-    
-    # Print summary of staticfiles directory
-    print("\nStatic files setup summary:")
-    if os.path.exists(static_root):
-        count = sum(1 for _ in os.walk(static_root))
-        print(f"Total directories in staticfiles: {count}")
-        
-        file_count = sum(len(files) for _, _, files in os.walk(static_root))
-        print(f"Total files in staticfiles: {file_count}")
-        
-        # Check if critical directories have files
-        for dir_name in important_dirs:
-            dir_path = os.path.join(static_root, dir_name)
-            if os.path.exists(dir_path):
-                files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
-                print(f"Files in {dir_name}: {len(files)}")
-                if dir_name == "LOGOS":
-                    print(f"LOGOS files: {files}")
-    else:
-        print("WARNING: staticfiles directory doesn't exist!")
-
-def wait_for_database():
-    """Wait for database to be available"""
-    retry_count = 0
-    
-    while retry_count < MAX_RETRIES:
-        try:
-            conn = connections['default']
-            conn.cursor()
-            print("Database connection established.")
-            return True
-        except OperationalError:
-            retry_count += 1
-            if retry_count < MAX_RETRIES:
-                print(f"Database connection attempt {retry_count} failed. Retrying in {RETRY_INTERVAL} seconds...")
-                time.sleep(RETRY_INTERVAL)
-            else:
-                print(f"Could not connect to database after {MAX_RETRIES} attempts.")
-                return False
+    # Copy logo files to make sure they're in the staticfiles directory
+    source_logos_dir = os.path.join(static_dir, "LOGOS")
+    if os.path.exists(source_logos_dir):
+        for file in os.listdir(source_logos_dir):
+            source_path = os.path.join(source_logos_dir, file)
+            target_path = os.path.join(logos_dir, file)
+            if os.path.isfile(source_path):
+                shutil.copy2(source_path, target_path)
+                print(f"Copied logo file: {file} to staticfiles/LOGOS")
 
 def main():
-    """Main setup function."""
-    # Set up Django environment
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "safecall.settings")
+    """Run Django migrations after ensuring database is connected."""
+    # First ensure static files are set up
+    ensure_static_files()
     
-    # First setup static files
-    setup_static_files()
-    
-    # Wait for database
     print("Checking database connection...")
-    db_ready = wait_for_database()
     
-    if db_ready:
-        # Run migrations
-        setup_database()
-        print("Database setup complete.")
-    else:
-        print("WARNING: Database not available, skipping migrations.")
-        
-    print("Setup completed.")
-    return db_ready
+    # Wait for database to be ready
+    for i in range(MAX_RETRIES):
+        try:
+            # Try to connect to the database
+            django.setup()
+            connections['default'].cursor()
+            print("Database connection successful!")
+            break
+        except OperationalError:
+            print(f"Database connection attempt {i+1}/{MAX_RETRIES} failed. Retrying in {RETRY_INTERVAL} seconds...")
+            time.sleep(RETRY_INTERVAL)
+        except Exception as e:
+            print(f"Unexpected error connecting to database: {e}")
+            # If there's an unexpected error, try to continue anyway
+            break
+    
+    # Run migrations
+    print("Running migrations...")
+    try:
+        result = subprocess.run(
+            ["python", "manage.py", "migrate", "--noinput"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print("Migration output:")
+        print(result.stdout)
+        if result.stderr:
+            print("Migration errors:")
+            print(result.stderr)
+    except subprocess.CalledProcessError as e:
+        print(f"Migration failed with error code {e.returncode}")
+        print(e.stdout)
+        print(e.stderr)
+        return False
+    
+    print("Database setup complete.")
+    return True
 
 if __name__ == "__main__":
     # Add the project path to sys.path
@@ -193,4 +99,5 @@ if __name__ == "__main__":
     # Set up Django environment
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "safecall.settings")
     
-    main() 
+    success = main()
+    sys.exit(0 if success else 1) 

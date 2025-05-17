@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
-from django.http import JsonResponse, FileResponse, Http404
+from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
 from .email_utils import send_html_email, send_donation_invoice
 from .models import (PublicUser, PoliceStation, Complaint, FIR, FIREvidence, Witness, 
@@ -27,22 +27,9 @@ from django.core.serializers import serialize
 from django.contrib.auth.hashers import make_password, check_password
 import sys
 import platform
-from django.contrib.staticfiles import finders
-import django
 
 # Initialize Razorpay client
-try:
-    razorpay_key_id = getattr(settings, 'RAZORPAY_KEY_ID', '')
-    razorpay_key_secret = getattr(settings, 'RAZORPAY_KEY_SECRET', '')
-    
-    if razorpay_key_id and razorpay_key_secret:
-        razorpay_client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
-    else:
-        print("Razorpay keys missing. Donation functionality will be limited.")
-        razorpay_client = None
-except Exception as e:
-    print(f"Error initializing Razorpay client: {str(e)}")
-    razorpay_client = None
+razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 def is_police(user):
     """Check if the user is a police station user."""
@@ -141,59 +128,46 @@ def home(request):
     stats['complaint_types_labels'] = json.dumps([ct['complaint_type'] for ct in complaint_types])
     stats['complaint_types_data'] = json.dumps([ct['count'] for ct in complaint_types])
 
-    # Initialize empty news articles list as fallback
-    news_articles = []
-    
-    # Get news from NewsAPI only if API key is available
-    api_key = getattr(settings, 'NEWSAPI_KEY', '')
-    if api_key and api_key.strip():
-        try:
-            newsapi = NewsApiClient(api_key=api_key)
-            
-            # Get news from the last 7 days
-            from_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-            to_date = datetime.now().strftime('%Y-%m-%d')
-            
-            # First try to get Indian news
-            indian_news = newsapi.get_everything(
+    # Get news from NewsAPI
+    try:
+        newsapi = NewsApiClient(api_key=settings.NEWSAPI_KEY)
+        
+        # Get news from the last 7 days
+        from_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+        to_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # First try to get Indian news
+        indian_news = newsapi.get_everything(
+            q='crime OR police OR law enforcement',
+            from_param=from_date,
+            to=to_date,
+            language='en',
+            sort_by='relevancy',
+            sources='the-times-of-india,the-hindu,indian-express,hindustan-times,deccan-herald'
+        )
+        
+        # If we have Indian news articles, use them
+        if indian_news['articles']:
+            news_articles = indian_news['articles'][:6]
+        else:
+            # If no Indian news, get international news
+            international_news = newsapi.get_everything(
                 q='crime OR police OR law enforcement',
                 from_param=from_date,
                 to=to_date,
                 language='en',
-                sort_by='relevancy',
-                sources='the-times-of-india,the-hindu,indian-express,hindustan-times,deccan-herald'
+                sort_by='relevancy'
             )
+            news_articles = international_news['articles'][:6] if international_news['articles'] else []
             
-            # If we have Indian news articles, use them
-            if indian_news['articles']:
-                news_articles = indian_news['articles'][:6]
-            else:
-                # If no Indian news, get international news
-                international_news = newsapi.get_everything(
-                    q='crime OR police OR law enforcement',
-                    from_param=from_date,
-                    to=to_date,
-                    language='en',
-                    sort_by='relevancy'
-                )
-                news_articles = international_news['articles'][:6] if international_news['articles'] else []
-                
-        except Exception as e:
-            print(f"Error fetching news: {str(e)}")  # For debugging
-            # Continue with empty news list
-    else:
-        print("NewsAPI key not configured. News section will be empty.")
-
-    # Get Razorpay key safely
-    razorpay_key = getattr(settings, 'RAZORPAY_KEY_ID', '')
-    if not razorpay_key:
-        print("Razorpay key not configured. Donation functionality may be limited.")
+    except Exception as e:
+        print(f"Error fetching news: {str(e)}")  # For debugging
+        news_articles = []
 
     return render(request, 'core/home.html', {
         'stats': stats,
         'news_articles': news_articles,
-        'razorpay_key_id': razorpay_key,  # Use the safely retrieved key
-        'timeNow': timezone.now()  # Add the missing timeNow variable
+        'razorpay_key_id': settings.RAZORPAY_KEY_ID  # Add Razorpay key ID to context
     })
 
 
@@ -1570,10 +1544,6 @@ def create_donation_order(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'})
 
-    # Check if Razorpay client is available
-    if razorpay_client is None:
-        return JsonResponse({'error': 'Payment gateway is not configured. Donations are currently unavailable.'}, status=503)
-
     try:
         # Parse JSON data from request body
         data = json.loads(request.body)
@@ -1625,14 +1595,11 @@ def create_donation_order(request):
             }
         )
         
-        # Get Razorpay key safely
-        razorpay_key = getattr(settings, 'RAZORPAY_KEY_ID', '')
-        
         return JsonResponse({
             'order_id': order['id'],
             'amount': amount,
             'currency': 'INR',
-            'razorpay_key_id': razorpay_key,
+            'razorpay_key_id': settings.RAZORPAY_KEY_ID,
             'prefill': {
                 'name': name,
                 'email': email
@@ -1641,16 +1608,12 @@ def create_donation_order(request):
         
     except Exception as e:
         print(f"Error creating donation order: {str(e)}")  # For debugging
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': str(e)})
 
 @csrf_exempt
 def verify_donation(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'})
-
-    # Check if Razorpay client is available
-    if razorpay_client is None:
-        return JsonResponse({'error': 'Payment gateway is not configured. Verification is currently unavailable.'}, status=503)
 
     try:
         # Get payment data
@@ -1742,7 +1705,7 @@ def verify_donation(request):
         return JsonResponse({
             'status': 'error',
             'error': str(e)
-        }, status=500)
+        })
 
 def donate(request):
     # Get statistics for impact section
@@ -1752,16 +1715,9 @@ def donate(request):
         'total_users': PublicUser.objects.count()
     }
     
-    # Get Razorpay key safely
-    razorpay_key = getattr(settings, 'RAZORPAY_KEY_ID', '')
-    
-    # Add a flag to indicate if donations are enabled
-    donations_enabled = razorpay_client is not None and razorpay_key
-    
     return render(request, 'core/donate.html', {
         'stats': stats,
-        'razorpay_key_id': razorpay_key,
-        'donations_enabled': donations_enabled
+        'razorpay_key_id': settings.RAZORPAY_KEY_ID
     })
 
 def donation_details(request, donation_id):
@@ -1876,421 +1832,3 @@ def debug_info(request):
     }
     
     return JsonResponse(debug_data)
-
-@csrf_exempt
-def debug_static_files(request):
-    """Debug view to check static files configuration"""
-    debug_info = {
-        'DEBUG': settings.DEBUG,
-        'STATIC_URL': settings.STATIC_URL,
-        'STATIC_ROOT': str(settings.STATIC_ROOT),
-        'STATICFILES_DIRS': [str(dir_path) for dir_path in settings.STATICFILES_DIRS],
-        'STATICFILES_STORAGE': settings.STATICFILES_STORAGE,
-        'STATIC_FILES_EXIST': []
-    }
-    
-    # Check if specific files exist
-    static_test_files = [
-        'LOGOS/CREATOR.jpeg',
-        'LOGOS/wp3007918-crime-wallpaper-in-hd.jpg',
-        'css/style.css',
-    ]
-    
-    for file_path in static_test_files:
-        for static_dir in settings.STATICFILES_DIRS:
-            full_path = os.path.join(static_dir, file_path)
-            exists = os.path.exists(full_path)
-            debug_info['STATIC_FILES_EXIST'].append({
-                'path': file_path,
-                'full_path': full_path,
-                'exists': exists
-            })
-    
-    return JsonResponse(debug_info)
-
-def check_video_file(request, filename):
-    """Check if a video file exists and is accessible"""
-    try:
-        # Try to find the file in static files
-        file_path = finders.find(f'LOGOS/{filename}')
-        
-        if file_path:
-            # Check if file actually exists and its size
-            file_size = os.path.getsize(file_path)
-            
-            # Check file extension and MIME type
-            _, ext = os.path.splitext(file_path)
-            ext = ext.lower()
-            
-            mime_types = {
-                '.mp4': 'video/mp4',
-                '.webm': 'video/webm',
-                '.ogg': 'video/ogg'
-            }
-            
-            mime_type = mime_types.get(ext, 'application/octet-stream')
-            
-            return JsonResponse({
-                'status': 'success',
-                'file_exists': True,
-                'file_path': file_path,
-                'file_size': file_size,
-                'mime_type': mime_type,
-                'static_url': settings.STATIC_URL,
-                'static_url_file': f"{settings.STATIC_URL}LOGOS/{filename}"
-            })
-        else:
-            # Check direct file path in both static and staticfiles directories
-            base_dir = settings.BASE_DIR
-            static_path = os.path.join(base_dir, 'static', 'LOGOS', filename)
-            staticfiles_path = os.path.join(base_dir, 'staticfiles', 'LOGOS', filename)
-            
-            paths_to_check = [
-                static_path,
-                staticfiles_path,
-                os.path.join(settings.STATIC_ROOT, 'LOGOS', filename) if settings.STATIC_ROOT else None
-            ]
-            
-            results = {}
-            for path in paths_to_check:
-                if path and os.path.exists(path):
-                    results[path] = {
-                        'exists': True,
-                        'size': os.path.getsize(path)
-                    }
-                else:
-                    results[path] = {
-                        'exists': False,
-                        'size': 0
-                    }
-            
-            return JsonResponse({
-                'status': 'file_not_found_in_finders',
-                'direct_path_checks': results,
-                'static_root': settings.STATIC_ROOT,
-                'static_url': settings.STATIC_URL
-            })
-            
-    except Exception as e:
-        return JsonResponse({
-            'status': 'error',
-            'error': str(e)
-        })
-
-def serve_video_file(request, filename):
-    """
-    Directly serve a video file from the static directory.
-    This is a fallback for when the normal static file serving doesn't work.
-    """
-    from django.http import FileResponse, Http404
-    from django.views.static import serve
-    
-    # Check if the DEBUG setting is True to determine if we should allow this in production
-    if not settings.DEBUG and 'allow_direct_serve' not in request.GET:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Direct file serving is only available in DEBUG mode or with explicit permission'
-        })
-    
-    # Try to find the file in various locations
-    base_dir = settings.BASE_DIR
-    static_path = os.path.join(base_dir, 'static', 'LOGOS', filename)
-    staticfiles_path = os.path.join(base_dir, 'staticfiles', 'LOGOS', filename)
-    
-    # List of possible file paths
-    paths_to_check = [
-        static_path,
-        staticfiles_path
-    ]
-    
-    if settings.STATIC_ROOT:
-        paths_to_check.append(os.path.join(settings.STATIC_ROOT, 'LOGOS', filename))
-    
-    # Try each path
-    for path in paths_to_check:
-        if os.path.exists(path) and os.path.isfile(path):
-            # Determine the content type
-            content_type = 'application/octet-stream'  # Default
-            ext = os.path.splitext(path)[1].lower()
-            if ext == '.mp4':
-                content_type = 'video/mp4'
-            elif ext == '.webm':
-                content_type = 'video/webm'
-            elif ext == '.ogg':
-                content_type = 'video/ogg'
-            
-            # Add cache control headers
-            response = FileResponse(open(path, 'rb'), content_type=content_type)
-            response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-            response['Pragma'] = 'no-cache'
-            response['Expires'] = '0'
-            
-            return response
-    
-    # If we get here, the file wasn't found
-    raise Http404(f"Video file '{filename}' not found")
-
-@csrf_exempt
-def file_check(request):
-    """Check if files exist in various locations"""
-    if request.method != 'POST':
-        # If it's a GET request, show a form
-        return render(request, 'file_check.html')
-    
-    # Get file path from POST data
-    file_path = request.POST.get('file_path', '')
-    if not file_path:
-        return JsonResponse({'error': 'No file path provided'})
-    
-    # Check various locations
-    from django.contrib.staticfiles import finders
-    
-    # Normalize path to remove any initial slashes and ensure it's in the format that finders expects
-    if file_path.startswith('/'):
-        file_path = file_path[1:]
-    if file_path.startswith('static/'):
-        file_path = file_path[7:]
-    
-    results = {
-        'file_path': file_path,
-        'exists_in_finders': False,
-        'found_at': None,
-        'locations_checked': []
-    }
-    
-    # Check if the file exists using the finders
-    found_path = finders.find(file_path)
-    if found_path:
-        results['exists_in_finders'] = True
-        results['found_at'] = found_path
-        
-        # Check file size and last modified
-        try:
-            results['file_size'] = os.path.getsize(found_path)
-            results['last_modified'] = os.path.getmtime(found_path)
-        except:
-            pass
-    
-    # Check various static file locations directly
-    base_dir = settings.BASE_DIR
-    static_dirs = settings.STATICFILES_DIRS
-    static_root = settings.STATIC_ROOT
-    
-    for static_dir in static_dirs:
-        check_path = os.path.join(static_dir, file_path)
-        exists = os.path.exists(check_path)
-        results['locations_checked'].append({
-            'path': check_path,
-            'exists': exists,
-            'size': os.path.getsize(check_path) if exists else None
-        })
-    
-    if static_root:
-        check_path = os.path.join(static_root, file_path)
-        exists = os.path.exists(check_path)
-        results['locations_checked'].append({
-            'path': check_path,
-            'exists': exists,
-            'size': os.path.getsize(check_path) if exists else None
-        })
-    
-    # Add static URL for reference
-    results['static_url'] = settings.STATIC_URL
-    results['static_root'] = settings.STATIC_ROOT
-    results['staticfiles_dirs'] = [str(d) for d in settings.STATICFILES_DIRS]
-    
-    # Return results
-    return JsonResponse(results)
-
-@csrf_exempt
-def api_config_check(request):
-    """
-    View to check if API configurations are working correctly.
-    This can help diagnose issues with missing API keys.
-    """
-    # Only allow in DEBUG mode or with specific parameter for security
-    if not settings.DEBUG and request.GET.get('debug_key') != 'SafeCallDebug123':
-        return JsonResponse({"error": "API config check view not available in production"}, status=403)
-    
-    # Check NewsAPI configuration
-    newsapi_key = getattr(settings, 'NEWSAPI_KEY', '')
-    newsapi_status = {
-        'configured': bool(newsapi_key and newsapi_key.strip()),
-        'key_preview': newsapi_key[:4] + '****' if newsapi_key else None
-    }
-    
-    if newsapi_status['configured']:
-        try:
-            # Try a simple request to the API
-            newsapi = NewsApiClient(api_key=newsapi_key)
-            top_headlines = newsapi.get_top_headlines(language='en', page_size=1)
-            newsapi_status['api_response'] = 'Success' if top_headlines.get('status') == 'ok' else 'Failed'
-            newsapi_status['working'] = top_headlines.get('status') == 'ok'
-        except Exception as e:
-            newsapi_status['api_response'] = str(e)
-            newsapi_status['working'] = False
-    else:
-        newsapi_status['api_response'] = 'API key not configured'
-        newsapi_status['working'] = False
-    
-    # Check Razorpay configuration
-    razorpay_key_id = getattr(settings, 'RAZORPAY_KEY_ID', '')
-    razorpay_key_secret = getattr(settings, 'RAZORPAY_KEY_SECRET', '')
-    razorpay_status = {
-        'configured': bool(razorpay_key_id and razorpay_key_secret),
-        'key_id_preview': razorpay_key_id[:4] + '****' if razorpay_key_id else None,
-        'key_secret_preview': razorpay_key_secret[:4] + '****' if razorpay_key_secret else None,
-        'client_initialized': razorpay_client is not None
-    }
-    
-    # Check email configuration
-    email_host = getattr(settings, 'EMAIL_HOST', '')
-    email_user = getattr(settings, 'EMAIL_HOST_USER', '')
-    email_pass = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
-    email_status = {
-        'configured': bool(email_host and email_user and email_pass),
-        'host': email_host,
-        'user_preview': email_user[:4] + '****' if email_user else None,
-        'pass_configured': bool(email_pass)
-    }
-    
-    # Get system and Django info
-    system_info = {
-        'python_version': sys.version.split()[0],
-        'django_version': django.get_version(),
-        'platform': platform.system(),
-        'db_engine': settings.DATABASES['default']['ENGINE'].split('.')[-1]
-    }
-    
-    response_data = {
-        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'newsapi': newsapi_status,
-        'razorpay': razorpay_status,
-        'email': email_status,
-        'system': system_info,
-        'environment': 'production' if not settings.DEBUG else 'development'
-    }
-    
-    return JsonResponse(response_data)
-
-def serve_media_file(request, path):
-    """
-    Serve media files directly.
-    This view provides a fallback for media files that aren't being served correctly
-    in production environments.
-    """
-    from django.http import FileResponse, Http404
-    import os
-    from django.conf import settings
-    
-    # Check if the file exists in the media directory
-    file_path = os.path.join(settings.MEDIA_ROOT, path)
-    if os.path.exists(file_path) and os.path.isfile(file_path):
-        # Determine content type (simplified version)
-        content_type = None
-        if path.endswith('.jpg') or path.endswith('.jpeg'):
-            content_type = 'image/jpeg'
-        elif path.endswith('.png'):
-            content_type = 'image/png'
-        elif path.endswith('.gif'):
-            content_type = 'image/gif'
-        elif path.endswith('.pdf'):
-            content_type = 'application/pdf'
-        elif path.endswith('.mp4'):
-            content_type = 'video/mp4'
-        
-        # Return the file with proper content type
-        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
-        response['Cache-Control'] = 'no-cache'
-        return response
-    else:
-        raise Http404(f"Media file '{path}' not found")
-
-def error_check(request):
-    """
-    View to check for common errors in the system configuration
-    and provide diagnostic information.
-    """
-    from django.http import JsonResponse
-    from django.conf import settings
-    import os
-    import sys
-    import platform
-    import django
-    from django.utils import timezone
-    
-    # Only allow in DEBUG mode or with debug_key
-    if not settings.DEBUG and 'debug_key' not in request.GET:
-        return JsonResponse({"error": "Debug key required"}, status=403)
-        
-    # Check system info
-    system_info = {
-        "python_version": sys.version,
-        "platform": platform.platform(),
-        "django_version": django.__version__,
-    }
-    
-    # Check static file configuration
-    static_info = {
-        "STATIC_URL": settings.STATIC_URL,
-        "STATIC_ROOT": str(settings.STATIC_ROOT),
-        "STATICFILES_DIRS": [str(d) for d in settings.STATICFILES_DIRS],
-        "STATICFILES_STORAGE": settings.STATICFILES_STORAGE,
-        "WHITENOISE_MIDDLEWARE": "whitenoise.middleware.WhiteNoiseMiddleware" in settings.MIDDLEWARE,
-    }
-    
-    # Check media configuration
-    media_info = {
-        "MEDIA_URL": settings.MEDIA_URL,
-        "MEDIA_ROOT": str(settings.MEDIA_ROOT),
-    }
-    
-    # Check for critical files
-    file_checks = {}
-    critical_files = [
-        {'path': 'LOGOS/papereffect.mp4', 'type': 'video'},
-        {'path': 'LOGOS/gpttlogo.png', 'type': 'image'},
-        {'path': 'LOGOS/CREATOR.jpeg', 'type': 'image'},
-    ]
-    
-    for file_info in critical_files:
-        file_path = file_info['path']
-        
-        # Check in STATIC_ROOT
-        static_path = os.path.join(settings.STATIC_ROOT, file_path)
-        static_exists = os.path.exists(static_path)
-        static_size = os.path.getsize(static_path) if static_exists else None
-        
-        # Check in each STATICFILES_DIR
-        dir_results = []
-        for dir_path in settings.STATICFILES_DIRS:
-            full_path = os.path.join(dir_path, file_path)
-            exists = os.path.exists(full_path)
-            size = os.path.getsize(full_path) if exists else None
-            dir_results.append({
-                'dir': str(dir_path),
-                'exists': exists,
-                'size': size,
-            })
-        
-        file_checks[file_path] = {
-            'static_root': {'exists': static_exists, 'size': static_size},
-            'staticfiles_dirs': dir_results,
-        }
-    
-    # Check middleware configuration
-    middleware_info = {
-        'CSRF_MIDDLEWARE': 'django.middleware.csrf.CsrfViewMiddleware' in settings.MIDDLEWARE,
-        'EXCEPTION_MIDDLEWARE': 'core.middleware.ExceptionLoggingMiddleware' in settings.MIDDLEWARE,
-    }
-    
-    # Return all diagnostic information
-    return JsonResponse({
-        "timestamp": timezone.now().isoformat(),
-        "system": system_info,
-        "static": static_info,
-        "media": media_info,
-        "file_checks": file_checks,
-        "middleware": middleware_info,
-        "debug_mode": settings.DEBUG,
-    })

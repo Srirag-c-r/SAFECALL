@@ -12,24 +12,14 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: true
+        value: false
       - key: ALLOWED_HOSTS
-        value: ".onrender.com,safecall.onrender.com"
+        value: ".onrender.com"
       - key: DATABASE_URL
         # This will be automatically set when the database is created
         fromDatabase:
           name: safecall_db
           property: connectionString
-      - key: STATIC_ROOT
-        value: /opt/render/project/src/staticfiles
-      - key: STATIC_URL
-        value: /static/
-      - key: WHITENOISE_ALLOW_ALL_ORIGINS
-        value: "true"
-      - key: WHITENOISE_USE_FINDERS
-        value: "true"
-      - key: DISABLE_COLLECTSTATIC
-        value: "0"
       - key: EMAIL_HOST
         sync: false  
       - key: EMAIL_PORT

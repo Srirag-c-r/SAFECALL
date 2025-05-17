@@ -3,7 +3,6 @@
 # Existing imports
 from django.urls import path
 from . import views
-from django.views.generic import TemplateView
 
 urlpatterns = [
     # Your existing URLs
@@ -74,29 +73,4 @@ urlpatterns = [
     
     # Debug URL - only available with special key in production
     path('debug-info/', views.debug_info, name='debug_info'),
-
-    # Add this new URL for debugging
-    path('debug-static/', views.debug_static_files, name='debug_static_files'),
-
-    # Add URL for checking video files
-    path('check-video/<str:filename>/', views.check_video_file, name='check_video_file'),
-
-    # Direct video file serving as fallback
-    path('serve-video/<str:filename>/', views.serve_video_file, name='serve_video_file'),
-
-    # File check utility
-    path('file-check/', views.file_check, name='file_check'),
-    
-    # API configuration check
-    path('api-config-check/', views.api_config_check, name='api_config_check'),
-
-    # Add URL for error check
-    path('error-check/', views.error_check, name='error_check'),
-    path('diagnostics/', TemplateView.as_view(template_name='core/error_check.html'), name='diagnostics'),
-    
-    # Add privacy policy URL
-    path('privacy-policy/', TemplateView.as_view(template_name='core/privacy_policy.html'), name='privacy_policy'),
-    
-    # Add terms of service URL
-    path('terms/', TemplateView.as_view(template_name='core/terms.html'), name='terms'),
 ]
