@@ -43,19 +43,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 't', 'yes']
 
 # Updated ALLOWED_HOSTS to include all Render domains
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Always include safecall.onrender.com explicitly
+ALLOWED_HOSTS = ['safecall.onrender.com', 'localhost', '127.0.0.1', '*']
 
 # For Render deployment, ensure we include all possible domains
-if not DEBUG:
-    render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-    if render_external_hostname:
-        ALLOWED_HOSTS.append(render_external_hostname)
-    # Add all possible Render domains
-    ALLOWED_HOSTS.extend([
-        '.onrender.com',
-        'safecall.onrender.com',
-        '*.onrender.com',
-    ])
+render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_external_hostname)
 
 # Security settings for production
 CSRF_COOKIE_SECURE = not DEBUG
