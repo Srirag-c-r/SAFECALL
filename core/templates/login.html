@@ -228,6 +228,62 @@
             transform: translateY(0);
         }
     }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .login-section {
+            padding: 30px;
+            max-width: 400px;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+        }
+        
+        .login-subtitle {
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .login-container {
+            padding: 20px 15px;
+        }
+        
+        .login-section {
+            padding: 25px 20px;
+            max-width: 100%;
+            clip-path: polygon(0 0, 100% 0, 99% 100%, 1% 100%);
+        }
+        
+        .login-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            font-size: 0.9rem;
+        }
+        
+        .login-btn {
+            padding: 10px;
+        }
+        
+        .login-footer {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+    }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@700&display=swap" rel="stylesheet">
 {% endblock %}

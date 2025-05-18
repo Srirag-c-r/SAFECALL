@@ -149,29 +149,26 @@
     }
 
     .team-section h2 {
-        font-family: 'Crimson Text', serif;
-        font-size: 3.5rem;
+        font-family: 'Courier New', monospace;
+        font-size: 2.5rem;
         text-align: center;
         margin-bottom: 40px;
-        background: linear-gradient(45deg, #ff0000, #8b0000);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #ff0000;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
         position: relative;
-        text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        border: 2px solid #ff0000;
+        padding: 10px 20px;
+        display: inline-block;
+        background-color: #111;
+        transform: rotate(-1deg);
     }
 
-    .team-section h2::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 150px;
-        height: 3px;
-        background: linear-gradient(to right, transparent, #ff0000, transparent);
+    .team-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .team-grid {
@@ -321,119 +318,331 @@
     }
 
     /* New Creator card styles */
-    .creator-card {
-        background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-        border-radius: 20px;
-        overflow: hidden;
-        transition: all 0.5s ease;
+    /* Case file container styles */
+    .case-file-container {
+        background: #f5f5dc;
+        border: 1px solid #8b4513;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(139, 69, 19, 0.3);
         max-width: 900px;
         width: 100%;
         margin: 0 auto;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        border: 2px solid rgba(255, 0, 0, 0.1);
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        color: #333;
+        font-family: 'Courier New', monospace;
+        padding: 20px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards 0.8s;
+        position: relative;
+        overflow: hidden;
     }
-
-    .creator-card::before {
+    
+    /* Aged paper texture effect */
+    .case-file-container::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at center, rgba(255, 0, 0, 0.2), transparent 70%);
-        opacity: 0;
-        transition: opacity 0.5s ease;
+        right: 0;
+        bottom: 0;
+        background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
+        opacity: 0.5;
+        z-index: 0;
+        pointer-events: none;
     }
-
-    .creator-card:hover {
-        transform: translateY(-15px) scale(1.02);
-        box-shadow: 0 30px 70px rgba(255, 0, 0, 0.4);
-        border-color: rgba(255, 0, 0, 0.3);
-    }
-
-    .creator-card:hover::before {
-        opacity: 1;
-    }
-
-    .creator-image-container {
+    
+    .case-file-header {
+        border-bottom: 2px dashed #8b4513;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
         position: relative;
-        width: 100%;
-        height: 400px;
-        overflow: hidden;
+        z-index: 1;
     }
-
+    
+    .case-file-stamp {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background-color: #8b0000;
+        color: #f5f5dc;
+        padding: 5px 15px;
+        transform: rotate(5deg);
+        font-weight: bold;
+        font-size: 1.2rem;
+        border: 1px solid #333;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+    }
+    
+    .case-file-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        text-align: center;
+        letter-spacing: 2px;
+        color: #8b0000;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    }
+    
+    .case-file-id {
+        font-size: 1rem;
+        text-align: right;
+        color: #555;
+        font-style: italic;
+    }
+    
+    .case-file-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .case-file-photo {
+        flex: 0 0 300px;
+        position: relative;
+        border: 5px solid #8b4513;
+        background-color: #fff;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        transform: rotate(-2deg);
+        margin-bottom: 20px;
+    }
+    
     .creator-image {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-        filter: brightness(0.8) contrast(1.1);
+        height: auto;
+        display: block;
+        filter: sepia(30%);
     }
-
-    .creator-card:hover .creator-image {
-        transform: scale(1.05);
-    }
-
-    .creator-overlay {
+    
+    .photo-label {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        padding: 30px;
-    }
-
-    .creator-badge {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(45deg, #ff0000, #8b0000);
-        color: white;
-        padding: 10px 25px;
-        border-radius: 30px;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #8b4513;
+        color: #f5f5dc;
+        padding: 3px 10px;
+        font-size: 0.8rem;
         font-weight: bold;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
+    }
+    
+    .case-file-details {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .detail-section {
+        margin-bottom: 20px;
+        border-left: 3px solid #8b4513;
+        padding-left: 15px;
+    }
+    
+    .detail-header {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #8b0000;
+        margin-bottom: 10px;
+        text-decoration: underline;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 8px;
+        border-bottom: 1px dotted #8b4513;
+        padding-bottom: 5px;
+    }
+    
+    .detail-label {
+        flex: 0 0 100px;
+        font-weight: bold;
+        color: #555;
+    }
+    
+    .detail-value {
+        flex: 1;
+    }
+    
+    .status-active {
+        color: #006400;
+        font-weight: bold;
+    }
+    
+    .detail-text {
         font-size: 1rem;
-        box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
-        transform: rotate(5deg);
-        animation: pulse 2s infinite;
+        line-height: 1.5;
+        text-align: justify;
+        margin-bottom: 10px;
+        font-family: 'Courier New', monospace;
     }
-
-    @keyframes pulse {
-        0% { transform: rotate(5deg) scale(1); }
-        50% { transform: rotate(5deg) scale(1.05); }
-        100% { transform: rotate(5deg) scale(1); }
+    
+    .detail-quote {
+        font-style: italic;
+        padding: 10px;
+        background-color: rgba(139, 69, 19, 0.1);
+        border-left: 3px solid #8b0000;
+        margin: 10px 0;
+        position: relative;
     }
-
-    .creator-info {
-        padding: 40px;
+    
+    .detail-quote::before {
+        content: '"';
+        position: absolute;
+        top: -5px;
+        left: 5px;
+        font-size: 2rem;
+        color: rgba(139, 69, 19, 0.5);
+    }
+    
+    .case-file-footer {
+        margin-top: 20px;
+        border-top: 2px dashed #8b4513;
+        padding-top: 15px;
         text-align: center;
         position: relative;
         z-index: 1;
     }
-
-    .creator-name {
-        margin-bottom: 10px;
-        color: #ffffff;
-        font-size: 2.5rem;
-        font-weight: 700;
-        font-family: 'Crimson Text', serif;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        background: linear-gradient(45deg, #ffffff, #cccccc);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    
+    .footer-warning {
+        font-weight: bold;
+        color: #8b0000;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    
+    .footer-classification {
+        display: inline-block;
+        border: 1px solid #8b0000;
+        padding: 3px 10px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #8b0000;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+        
+        .hero-content p {
+            font-size: 1rem;
+        }
+        
+        .mission-card {
+            padding: 20px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .team-grid {
+            padding: 0 15px;
+        }
+        
+        .case-file-container {
+            padding: 15px;
+            margin: 0 10px;
+        }
+        
+        .case-file-content {
+            flex-direction: column;
+        }
+        
+        .case-file-photo {
+            margin: 0 auto 20px;
+            max-width: 280px;
+        }
+        
+        .case-file-title {
+            font-size: 1.4rem;
+        }
+        
+        .case-file-stamp {
+            font-size: 1rem;
+            padding: 3px 10px;
+            right: 10px;
+        }
+        
+        .detail-section {
+            padding-left: 10px;
+        }
+        
+        .detail-header {
+            font-size: 1.1rem;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            flex: none;
+            margin-bottom: 5px;
+        }
+        
+        .team-section h2 {
+            font-size: 1.8rem;
+            padding: 8px 15px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .case-file-container {
+            padding: 10px;
+        }
+        
+        .case-file-photo {
+            transform: none;
+            max-width: 100%;
+        }
+        
+        .case-file-title {
+            font-size: 1.2rem;
+        }
+        
+        .detail-text {
+            font-size: 0.9rem;
+        }
+        
+        .detail-quote {
+            font-size: 0.9rem;
+            padding: 8px;
+        }
+        
+        .footer-warning {
+            font-size: 0.8rem;
+        }
     }
 
     .creator-role {
@@ -566,62 +775,70 @@
     </div>
 
     <div class="team-section">
-        <h2>CREATOR</h2>
-        <div class="creator-card">
-            <div class="creator-image-container">
-                <img src="{% static 'LOGOS/Screenshot 2025-04-07 093354.png' %}" alt="Creator" class="creator-image">
-                <div class="creator-overlay">
-                    <div class="creator-badge">Visionary</div>
+        <h2>CONFIDENTIAL: CASE FILE</h2>
+        <div class="case-file-container">
+            <div class="case-file-header">
+                <div class="case-file-stamp"></div>
+                <div class="case-file-title">PERSONNEL DOSSIER: SRIRAG C R</div>
+                <div class="case-file-id">FILE #: SC-2025-0518</div>
+            </div>
+            
+            <div class="case-file-content">
+                <div class="case-file-photo">
+                    <img src="{% static 'LOGOS/CREATOR.jpeg' %}" alt="SRIRAG C R" class="creator-image">
+                    <div class="photo-label">SUBJECT PHOTOGRAPH</div>
+                </div>
+                
+                <div class="case-file-details">
+                    <div class="detail-section">
+                        <div class="detail-header">IDENTITY</div>
+                        <div class="detail-row">
+                            <span class="detail-label">NAME:</span>
+                            <span class="detail-value">SRIRAG C R</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ALIAS:</span>
+                            <span class="detail-value">THE ARCHITECT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">STATUS:</span>
+                            <span class="detail-value status-active">ACTIVE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-header">PROFILE</div>
+                        <div class="detail-text">
+                            Subject demonstrates exceptional aptitude in technological innovation and system architecture. 
+                            Created the SafeCall platform from conceptualization to deployment, exhibiting rare combination 
+                            of technical brilliance and social awareness. Subject's work has revolutionized crime reporting 
+                            systems nationwide.
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-header">ASSESSMENT</div>
+                        <div class="detail-text">
+                            Subject possesses genius-level intellect with particular strengths in problem-solving and 
+                            system design. Demonstrates unwavering commitment to public safety and technological advancement. 
+                            Approach is methodical, innovative, and forward-thinking. Subject is considered a valuable asset 
+                            to national security interests.
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-header">NOTABLE STATEMENT</div>
+                        <div class="detail-quote">
+                            "In a world of digital chaos, I create order. SafeCall isn't just a platform - it's a revolution 
+                            in how we approach public safety and citizen empowerment."
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="creator-info">
-                <h3 class="creator-name">Srirag C.R.</h3>
-                <p class="creator-role">Founder & Lead Developer</p>
-                <p class="creator-description">
-                    A passionate technologist with a vision to revolutionize crime reporting and create a safer society. 
-                    With expertise in full-stack development and a deep understanding of law enforcement processes, 
-                    Srirag has built Safe Call from the ground up to bridge the gap between citizens and police.
-                </p>
-                
-                <div class="creator-quote">
-                    "Technology should empower citizens and strengthen communities. Safe Call is my contribution 
-                    to creating a world where everyone can easily report incidents and help make our society safer."
-                </div>
-                
-                <div class="creator-social">
-                    <a href="#" class="social-icon" style="text-decoration: none; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <!-- GitHub icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                        </svg>
-                        <span style="position: absolute; opacity: 0;">GitHub</span>
-                    </a>
-                    <a href="#" class="social-icon" style="text-decoration: none; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <!-- LinkedIn icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                            <rect x="2" y="9" width="4" height="12"></rect>
-                            <circle cx="4" cy="4" r="2"></circle>
-                        </svg>
-                        <span style="position: absolute; opacity: 0;">LinkedIn</span>
-                    </a>
-                    <a href="#" class="social-icon" style="text-decoration: none; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <!-- Twitter icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                        </svg>
-                        <span style="position: absolute; opacity: 0;">Twitter</span>
-                    </a>
-                    <a href="#" class="social-icon" style="text-decoration: none; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <!-- Instagram icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                        </svg>
-                        <span style="position: absolute; opacity: 0;">Instagram</span>
-                    </a>
-                </div>
+            
+            <div class="case-file-footer">
+                <div class="footer-warning">UNAUTHORIZED ACCESS TO THIS DOCUMENT IS STRICTLY PROHIBITED</div>
+                <div class="footer-classification">CLASSIFIED INFORMATION</div>
             </div>
         </div>
     </div>
@@ -670,67 +887,71 @@
         });
     }
     
-    // Animate creator card
+    // Animate case file
     function animateCreator() {
-        const creatorCard = document.querySelector('.creator-card');
-        const creatorName = document.querySelector('.creator-name');
-        const creatorRole = document.querySelector('.creator-role');
-        const creatorDesc = document.querySelector('.creator-description');
-        const creatorQuote = document.querySelector('.creator-quote');
-        const socialIcons = document.querySelectorAll('.social-icon');
+        const caseFile = document.querySelector('.case-file-container');
+        const caseFileHeader = document.querySelector('.case-file-header');
+        const caseFileStamp = document.querySelector('.case-file-stamp');
+        const caseFilePhoto = document.querySelector('.case-file-photo');
+        const detailSections = document.querySelectorAll('.detail-section');
+        const caseFileFooter = document.querySelector('.case-file-footer');
         
         // Initial state
-        gsap.set([creatorName, creatorRole, creatorDesc, creatorQuote, socialIcons], {
-            opacity: 0,
-            y: 30
-        });
-        
-        // Timeline animation
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: creatorCard,
-                start: "top 80%",
-                toggleActions: "play none none none"
-            }
-        });
-        
-        tl.to(creatorCard, {
-            duration: 1,
-            opacity: 1,
-            y: 0,
-            ease: "power3.out"
-        })
-        .to(creatorName, {
-            duration: 0.6,
-            opacity: 1,
-            y: 0,
-            ease: "back.out(1.7)"
-        })
-        .to(creatorRole, {
-            duration: 0.6,
-            opacity: 1,
-            y: 0,
-            ease: "back.out(1.7)"
-        }, "-=0.4")
-        .to(creatorDesc, {
-            duration: 0.6,
-            opacity: 1,
-            y: 0,
-            ease: "power3.out"
-        }, "-=0.3")
-        .to(creatorQuote, {
-            duration: 0.8,
-            opacity: 1,
-            y: 0,
-            ease: "power2.out"
-        }, "-=0.2")
-        .to(socialIcons, {
-            duration: 0.4,
-            opacity: 1,
-            y: 0,
-            stagger: 0.1,
-            ease: "back.out(2)"
-        }, "-=0.4");
+        if (typeof gsap !== 'undefined') {
+            gsap.set([caseFileHeader, caseFileStamp, caseFilePhoto, detailSections, caseFileFooter], {
+                opacity: 0,
+                y: 30
+            });
+            
+            // Timeline animation
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: caseFile,
+                    start: "top 80%",
+                    toggleActions: "play none none none"
+                }
+            });
+            
+            tl.to(caseFile, {
+                duration: 1,
+                opacity: 1,
+                y: 0,
+                ease: "power3.out"
+            })
+            .to(caseFileHeader, {
+                duration: 0.6,
+                opacity: 1,
+                y: 0,
+                ease: "power3.out"
+            })
+            .to(caseFileStamp, {
+                duration: 0.4,
+                opacity: 1,
+                y: 0,
+                rotation: 5,
+                ease: "back.out(1.7)"
+            }, "-=0.3")
+            .to(caseFilePhoto, {
+                duration: 0.6,
+                opacity: 1,
+                y: 0,
+                rotation: -2,
+                ease: "back.out(1.2)"
+            }, "-=0.2")
+            .to(detailSections, {
+                duration: 0.6,
+                opacity: 1,
+                y: 0,
+                stagger: 0.15,
+                ease: "power3.out"
+            }, "-=0.3")
+            .to(caseFileFooter, {
+                duration: 0.6,
+                opacity: 1,
+                y: 0,
+                ease: "power2.out"
+            }, "-=0.2");
+        }
     }
 
     // Call animations when page loads
